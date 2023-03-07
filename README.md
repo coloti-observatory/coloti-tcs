@@ -1,3 +1,3 @@
 # coloti-tcs
 
-Coloti Observatory Telescope Contro System
+Coloti Observatory Telescope Control System
