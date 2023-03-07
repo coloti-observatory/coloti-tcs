@@ -1,0 +1,475 @@
+
+    DDX_Text(pDX, IDC_MOT1_ENC1, m_Asse1RisEnc1);
+    DDV_MinMaxLong(pDX, m_Asse1RisEnc1, 0, 1296000);
+    DDX_Text(pDX, IDC_MOT1_ENC2, m_Asse1ResEnc2);
+    DDV_MinMaxLong(pDX, m_Asse1ResEnc2, -1296000, 1296000);
+    DDX_Text(pDX, IDC_MOT1_GIRI, m_Mot1Giri);
+    DDV_MinMaxLong(pDX, m_Mot1Giri, 0, 7000);
+    DDX_Text(pDX, IDC_MOT1_PH, m_Asse1Ph);
+    DDV_MinMaxDouble(pDX, m_Asse1Ph, 0., 360.);
+    DDX_Text(pDX, IDC_MOT1_PL, m_Asse1Pl);
+    DDV_MinMaxDouble(pDX, m_Asse1Pl, -360., 0.);
+    DDX_Text(pDX, IDC_MOT1_VELMAX, m_Asse1MaxVel);
+    DDV_MinMaxDouble(pDX, m_Asse1MaxVel, 0., 5.);
+    DDX_Text(pDX, IDC_MOT2_ENC1, m_Asse2RisEnc1);
+    DDV_MinMaxLong(pDX, m_Asse2RisEnc1, 0, 1296000);
+    DDX_Text(pDX, IDC_MOT2_ENC2, m_Asse2ResEnc2);
+    DDV_MinMaxLong(pDX, m_Asse2ResEnc2, -1296000, 1296000);
+    DDX_Text(pDX, IDC_MOT2_GIRI, m_Mot2Giri);
+    DDV_MinMaxLong(pDX, m_Mot2Giri, 0, 7000);
+    DDX_Text(pDX, IDC_MOT2_PH, m_Asse2Ph);
+    DDV_MinMaxDouble(pDX, m_Asse2Ph, 0., 360.);
+    DDX_Text(pDX, IDC_MOT2_PL, m_Asse2Pl);
+    DDV_MinMaxDouble(pDX, m_Asse2Pl, -360., 0.);
+    DDX_Text(pDX, IDC_MOT2_VELMAX, m_Asse2MaxVel);
+    DDV_MinMaxDouble(pDX, m_Asse2MaxVel, 0., 5.);
+    DDX_Text(pDX, IDC_MOT3_ENC1, m_Asse3RisEnc1);
+    DDV_MinMaxLong(pDX, m_Asse3RisEnc1, 0, 1296000);
+    DDX_Text(pDX, IDC_MOT3_ENC2, m_Asse3ResEnc2);
+    DDV_MinMaxLong(pDX, m_Asse3ResEnc2, 0, 1296000);
+    DDX_Text(pDX, IDC_MOT3_GIRI, m_Mot3Giri);
+    DDV_MinMaxLong(pDX, m_Mot3Giri, 0, 7000);
+    DDX_Text(pDX, IDC_MOT3_PH, m_Asse3Ph);
+    DDV_MinMaxDouble(pDX, m_Asse3Ph, 0., 360.);
+    DDX_Text(pDX, IDC_MOT3_PL, m_Asse3Pl);
+    DDV_MinMaxDouble(pDX, m_Asse3Pl, -360., 0.);
+    DDX_Text(pDX, IDC_MOT3_VELMAX, m_Asse3MaxVel);
+    DDV_MinMaxDouble(pDX, m_Asse3MaxVel, 0., 5.);
+    DDX_Text(pDX, IDC_MOT1_RIDUT, m_RidMot1);
+    DDV_MinMaxDouble(pDX, m_RidMot1, 1., 100000.);
+    DDX_Text(pDX, IDC_MOT2_RIDUT, m_RidMot2);
+    DDV_MinMaxDouble(pDX, m_RidMot2, 1., 10000.);
+    DDX_Text(pDX, IDC_MOT3_RIDUT, m_RidMot3);
+    DDV_MinMaxDouble(pDX, m_RidMot3, 1., 10000.);
+
+
+
+
+
+
+
+        /*
+            ErrorCode=Comando_Tell("T0");
+            
+            if (ax==X){
+            if (((Tell_0.T_Stato_MotorX)&(1<<3))==0)
+                MOTOR_STATUS[(int)ax]=0;
+            else 
+                MOTOR_STATUS[(int)ax]=1;
+            }
+
+            if (ax==Y){
+            if (((Tell_0.T_Stato_MotorY)&(1<<3))==0)
+                MOTOR_STATUS[(int)ax]=0;
+            else 
+                MOTOR_STATUS[(int)ax]=1;
+            }
+            if (ax==Z){
+            if (((Tell_0.T_Stato_MotorZ)&(1<<3))==0)
+                MOTOR_STATUS[(int)ax]=0;
+            else 
+                MOTOR_STATUS[(int)ax]=1;
+            }
+            return (int)MOTOR_STATUS[(int)ax];
+            
+         */
+
+
+
+
+
+
+int  ACS::GetMotorStatus(AXES ax)
+{
+	ErrorCode=Comando_Tell("T0");
+	
+	if (ax==X){
+	if (((Tell_0.T_Stato_MotorX)&(1<<3))==0)
+		MOTOR_STATUS[(int)ax]=0;
+	else 
+		MOTOR_STATUS[(int)ax]=1;
+	}
+
+	if (ax==Y){
+	if (((Tell_0.T_Stato_MotorY)&(1<<3))==0)
+		MOTOR_STATUS[(int)ax]=0;
+	else 
+		MOTOR_STATUS[(int)ax]=1;
+	}
+	if (ax==Z){
+	if (((Tell_0.T_Stato_MotorZ)&(1<<3))==0)
+		MOTOR_STATUS[(int)ax]=0;
+	else 
+		MOTOR_STATUS[(int)ax]=1;
+	}
+	return (int)MOTOR_STATUS[(int)ax];
+}
+
+
+
+
+
+
+
+
+
+
+
+int	 ACS::Comando_Set(char *Istruzione,long int Valore)
+{
+  int Err;
+  Scrittura_Seriale(Istruzione,&Valore,1);
+  Lettura_Seriale(Risposta_Seriale);
+  if ((Err=Errore())!=-1) return Err;
+  else return -1;
+}   /* Comando_Set */
+
+
+
+
+
+
+
+
+void sbld(StringBuilder dest, String control, Object... args) {
+    Formatter formatter = new Formatter();
+    formatter.format(control, args);
+    dest.append(formatter.toString());
+}
+
+void sbld(char[] dest, String control, Object... args) {
+    Formatter formatter = new Formatter();
+    formatter.format(control, args);
+    String result = formatter.toString();
+    System.arraycopy(result.toCharArray(), 0, dest, 0, result.length());
+}
+
+public static String sbld(String control, Object... args) {
+    return String.format(control, args);
+}
+
+
+
+
+    void ACS::sbld(char * dest, char *control, ...)
+    {
+    char buf[255];
+    va_list args;
+
+    va_start(args, control);     /* get variable arg pointer */
+    vsprintf(buf,control,args);  /* format into buf with variable args */
+
+    vsprintf (char * s, const char * format, va_list arg );
+
+    va_end(args);                /* finish the arglist */
+
+    strcpy(dest,buf);            /* copy result */
+    }
+
+
+
+
+
+
+
+
+int ACS::Scrittura_Seriale(char c[],long int Valore[],int Num_Dati)
+/* Spedisce una stringa attraverso la porta seriale al SB202:
+	Num_Dati contiene il numero dei campi di dati da spedire*/
+{
+  int i,j,CheckSum=0;
+  char Dati[4];
+
+  for(i=0;i<(int)strlen(c);i++)
+   {
+	 CheckSum=CheckSum+c[i];
+	 CommPort.Write_Comm_Char(c[i]);
+   }
+   for (j=0;j<Num_Dati;j++)
+   {
+	 for(i=0;i<4;i++)
+		Dati[3-i]=(int)(Valore[j]>>8*i);
+	 for(i=0;i<4;i++)
+	  {
+	   if ((Dati[i]==16)||(Dati[i]==13))CommPort.Write_Comm_Char(0x010);
+		 CheckSum=CheckSum+Dati[i];
+	   CommPort.Write_Comm_Char(Dati[i]);
+	  }
+   }
+   CheckSum=mod(CheckSum,256);
+   if ((CheckSum==13)||(CheckSum==16)) CheckSum+=128;
+   CommPort.Write_Comm_Char(CheckSum);
+   CommPort.Write_Comm_Char(CR);
+   return 0;
+} /*Scrittura_Seriale*/
+
+
+
+
+
+int	 ACS::Errore(void)
+{
+  int P_Interrogativo=0;
+
+  if (Risposta_Seriale[0] == '?') P_Interrogativo = 1;
+  if (Risposta_Seriale[1] == '?') P_Interrogativo = 2;
+  if (P_Interrogativo != 0)
+	return Risposta_Seriale[P_Interrogativo];
+  else return -1;
+}   /* Errore */
+
+
+int ACS::Lettura_Seriale(unsigned char c[])
+{
+	return(CommPort.Lettura_Comm((TCHAR *)c));
+} /*Lettura_Seriale*/
+
+int CCommClass::Lettura_Comm(TCHAR c[])
+{
+	DWORD nr;
+	::ReadFile(Port,c,MAXCHA-1,&nr,NULL);
+	if(nr >=1)
+	{
+	 c[nr]='\0';
+	 return nr;
+	}
+	else return -1;
+}
+
+
+
+
+
+
+int	 ACS::Comando_Tell(char *Istruzione)
+{
+  int Err,Num_Carattere=0;
+  long int Val;
+ 
+  Scrittura_Seriale(Istruzione,&Val,0);
+#ifdef PRINTA
+  printf("FATTA SCRITTURA SERIALE");
+#endif
+  Num_Carattere=Lettura_Seriale(Risposta_Seriale);
+#ifdef PRINTA
+  printf("FATTA LETTURA SERIALE");
+#endif
+  if ((Err=Errore())!=-1) return Err;
+  else
+  {
+	 Togli_DLE(&Num_Carattere);
+#ifdef PRINTA
+	 printf("FATTO TOGLI DLE");
+#endif
+	 Scansione_Tell(Istruzione[1]);
+
+  }
+  return -1;
+}  /* Comando_Tell */
+
+
+int ACS::Scansione_Tell(char SubComando)
+{
+
+  switch (SubComando)
+  {     
+	case '0':Tell_0.T0_Controllore=Risposta_Seriale[0];
+		Tell_0.T_Stato_MotorX=Risposta_Seriale[1];
+		Tell_0.T_Modo_MotX=Risposta_Seriale[2];
+		Tell_0.T_SModo_MotX=Risposta_Seriale[3];
+		Tell_0.T_StepX=Risposta_Seriale[4];
+		
+
+		Tell_0.T_Stato_MotorY=Risposta_Seriale[5];
+		Tell_0.T_Modo_MotY=Risposta_Seriale[6];
+		Tell_0.T_SModo_MotY=Risposta_Seriale[7];
+		Tell_0.T_StepY=Risposta_Seriale[8];
+		Tell_0.T_Stato_MotorZ=Risposta_Seriale[9];
+		Tell_0.T_Modo_MotZ=Risposta_Seriale[10];
+		Tell_0.T_SModo_MotZ=Risposta_Seriale[11];
+		Tell_0.T_StepZ=Risposta_Seriale[12];
+		Tell_0.T_Inform=Risposta_Seriale[5];
+		Tell_0.T0_CheckSum=Risposta_Seriale[6];
+		break;
+  case '1':Tell_1.T1_Controllore=Risposta_Seriale[0];
+		Tell_1.T1_Codice=Risposta_Seriale[1];
+		Tell_1.T1_DataX=Risposta_Seriale[2];
+		Tell_1.T1_DataY=Risposta_Seriale[3];
+		Tell_1.T1_DataZ=Risposta_Seriale[4];
+		Tell_1.T1_DataT=Risposta_Seriale[5];
+		Tell_1.T1_CheckSum=Risposta_Seriale[6];
+		break;
+  case '2':
+    Tell_2.T2_Controllore=Risposta_Seriale[0];
+		Tell_2.T2_Codice=Risposta_Seriale[1];
+		Tell_2.T2_DataX=Risposta_Seriale[2];
+		Tell_2.T2_DataY=Risposta_Seriale[3];
+		Tell_2.T2_DataZ=Risposta_Seriale[4];
+		Tell_2.T2_DataT=Risposta_Seriale[5];
+		Tell_2.T2_CheckSum=Risposta_Seriale[6];
+		break;
+ }
+ return 0;
+}   /* Scansione_Tell */
+
+
+
+
+
+
+int ACS::Togli_DLE(int *Num_Carattere)
+{
+	int    Cont,Cont1=0, Car_da_sottrarre=0;
+
+	for (Cont = 1; Cont <= *Num_Carattere; Cont++)
+	{
+		Cont1 = Cont1 + 1;
+		if (Risposta_Seriale[Cont-1] == (0x10))
+		{
+			if ((Risposta_Seriale[Cont + 1-1] == (0x0D)) || (Risposta_Seriale[Cont + 1-1] == (0x10)))
+			{
+				Risposta_Seriale[Cont1-1] = Risposta_Seriale[Cont + 1-1];
+				Cont = Cont + 1; Car_da_sottrarre = Car_da_sottrarre + 1;
+			}
+		}
+		else Risposta_Seriale[Cont1-1] = Risposta_Seriale[Cont-1];
+	}
+	*Num_Carattere = *Num_Carattere - Car_da_sottrarre;
+	return 0;
+}   /* Togli_DLE */
+
+
+
+
+
+
+
+
+
+void CTcsDlg::OnMotori() 
+{
+    // TODO: Add your command handler code here
+        
+    int nResponse = Motori.DoModal();
+    if (nResponse == IDOK)
+    {
+    }
+    else if (nResponse == IDCANCEL)
+    {
+    }
+    ;
+}
+
+//[MOTORE_AR_AZ]
+
+Cfg.ReadKeyValue("MOTORE_AR_AZ","RisoluzioneEncoder1", &Motori.m_Asse1RisEnc1);
+Cfg.ReadKeyValue("MOTORE_AR_AZ","RisoluzioneEncoder2", &Motori.m_Asse1ResEnc2);
+Cfg.ReadKeyValue("MOTORE_AR_AZ","NumeroGiriMotore", &Motori.m_Mot1Giri);
+Cfg.ReadKeyValue("MOTORE_AR_AZ","VelocitaMassima", &Motori.m_Asse1MaxVel);
+m_telescopeInfo.MaxVelX=Motori.m_Asse1MaxVel*3600.;
+m_telescopeInfo.MaxAccX=Motori.m_Asse1MaxVel*3600.;
+m_telescopeInfo.SlewVelX=Motori.m_Asse1MaxVel*3600.;
+Cfg.ReadKeyValue("MOTORE_AR_AZ","PosizioneLimiteInf",&Motori.m_Asse1Pl);
+Cfg.ReadKeyValue("MOTORE_AR_AZ","PosizioneLimiteSup", &Motori.m_Asse1Ph);
+Cfg.ReadKeyValue("MOTORE_AR_AZ","RiduzioneMotore", &Motori.m_RidMot1);
+Cfg.ReadKeyValue("MOTORE_AR_AZ","PosizioneEncoder1",&Motori.m_Asse1PosEnc1);
+Cfg.ReadKeyValue("MOTORE_AR_AZ","PosizioneEncoder2", &Motori.m_Asse1PosEnc2);
+//AfxMessageBox("Letto MOT1");
+//[MOTORE_DEC_AL]
+//Cfg.ReadKeyValue("MOTORE_DEC_AL","TipoMotore", &Motori.m_Tipo2);
+Cfg.ReadKeyValue("MOTORE_DEC_AL","RisoluzioneEncoder1", &Motori.m_Asse2RisEnc1);
+Cfg.ReadKeyValue("MOTORE_DEC_AL","RisoluzioneEncoder2", &Motori.m_Asse2ResEnc2);
+Cfg.ReadKeyValue("MOTORE_DEC_AL","NumeroGiriMotore", &Motori.m_Mot2Giri);
+Cfg.ReadKeyValue("MOTORE_DEC_AL","VelocitaMassima", &Motori.m_Asse2MaxVel);
+m_telescopeInfo.MaxVelY=Motori.m_Asse2MaxVel*3600.;
+m_telescopeInfo.MaxAccY=Motori.m_Asse2MaxVel*3600.;
+m_telescopeInfo.SlewVelY=Motori.m_Asse2MaxVel*3600.;
+Cfg.ReadKeyValue("MOTORE_DEC_AL","PosizioneLimiteInf",&Motori.m_Asse2Pl);
+Cfg.ReadKeyValue("MOTORE_DEC_AL","PosizioneLimiteSup", &Motori.m_Asse2Ph);
+Cfg.ReadKeyValue("MOTORE_DEC_AL","RiduzioneMotore", &Motori.m_RidMot2);
+Cfg.ReadKeyValue("MOTORE_DEC_AL","PosizioneEncoder1",&Motori.m_Asse2PosEnc1);
+Cfg.ReadKeyValue("MOTORE_DEC_AL","PosizioneEncoder2", &Motori.m_Asse2PosEnc2);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int	 ACS::Comando_Report(char *Istruzione,LONG *Valore)
+{
+  int Count,Err,Num_Carattere=0;
+  unsigned char Dati_Nt[20];
+  unsigned char Dati[20];
+  LONG Val=0L;
+  
+  Scrittura_Seriale(Istruzione,&Val,0);
+  Num_Carattere=Lettura_Seriale(Risposta_Seriale);
+  Risposta_Seriale[Num_Carattere]='\0';
+  Togli_DLE(&Num_Carattere);
+  if(Num_Carattere==-2)return -2;
+  if ((Err=Errore())!=-1) return Err;
+  for (Count=4;Count<8;Count++) Dati[Count-4]=Risposta_Seriale[Count];
+  *Valore=Conversione_Dati_Rx(Dati,Dati_Nt);
+
+  return -1;
+}   /* Comando_Report */
+
+
+//#define dnint(A) ((A)<0.0?ceil((A)-0.5):floor((A)+0.5))
+int ACS::GetEncoderRes(AXES ax,LONG *Valore)
+{
+	LONG temp=0L;
+	sbld(command,"R%cLR",axes[(int)ax]);
+	ErrorCode=Comando_Report(command,Valore);
+	if (ErrorCode!=ACSOK)
+    return ErrorCode;
+	sbld(command,"R%cLF",axes[(int)ax]);
+	ErrorCode=Comando_Report(command,&temp);
+	*Valore=*Valore*((LONG)dnint(pow(2.,temp)));
+	return ErrorCode;
+
+}
+
+
+LONG ACS::Conversione_Dati_Rx(unsigned char D_Trasf[],unsigned char D_Ntrasf[])
+{
+  LONG Val_Numero,Num[4];
+	 char pis[20];
+	 int i;
+	 for (i=0;i<4;i++){
+		D_Ntrasf[i]=D_Trasf[i];
+		Num[i]=(LONG)D_Trasf[i];
+	 }
+	 if (Num[0] >127)
+	 Val_Numero = (Num[3] - 256L) + (Num[2] - 255L) * 256L + (Num[1] - 255L) * 65536 + (Num[0] - 255) * 16777216;
+	 else Val_Numero = Num[3] + Num[2] * 256L + Num[1] * 65536L + Num[0] * 16777216L;
+ 	 sbld(pis,"%ld",Val_Numero);
+	 //printf("**%ld** %s",Val_Numero,pis);
+	 return Val_Numero;
+}   /* Conversione_Dati_Rx */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
