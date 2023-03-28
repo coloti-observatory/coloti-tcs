@@ -142,6 +142,7 @@ public class ACSv3 {
     boolean status = false;
     if (!this.communication.GetStatus()) {
       status = this.communication.Open();
+      this.communication.SetTimeouts(7000);
     }
     this.CommStatus = status;
     return status;
@@ -347,15 +348,15 @@ public class ACSv3 {
 
   // SET FUNCTIONS
 
-  public int SetHostMode() {
-    int Err = CommandSetMode("SHT0\r");
+  public int SetHostMode() throws InterruptedException {
+    int Err = DirectCommand("SHT0\r");
     return Err;
   }
 
   public int SetTerminalMode() throws InterruptedException {
-    int Err = CommandSetMode("SHT0\r");
-    TimeUnit.MILLISECONDS.sleep(500);
-    Err = CommandSetMode("SHT1\r");
+    int Err = DirectCommand("SHT0\r");
+    TimeUnit.MILLISECONDS.sleep(2000);
+    Err = DirectCommand("SHT1\r");
     return Err;
   }
 
@@ -864,18 +865,21 @@ public class ACSv3 {
 
 
   // COMMUNICATIONS
-  public int CommandSetMode(String Instruction) {
+  public int DirectCommand(String Instruction) throws InterruptedException {
     byte[] instruction = String.valueOf(Instruction).getBytes();
     this.communication.Write(instruction);
+    TimeUnit.MILLISECONDS.sleep(200);
     // print temporaneo, va poi eliminato
     //int nBytes = SerialRead();
-    this.serialAnswer = this.communication.Read();
+    String answerString = this.communication.ReadMessage();
+    this.serialAnswer = String.valueOf(answerString).getBytes();
     boolean PRINT = true;
     if (PRINT) {
       System.out.print("Comando Set inviato: ");
       PrintArray(instruction);
       System.out.println("Risposta al comando: ");
-      PrintArray(this.serialAnswer);
+      //PrintArray(this.serialAnswer);
+      System.out.println(answerString);
     }
     return Error();
   }
@@ -1374,23 +1378,29 @@ public class ACSv3 {
 
     System.out.println();
 
-    //acs.SetSimpleStart(1);
-    acs.OpenCommunications();
+    acs.SetSimpleStart(1);
+    //acs.OpenCommunications();
     //acs.SetHostMode();
-    TimeUnit.MILLISECONDS.sleep(500);
+    //TimeUnit.MILLISECONDS.sleep(500);
     //acs.SetTerminalMode();
     //acs.SetStart(1, 9600, (byte) 8, acs.communication.ONESTOPBIT, acs.communication.NOPARITY, 2900);
     // int Err = acs.SetHostMode();
     // System.out.println(Err);
-    acs.CommandSetMode("SHT0\r");
-    TimeUnit.MILLISECONDS.sleep(3000);
-    acs.CommandSetMode("SHT1\r");
-    TimeUnit.MILLISECONDS.sleep(10000);
-    acs.CommandSetMode("T0\r");
+
+    //acs.DirectCommand("SHT0\r");
+    //TimeUnit.MILLISECONDS.sleep(3000);
+    //acs.DirectCommand("SHT1\r");
+    //TimeUnit.MILLISECONDS.sleep(3000);
+
+    acs.DirectCommand("T0\r");
+    
     // acs.GetMotorStatus("X");
 
     //int ErroreMain = acs.GetEncoderRes("X");
     //System.out.println("double " + ErroreMain);
+
+
+
     boolean other = false;
     if (other) {
       acs.GetAllInfo("X");

@@ -166,6 +166,7 @@ public class CommClass{
         InputStream inputStream = new BufferedInputStream(port.getInputStream()); //  BufferedInputStream
         byte[] answer;
         try {
+            TimeUnit.MILLISECONDS.sleep(300);
             int Available = inputStream.available();
             //System.out.println("Av: ");
             //System.out.println(Available);
@@ -177,12 +178,34 @@ public class CommClass{
 
             //System.out.println(answer.length);
             return answer;
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return new byte[0];
         }
     }
 
+    public String ReadMessage(){
+        InputStream inputStream = new BufferedInputStream(port.getInputStream()); //  BufferedInputStream
+        String answer = "";
+        int i=0;
+        try {           
+            while((inputStream.available())>=1){
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+                answer += (char) inputStream.readNBytes(1)[0];
+                i+=1;
+            }
+            return answer;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "empty"; 
+    }
+    
     ///* READ by Tosti
     public byte[] Read2(){
         InputStream inputStream = new BufferedInputStream(port.getInputStream()); //  BufferedInputStream
@@ -251,11 +274,10 @@ public class CommClass{
 
 
             TimeUnit.MILLISECONDS.sleep(200);
-            byte[] risposta = com.Read();
-            System.out.println(risposta.length);
-            for (int i = 0; i < risposta.length; i++){
-                System.out.print((char)risposta[i]);
-            }
+            String risposta = com.ReadMessage();
+            //System.out.println(risposta.length);
+            //for (int i = 0; i < risposta.length; i++){System.out.print((char)risposta[i]);}
+            System.out.print(risposta);
         }
     }
     
