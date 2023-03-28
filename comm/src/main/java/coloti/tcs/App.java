@@ -5,337 +5,89 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.time.Year;
 //import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-//import java.io.BufferedInputStream;
-//import java.io.UnsupportedEncodingException;
-//import java.io.IOException;
-//import java.io.InputStream;
-//import java.io.OutputStream;
-//import java.net.http.HttpResponse.ResponseInfo;
-//import java.util.Arrays;
-//import java.util.concurrent.TimeUnit;
+import javax.lang.model.util.ElementScanner6;
 
-//import com.fazecast.jSerialComm.*;
+import java.io.BufferedInputStream;
+import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.http.HttpResponse.ResponseInfo;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+import com.fazecast.jSerialComm.*;
+
+import java.util.Scanner;
 
 import coloti.tcs.weather.WeatherData;
+import coloti.tcs.ACSv1;
 
 public class App {
 
   private static final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
   
 
+  public CommClass communication;
+  public ACSv1 acs;
 
-  /* 
-  
-  WeatherData wdata = new WeatherData();
 
-  public App() {}
-
-  public void runTest() {
-    service.scheduleAtFixedRate(() -> {try {getData();} catch (Exception e) {}}, 1L, 10L, TimeUnit.SECONDS);
+  public App() {
+    this.communication = new CommClass("/dev/ttyUSB0");
   }
 
-  public void getData(){
-    //wdata.printData(wdata.ExtractAllData());
-    double[] controlData = wdata.getControlData();
-    System.out.println("Outside Temperature:");
-    System.out.println(controlData[0]);
-    System.out.println("Dew Point Temperature: ");
-    System.out.println(controlData[1]);
-    System.out.println("Pressure (mb): ");
-    System.out.println(controlData[2]);
-    System.out.println("Wind Speed:");
-    System.out.println(controlData[3]);
-    System.out.println("Wind Direction:");
-    System.out.println(controlData[4]);
-
-     
-    //  getInsideTemperature(dataFromWeatherStation("LOOP 1\r"));
-    //oppure ...
-    //byte[] answer = dataFromWeatherStation("LOOP 1\r");
-    //getOutSideTemperature(answer)
-    //getOutsideHumidity(answer)
-
+  public App(String PortName) {
+      this.communication = new CommClass(PortName);
   }
 
-
-  public void stop() {
-    service.shutdown();
+  public boolean OpenComm(int baud, byte bytesize, byte stop, byte parity, int timeout){
+    return communication.Open(baud, bytesize, stop, parity, timeout);
   }
 
-  */
-
-  /*
-  public static final CommClass communicationMotors = new CommClass();
-
-  public int ACSOK = -1;
-  public int[] MOTORSTATUS = {0,0,0};
-
-  //public static final void Motors(){
-    //communicationMotors.Open();}
-
-  // perché static? E nel main?
-  public byte[] sbld(String control, String args) {
-
-    byte[] command = new byte[255];
-
-    String formatted;
-    formatted = String.format(control, args);
-    byte[] commandBytes = String.valueOf(formatted).getBytes();
-    System.arraycopy(commandBytes, 0, command, 0, commandBytes.length);
-
-
-    // Di seguito print superflui per controllare i risultati
-
-    
-    //System.out.println("La stringa control diventa: ");
-    //String string1 = new String(commandBytes, StandardCharsets.UTF_8);
-    //System.out.println(string1);
-
-    //System.out.println("In bit corrisponde a: ");
-    //BigInteger bits1 = new BigInteger(commandBytes);
-    //System.out.println(bits1.toString(2));
-
-    //System.out.println();
-
-    //System.out.println("Il comando risultante come stringa: ");
-    //String string2 = new String(command, StandardCharsets.UTF_8);
-    //System.out.println(string2);
-
-    //System.out.println("In bit corrisponde a: ");
-    //BigInteger bits2 = new BigInteger(command);
-    //System.out.println(bits2.toString(2));
-    
-
-    return command;
-  }
-
-
-  public int mod(int i, int j){
-    return (i - (int)(i/j)*j);
-  }
-
-
-  public int SerialWrite(byte[] c, long[] Value, int NumData){
-    //CommClass communicationMotors = new CommClass();
-    //communicationMotors.Open();
-    int i, j, CheckSum = 0;
-    byte[] Dati = new byte[4];
-    byte sedici = 16;
-
-    for(i = 0; i < c.length; i++){
-      CheckSum = CheckSum + c[i];
-      communicationMotors.Write(c[i]); 
-    }
-    
-    for (j = 0;j < NumData;j++){
-
-      for(i = 0;i < 4;i++)
-        Dati[3-i] = (byte) (Value[j] >> 8*i);  //(int)
-        
-
-      for(i = 0; i < 4; i++) {
-        if ((Dati[i] == 16)||(Dati[i] == 13))
-          communicationMotors.Write(sedici);
-
-        CheckSum = CheckSum + Dati[i];
-        communicationMotors.Write(Dati[i]); 
-      }
+  public byte[] TestingComm(String command){
+    //communication.Timeout(3000);
+    System.out.println("Sending command...");
+    communication.Write(command);
+    System.out.println("Receiving answer...");
+    byte[] answer = communication.Read(254);
+    communication.Timeout(3000);
+    return answer;
     }
 
-    CheckSum = mod(CheckSum, 256);
-    if ((CheckSum == 13)||(CheckSum == 16))
-      CheckSum += 128;
-      
 
-    communicationMotors.Write(Integer.toString(CheckSum));
-    communicationMotors.Write("\r");
-    return 0; 
 
+
+  //-----------------------------------------
+
+  public static void PrintBits(String stringa){
+    byte[] textBytes = String.valueOf(stringa).getBytes();
+    BigInteger textBits = new BigInteger(textBytes);
+    System.out.println(textBits.toString(2));
   }
 
-  public int SerialWrite(byte[] c, long Value, int NumData){
-    //CommClass communicationMotors = new CommClass();
-    //communicationMotors.Open();
-    int i, j, CheckSum = 0;
-    byte[] Dati = new byte[4];
-    byte sedici = 16;
-
-    for(i = 0; i < c.length; i++){
-      CheckSum = CheckSum + c[i];
-      communicationMotors.Write(c[i]); 
-    }
-    
-    for (j = 0;j < NumData;j++){
-
-      for(i = 0;i < 4;i++)
-        Dati[3-i] = (byte) (Value >> 8*i);  //(int)
-        
-
-      for(i = 0; i < 4; i++) {
-        if ((Dati[i] == 16)||(Dati[i] == 13))
-          communicationMotors.Write(sedici);
-
-        CheckSum = CheckSum + Dati[i];
-        communicationMotors.Write(Dati[i]); 
-      }
-    }
-
-    CheckSum = mod(CheckSum, 256);
-    if ((CheckSum == 13)||(CheckSum == 16))
-      CheckSum += 128;
-      
-
-    communicationMotors.Write(Integer.toString(CheckSum));
-    communicationMotors.Write("\r");
-    return 0; 
-
+  public static void PrintBits(int intero){
+    byte[] textBytes = String.valueOf(intero).getBytes();
+    BigInteger textBits = new BigInteger(textBytes);
+    System.out.println(textBits.toString(2));
   }
 
-  public byte[] SerialRead(int numberBytes){
-    //CommClass communicationMotors = new CommClass();
-    //communicationMotors.Open();
-    byte[] serialAnswer = communicationMotors.Read(numberBytes);
-    return serialAnswer;
-  }
-
-  public int Error(byte[] serialAnswer){
-    int indexQuestionMark = 0;
-    String qmark = "?";
-    if (serialAnswer[0] == qmark.getBytes()[0])
-      indexQuestionMark = 1;
-    if (serialAnswer[1] == qmark.getBytes()[0])
-      indexQuestionMark = 2;
-
-    if (indexQuestionMark != 0)
-      return serialAnswer[indexQuestionMark];
-    else
-     return -1;
-  }
-
-
-  public int ComandoSet(byte[] instruction, long[] Value){
-    communicationMotors.Open();
-    SerialWrite(instruction, Value, 1);
-    byte[] serialAnswer = SerialRead(4);
-    return Error(serialAnswer);
-
-    
-    //int Err;
-    //if ((Err = Error(serialAnswer))!=-1) 
-    //  return Err;
-    //else 
-    //  return -1;   
-    
-  }
-
-  public int ComandoSet(byte[] instruction, long Value){
-    communicationMotors.Open();
-    SerialWrite(instruction, Value, 1);
-    byte[] serialAnswer = SerialRead(4);
-    return Error(serialAnswer);
-  }
-
-
-
-  public int CommandTell(byte[] instruction)
-  {
-    int Err, Num_Carattere = 0;
-    long Val;
-  
-    SerialWrite(instruction,Val,0);
-  #ifdef PRINTA
-    printf("FATTA SCRITTURA SERIALE");
-  #endif
-    NumCar = SerialRead( );
-  #ifdef PRINTA
-    printf("FATTA LETTURA SERIALE");
-  #endif
-    if ((Err=Errore())!=-1) return Err;
-    else
-    {
-    Togli_DLE(&Num_Carattere);
-  #ifdef PRINTA
-    printf("FATTO TOGLI DLE");
-  #endif
-    Scansione_Tell(Istruzione[1]);
-
-    }
-    return -1;
-  }  
-
-  
-
-
-
-
-  
-  //-----------------------------------
-  
-  public int GetMotorStatus(String ax){
-
-
-
-    return 0;
+  public static void PrintBits(byte Bytino){
+    String string0 = String.format("%8s", Integer.toBinaryString(Bytino&0xFF).replace(' ','0'));
+    System.out.println(string0);
   }
 
   
 
-
-  public int SetMotorOn(String ax){
-    if (GetMotorStatus(ax) == 0){
-      byte[] command = sbld("S%sMO", ax);
-      int Err = ComandoSet(command, 1L);
-      if(Err == -1){
-        MOTORSTATUS[Integer.valueOf(ax)] = 1;
-        return ACSOK;
-      }
-    }
-    return 0;
+  public static void PrintInt(String stringa){
+    byte[] textBytes = String.valueOf(stringa).getBytes();
+    BigInteger textBits = new BigInteger(textBytes);
+    System.out.println(textBits.toString(10));
   }
-  
-
-
-  */
-
-  public static byte[] sbld(String control, String c) {
-
-    byte[] command = new byte[255];
-
-    String formatted;
-    formatted = String.format(control, c);
-    byte[] commandBytes = String.valueOf(formatted).getBytes();
-    System.arraycopy(commandBytes, 0, command, 0, commandBytes.length);
-
-    
-    // Di seguito print superflui per controllare i risultati
-    System.out.println("La stringa control diventa: ");
-    String string1 = new String(commandBytes, StandardCharsets.UTF_8);
-    System.out.println(string1);
-    
-    System.out.println("In bit corrisponde a: ");
-    BigInteger bits1 = new BigInteger(commandBytes);
-    System.out.println(bits1.toString(2));
-    
-    System.out.println();
-    
-    System.out.println("Il comando risultante come stringa: ");
-    String string2 = new String(command, StandardCharsets.UTF_8);
-    System.out.println(string2);
-    
-    //System.out.println("In bit corrisponde a: ");
-    //BigInteger bits2 = new BigInteger(command);
-    //System.out.println(bits2.toString(2));
-    
-
-    return command;
-  }
-
-
 
 
 
@@ -343,17 +95,61 @@ public class App {
     
     System.out.println();
 
-    //String comando = new String();
     /* 
-    App app = new App();
-    app.runTest();
-    TimeUnit.SECONDS.sleep(30);
-    app.stop();
+    byte blablabla = '1';
+    int aaaaaa = (blablabla) & (1<<1);
+    System.out.println(aaaaaa);
+    //if ((blablabla) & (1) == 0){}
+    if (blablabla=='1')
+      System.out.println("ciao ");
+    System.out.println(blablabla);
+    String string0 = String.format("%8s", Integer.toBinaryString(blablabla&0xFF).replace(' ','0'));
+    System.out.println(string0);
+
+    byte[] commandBytes = "1".getBytes();
+    String string1 = new String(commandBytes, StandardCharsets.UTF_8);
+    System.out.println(string1);
+    BigInteger bits1 = new BigInteger(commandBytes);
+    System.out.println(bits1.toString(2));
     */
 
-
-    byte[] command = sbld("S%sMO", "X");
     
+    //Scanner myObject = new Scanner(System.in);
+
+    //String ANS;
+
+    byte val = '?';
+
+    System.out.println((char) val);
+    System.out.println("\nin bit risulta essere: ");
+    PrintBits(val);
+
+
+
+
+
+    /*
+    boolean cond = false;
+    if (cond){
+      App app = new App();
+      app.getData();
+      app.runTest();
+      TimeUnit.SECONDS.sleep(30);
+      app.stop();
+    }
+    //*/
+
+    // String comando = new String();
+    // byte[] command = sbld("S%sMO", "X");
+
+
+    
+     //ACS acs = new ACS("/dev/ttyUSB0", 9600);
+
+     //acs.SetHostMode();
+
+
+
 
 
 

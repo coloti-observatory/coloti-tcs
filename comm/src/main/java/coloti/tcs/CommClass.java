@@ -1,10 +1,12 @@
 package coloti.tcs;
 
 import java.nio.Buffer;
+import java.util.Arrays;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import com.fazecast.jSerialComm.*;
 
@@ -31,7 +33,7 @@ public class CommClass{
     private byte STOP;
     private byte PARITY;
     private int TIMEOUT;
-    private int Status;
+    private boolean Status;
     
 
     public byte NOPARITY = 0;
@@ -39,65 +41,66 @@ public class CommClass{
     public byte EVENPARITY = 2;
     public byte MARKPARITY = 3;
     public byte SPACEPARITY = 4;
-    public byte ONESTOPBIT = 0;
+    public byte ONESTOPBIT = 0;  // era 0
     public byte ONE5STOPBITS = 1;
     public byte TWOSTOPBITS = 2;
     
     public SerialPort port;
 
     public CommClass() {    
-        Status = 0;
-        MAXCHA = 1024;
-        BAUD = 19200; // 9600
-        BYTESIZE = 8;
-        STOP = this.ONESTOPBIT;
-        PARITY = this.NOPARITY;
-        TIMEOUT = 2900; 
+        this.Status = false;
+        this.MAXCHA = 1024;
+        this.BAUD =  19200; // 19200 // 9600
+        this.BYTESIZE = 8;
+        this.STOP = this.ONESTOPBIT;
+        this.PARITY = this.NOPARITY;
+        this.TIMEOUT = 2900; 
         
-        port = SerialPort.getCommPorts()[0];
+        this.port = SerialPort.getCommPorts()[0];
     }
 
         //BufferedInputStream inputStream = new BufferedInputStream(p.getInputStream());
         //OutputStream outputStream = p.getOutputStream();
 
     public CommClass(String IdSeriale) {
-        Status = 0;
-        MAXCHA = 1024;
-        BAUD = 9600; // 9600
-        BYTESIZE = 8;
-        STOP = this.ONESTOPBIT;
-        PARITY = this.NOPARITY;
-        TIMEOUT = 2000; 
-        port = SerialPort.getCommPort(IdSeriale);
+        this.Status = false;
+        this.MAXCHA = 1024;
+        this.BAUD = 9600; // 19200 // 9600
+        this.BYTESIZE = 8;
+        this.STOP = this.ONESTOPBIT;
+        this.PARITY = this.NOPARITY;
+        this.TIMEOUT = 2900; 
+        this.port = SerialPort.getCommPort(IdSeriale);
     }
     
     
-    public void Open(){
-        port.setComPortParameters(this.BAUD, this.BYTESIZE, this.STOP, this.PARITY);
-        port.setComPortTimeouts(1, this.TIMEOUT, this.TIMEOUT); // read and write timeout        
-        port.openPort();
-        Status = 1;
+    public boolean Open(){
+        port.setComPortParameters(9600, 8, port.ONE_STOP_BIT,port.NO_PARITY);
+        //port.setComPortTimeouts(1, this.TIMEOUT, this.TIMEOUT); // read and write timeout        
+        return port.openPort();
     }
 
-    public void Open(int baud, byte bytesize, byte stop, byte parity, int timeout) {
+    public boolean Open(int baud, int bytesize, int stop, int parity, int timeout) {
         port.setComPortParameters(baud, bytesize, stop, parity);
-        port.setComPortTimeouts(1, timeout, timeout); // read and write timeout
-        port.openPort();
-        Status = 1;
+        //port.setComPortTimeouts(1, timeout, timeout); // read and write timeout
+        return port.openPort();
     }
 
-    public void Open(int baud) {
+    public boolean Open(int baud) {
         port.setBaudRate(baud);
-        port.openPort();
-        Status = 1;
+        return port.openPort();
+    }
+
+    public void SetTimeouts(int timeout){
+        port.setComPortTimeouts(1, timeout, timeout); // read and write timeout
     }
 
     public void Close() {
         port.closePort();
-        Status = 0;
+        this.Status = false;
     }
 
-    public int GetStatus(){
+    public boolean GetStatus(){
         return Status;
     } 
 
@@ -129,7 +132,7 @@ public class CommClass{
     public void Write(byte[] text){
         OutputStream outputStream = port.getOutputStream();
         try {
-            outputStream.write(text);
+            outputStream.write(text);;
             //outputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -149,37 +152,118 @@ public class CommClass{
 
     
     public byte[] Read(int numberBytes){
-        BufferedInputStream inputStream = new BufferedInputStream(port.getInputStream());
+        InputStream inputStream = new BufferedInputStream(port.getInputStream());
         byte[] answer = null;
         try {
             answer = inputStream.readNBytes(numberBytes);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return answer;
     }
 
+    public byte[] Read(){
+        InputStream inputStream = new BufferedInputStream(port.getInputStream()); //  BufferedInputStream
+        byte[] answer;
+        try {
+            int Available = inputStream.available();
+            //System.out.println("Av: ");
+            //System.out.println(Available);
 
 
-    // a piu alto livello
-    /* 
-    public void sbld(byte[] dest, String control){
-        
-        byte[] buff = new byte[255];
-        Formatter formatter = new Formatter();
-        Object args;
-        formatter.format(buff, control);
+            answer = new byte[Available];
+            answer = inputStream.readNBytes(Available);
+            //System.out.println("length:");
 
-
-        String result = formatter.toString();
-        System.arraycopy(result.toCharArray(), 0, dest, 0, result.length());
+            //System.out.println(answer.length);
+            return answer;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
     }
-    */
+
+    ///* READ by Tosti
+    public byte[] Read2(){
+        InputStream inputStream = new BufferedInputStream(port.getInputStream()); //  BufferedInputStream
+        byte[] answer;
+        int i=0;
+        try {
+            System.out.println("Available:"+inputStream.available());            
+            while((inputStream.available())>1){
+                i+=1;
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+                answer = inputStream.readNBytes(1);
+                char aaa = (char) answer[0];
+                System.out.println(aaa);
+                if(i>10)
+                    break;
+            }
+            if(i<10)
+                return answer = inputStream.readNBytes(1);
+            //return answer;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new byte[0];
+    }
+    //*/
+
+
+    public byte[] TestingComm(){
+        Write((byte) 0x0D);
+        byte[] answer = Read();
+        return answer;
+    }
+
+    
+    public static void main(String[] a) throws InterruptedException{
+        CommClass com = new CommClass("/dev/ttyUSB0");
+        if (com.Open()){
+            
+            byte[] comando0 = new byte[5];
+            comando0[0] = (byte) 'S';
+            comando0[1] = (byte) 'H';
+            comando0[2] = (byte) 'T';
+            comando0[3] = (byte) '0';
+            comando0[4] = (byte) '\r';
+
+            byte[] comando1 = new byte[5];
+            comando1[0] = (byte) 'S';
+            comando1[1] = (byte) 'H';
+            comando1[2] = (byte) 'T';
+            comando1[3] = (byte) '1';
+            comando1[4] = (byte) '\r';
+
+
+            byte[] comando2 = new byte[3];
+            comando2[0] = (byte) 'T';
+            comando2[1] = (byte) '0';
+            comando2[2] = (byte) '\r';
+
+            com.Write(comando2); 
+
+
+            TimeUnit.MILLISECONDS.sleep(200);
+            byte[] risposta = com.Read();
+            System.out.println(risposta.length);
+            for (int i = 0; i < risposta.length; i++){
+                System.out.print((char)risposta[i]);
+            }
+        }
+    }
+    
 
 
 
 
-    // altre funzioni:
-    // GetCommHandle()
+
+
 
 }

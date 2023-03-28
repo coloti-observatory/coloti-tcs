@@ -10,7 +10,13 @@ public class WeatherData {
     private CommClass communication;
 
     public WeatherData() {
-        communication = new CommClass();
+        this.communication = new CommClass();
+        communication.Open();
+        trytest(); 
+    }
+
+    public WeatherData(String PortName) {
+        this.communication = new CommClass(PortName);
         communication.Open();
         trytest(); 
     }
@@ -317,8 +323,8 @@ public class WeatherData {
 
     public double[] getControlData(){
         double[] ControlData = new double[5];
-        //byte[] answer = dataFromWeatherStation("LOOP 1\r"); //"LPS 1 1\r"
-        byte[] answer = dataFromWeatherStation("LPS 1 1\r"); 
+        byte[] answer = dataFromWeatherStation("LOOP 1\r"); //"LPS 1 1\r"
+        //byte[] answer = dataFromWeatherStation("LPS 1 1\r"); 
 
         ControlData[0] = (double) getOutsideTemperature(answer);
         ControlData[1] = (double) 0; //getDewPoint(answer);
