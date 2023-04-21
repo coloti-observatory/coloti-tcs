@@ -132,7 +132,20 @@ public class CommClass{
     public void Write(byte[] text){
         OutputStream outputStream = port.getOutputStream();
         try {
-            outputStream.write(text);;
+            outputStream.write(text);
+
+            //outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void Write(int[] text){
+        OutputStream outputStream = port.getOutputStream();
+        try {
+            for (int i = 0; i<text.length; i++)
+                outputStream.write(text[i]);
+            
             //outputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();

@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import javax.lang.model.util.ElementScanner6;
 import coloti.tcs.CommClass;
 
-public class ACSv3 {
+public class ACSv4 {
 
   private CommClass communication;
   int ACSOK = -1;
@@ -56,9 +56,9 @@ public class ACSv3 {
   byte[] serialCommand;
   String answerString;
 
-  public ACSv3(){}
+  public ACSv4(){}
 
-  public ACSv3(String SerialID) {
+  public ACSv4(String SerialID) {
     this.communication = new CommClass(SerialID);
     this.NAXES = 1;
     this.CONVFACTOR[X] = 1.;
@@ -95,7 +95,7 @@ public class ACSv3 {
 
   }
 
-  public ACSv3(String SerialID, int nax) {
+  public ACSv4(String SerialID, int nax) {
     this.communication = new CommClass(SerialID);
     this.NAXES = nax;
     this.CONVFACTOR[X] = 1.;
@@ -1435,7 +1435,7 @@ public class ACSv3 {
     System.out.println();
 
     /* 
-    ACSv3 acs = new ACSv3();
+    ACSv4 acs = new ACSv4();
     String stringaprova = "ciao";
 
     int numerosomma = 136;
@@ -1453,7 +1453,7 @@ public class ACSv3 {
 
 
     ///* 
-    ACSv3 acs = new ACSv3("/dev/ttyUSB0");
+    ACSv4 acs = new ACSv4("/dev/ttyUSB0");
     acs.SetSimpleStart(0);
     int ErrorCode;
     byte[] command;
