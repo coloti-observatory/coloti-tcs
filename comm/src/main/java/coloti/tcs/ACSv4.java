@@ -989,7 +989,7 @@ public class ACSv4 {
       System.out.println(" ");
     }
 
-    nBytes = RemoveDLE(this.serialAnswer, nBytes);
+    nBytes = RemoveDLE(this.serialAnswer);
     //System.out.println("After DLE:" + nBytes);
     if (nBytes == -2)
       return -2;
@@ -1016,7 +1016,7 @@ public class ACSv4 {
     nBytes = SerialRead();
     //this.serialAnswer[nBytes] = '\0';
 
-    nBytes = RemoveDLE(this.serialAnswer, nBytes);
+    nBytes = RemoveDLE(this.serialAnswer);
 
     if (nBytes == -2)
       return -2;
@@ -1032,9 +1032,9 @@ public class ACSv4 {
 
   }
 
-  public int RemoveDLE(byte[] serialAnswer, int nBytes) {
+  public int RemoveDLE(byte[] serialAnswer) {
     int cont, cont1 = 0, minusChar = 0;
-    
+    int nBytes = serialAnswer.length;
     for (cont = 1; cont <= nBytes; cont++) {
       cont1 += 1;
       if (serialAnswer[cont - 1] == (byte) 0x10) { // 0x10 corrisponderebbe a 16
@@ -1048,9 +1048,33 @@ public class ACSv4 {
       }
     }
     nBytes = nBytes - minusChar;
-    this.serialAnswer=serialAnswer;
+    this.serialAnswer = serialAnswer;
     return nBytes;
   }
+
+/* 
+int ACS::Togli_DLE(int *Num_Carattere)
+{
+	int Cont,Cont1=0, Car_da_sottrarre=0;
+
+	for (Cont = 1; Cont <= *Num_Carattere; Cont++)
+	{
+		Cont1 = Cont1 + 1;
+		if (Risposta_Seriale[Cont-1] == (0x10))
+		{
+			if ((Risposta_Seriale[Cont + 1-1] == (0x0D)) || (Risposta_Seriale[Cont + 1-1] == (0x10)))
+			{
+				Risposta_Seriale[Cont1-1] = Risposta_Seriale[Cont + 1-1];
+				Cont = Cont + 1; Car_da_sottrarre = Car_da_sottrarre + 1;
+			}
+		}
+		else Risposta_Seriale[Cont1-1] = Risposta_Seriale[Cont-1];
+	}
+	*Num_Carattere = *Num_Carattere - Car_da_sottrarre;
+	return 0;
+}   /* Togli_DLE */
+
+
   
   public long ConversioneRX(byte[] data, byte[] dataNt) {
     long ValNum=0L;
@@ -1124,7 +1148,7 @@ public class ACSv4 {
     if (Err != -1) {
       return Err;
     } else {
-      RemoveDLE(this.serialAnswer, nBytes);
+      RemoveDLE(this.serialAnswer);
       TellScan(c[1], this.serialAnswer);
     }
     return -1;
@@ -1143,7 +1167,7 @@ public class ACSv4 {
     if (Err != -1) {
       return Err;
     } else {
-      RemoveDLE(this.serialAnswer, nBytes);
+      RemoveDLE(this.serialAnswer);
       TellScan(c[1], this.serialAnswer);
     }
     return -1;
@@ -1436,20 +1460,16 @@ public class ACSv4 {
 
     /* 
     ACSv4 acs = new ACSv4();
-    String stringaprova = "ciao";
-
-    int numerosomma = 136;
-    //byte cks = BigInteger.valueOf(numerosomma).toByteArray()[0] ;
-    byte cks = (byte) numerosomma; //Integer.toHexString(numerosomma).charAt(0);
-    System.out.println("byte: "+cks);
-    System.out.println("char2: "+cksChar);
-    System.out.println("char: "+(char) cks);
-    System.out.println("int: "+ (int) cks);
-    System.out.println("88H deve apparire come: "+0X88);
-
-    System.out.println("\nmentre prima era: " + numerosomma);
-
-    //*/
+    String stringa = "ABC"+0X10+0X10+"abcz";
+    System.out.println(stringa);
+    byte[] dummyAns = String.valueOf(stringa).getBytes();
+    acs.PrintArray(dummyAns);
+    // (int) 0XAF          =  175
+    // (byte) 0XAF         =  -81
+    // ((byte) 0XAF) + 256 =  175
+    int tot = ((byte) 0XAF) + 256;
+    System.out.println(tot); 
+    // */
 
 
     ///* 
@@ -1457,20 +1477,15 @@ public class ACSv4 {
     acs.SetSimpleStart(0);
     int ErrorCode;
     byte[] command;
-
     //ErrorCode = acs.DirectCommand("T0\r");
     
     command = acs.sbld("R%sLR", "X");
-    //ErrorCode = acs.DirectCommand("RXLRH\r");
     ErrorCode = acs.CommandReport(command);
-
-    //acs.GetEncoderRes("X");
-
-    //acs.GetAllInfo("X");
+    //*/
 
     System.out.println();
-    //System.out.println("Error: " + ErrorCode);
-    //*/
+
+    //System.out.println("Error code: " + ErrorCode);
   }
 
 }
