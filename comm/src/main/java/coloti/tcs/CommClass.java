@@ -1,8 +1,10 @@
 package coloti.tcs;
 
 import java.nio.Buffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -200,7 +202,9 @@ public class CommClass{
     public String ReadMessage(){
         InputStream inputStream = new BufferedInputStream(port.getInputStream()); //  BufferedInputStream
         String answer = "";
-        int i=0;
+        int i = 0;
+        int[] value = new int[4];
+        //System.out.println("Read String results from CommClass: ");
         try {           
             while((inputStream.available())>=1){
                 try {
@@ -209,17 +213,49 @@ public class CommClass{
                     e.printStackTrace();
                     Thread.currentThread().interrupt();
                 }
-                answer += (char) inputStream.readNBytes(1)[0];
+                char carattere = (char) (inputStream.readNBytes(1)[0] & (0XFF));
+                if (i > 3 & i < 8){
+                    value[i-4] = (int) carattere;
+                    //System.out.println("--  " + value[i-4]);
+                }
+                //System.out.println(">> " + carattere + "  ,  " + (int) carattere);
+                answer += (char) carattere; //(char) inputStream.readNBytes(1)[0];
+                i+=1;
+            }
+            return answer;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "empty"; 
+    }
+
+    public int[] ReadMessageInt(){
+        InputStream inputStream = new BufferedInputStream(port.getInputStream()); //  BufferedInputStream
+        int[] answer = new int[64];
+        int i = 0;
+        int value;
+        //System.out.println("Read int results from CommClass: ");
+        try {           
+            while((inputStream.available())>=1){
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+                value = (int) (inputStream.readNBytes(1)[0] & (0XFF));
+                answer[i] = value; 
                 i+=1;
             }
             return answer;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "empty"; 
+        return new int[0]; 
     }
     
-    ///* READ by Tosti
+    /* READ by Tosti
     public byte[] Read2(){
         InputStream inputStream = new BufferedInputStream(port.getInputStream()); //  BufferedInputStream
         byte[] answer;
@@ -294,11 +330,4 @@ public class CommClass{
         }
     }
     
-
-
-
-
-
-
-
 }
