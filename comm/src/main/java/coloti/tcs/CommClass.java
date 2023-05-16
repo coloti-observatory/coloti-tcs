@@ -130,7 +130,6 @@ public class CommClass{
         
     }
     
-
     public void Write(byte[] text){
         OutputStream outputStream = port.getOutputStream();
         try {

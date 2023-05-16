@@ -11,7 +11,7 @@ import java.util.function.IntPredicate;
 import javax.lang.model.util.ElementScanner6;
 import coloti.tcs.CommClass;
 
-public class ACSv5 {
+public class ACS {
 
   private CommClass communication;
   int ACSOK = -1;
@@ -61,9 +61,9 @@ public class ACSv5 {
   int[] answerInt = new int[50];
 
 
-  public ACSv5(){}
+  public ACS(){}
 
-  public ACSv5(String SerialID) { // VERIFICATO 
+  public ACS(String SerialID) { // VERIFICATO 
     this.communication = new CommClass(SerialID);
     this.NAXES = 1;
     this.CONVFACTOR[X] = 1.;
@@ -100,7 +100,7 @@ public class ACSv5 {
 
   }
 
-  public ACSv5(String SerialID, int nax) { // VERIFICATO 
+  public ACS(String SerialID, int nax) { // VERIFICATO 
     this.communication = new CommClass(SerialID);
     this.NAXES = nax;
     this.CONVFACTOR[X] = 1.;
@@ -626,7 +626,6 @@ public class ACSv5 {
     return Err;
   }
 
-
   public void SetMaxMinVel(String ax, double maxval, double minval) { // VERIFICATO 
     int axI = AxesNumber(ax);
     this.MaxVel[axI] = maxval;
@@ -1024,7 +1023,6 @@ public class ACSv5 {
   }
   
   public int CommandReport(byte[] instruction, boolean PRINT) { // VERIFICATO 
-
     this.VALUECR = 0;
     int Count, Err, nBytes = 0;
     int[] Data = new int[4];
@@ -1138,6 +1136,33 @@ public class ACSv5 {
     SerialRead();
 
     return Error();
+  }
+
+  public int CommandArray(byte[] instruction, int element, int finalvalue){
+    this.VALUECR = 0;
+    int Count, Err, nBytes = 0;
+    int[] Data = new int[4];
+    int[] Val = new int[2];
+    if (instruction[2] == 'S'){
+      Val[0] = element;
+      Val[1] = finalvalue;
+      SerialWrite(instruction, Val, 2);
+      nBytes = SerialRead();
+      this.serialAnswer[0] = '\0';
+    }
+    else{
+      SerialWrite(instruction, element);
+      nBytes = SerialRead();
+      nBytes = RemoveDLE();
+      Err = Error();
+      if (Err != -1)
+        return Err;
+      for (Count = 1; Count < 5; Count++){
+        Data[Count - 1] = this.answerInt[Count];
+      }
+      this.VALUECR = DataConversionRX(Data);
+    }
+    return -1;
   }
 
   public int TellCommand(String tellstring) { // VERIFICATO 
@@ -1330,9 +1355,6 @@ public class ACSv5 {
       Dati[3 - i] = (byte) (Value >> 8 * i);
     }
 
-    //int risultatoInt = ByteBuffer.wrap(Dati).getInt();
-    //System.out.println("Value sent with set command: " + risultatoInt);
-
     for (i = 0; i < 4; i++) {
       if ((Dati[i] == 16) || (Dati[i] == 13))
         buffer += 0x10; //sedici
@@ -1353,6 +1375,49 @@ public class ACSv5 {
     return 0;
 
   }
+
+
+
+  public int SerialWrite(byte[] c, int[] Value, int numdata) { // VERIFICATO 
+    int i, CheckSum = 0;
+    String buffer = "";
+
+    byte[] Dati = new byte[4];
+        
+    for (i = 0; i < c.length; i++) {
+      CheckSum = CheckSum + (int) c[i];
+      buffer += (char) c[i];
+    }
+    for (int j = 0; j < numdata; j++){
+      for (i = 0; i < 4; i++) {
+        Dati[3 - i] = (byte) (Value[j] >> 8 * i);
+      }
+
+      for (i = 0; i < 4; i++) {
+        if ((Dati[i] == 16) || (Dati[i] == 13))
+          buffer += 0x10; //sedici
+        CheckSum += (int) Dati[i];
+        buffer += (char) Dati[i];
+      }
+    }
+
+    CheckSum = mod(CheckSum, 256);
+    if ((CheckSum == 13) || (CheckSum == 16))
+      CheckSum += 128;
+
+    buffer += (char) CheckSum;
+    buffer += '\r';
+    byte[] finalBuffer = String.valueOf(buffer).getBytes();
+    this.serialCommand = finalBuffer;
+
+    communication.Write(finalBuffer);
+    return 0;
+
+  }
+
+
+
+
 
   public int SerialRead() { // VERIFICATO 
     int nBytes;
@@ -1407,11 +1472,15 @@ public class ACSv5 {
 
     System.out.println();
 
-    ///*
+    /*
     ACSv5 acs = new ACSv5();
 
     byte[] command = acs.sbld("S%sMO", "X");
-    acs.SerialWrite(command, 7159000);
+    //acs.SerialWrite(command, 7159000);
+
+    //int risultatoInt = ByteBuffer.wrap(Dati).getInt();
+    //System.out.println("Value sent with set command: " + risultatoInt);
+
 
     /*
     byte[] pippo = new byte[]{1<<3};
@@ -1469,8 +1538,8 @@ public class ACSv5 {
 
     
 
-     /* 
-    ACSv5 acs = new ACSv5("/dev/ttyUSB0",1);
+    ///* 
+    ACS acs = new ACS("/dev/ttyUSB0",1);
     acs.SetStart(0);
     int ErrorCode;
     byte[] command;

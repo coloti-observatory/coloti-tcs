@@ -26,7 +26,7 @@ import com.fazecast.jSerialComm.*;
 import java.util.Scanner;
 
 import coloti.tcs.weather.WeatherData;
-import coloti.tcs.ACSv1;
+import coloti.tcs.ACS;
 
 public class App {
 
@@ -34,7 +34,7 @@ public class App {
   
 
   public CommClass communication;
-  public ACSv1 acs;
+  public ACS acs;
 
 
   public App() {

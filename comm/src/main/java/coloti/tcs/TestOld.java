@@ -1,6 +1,6 @@
 package coloti.tcs;
 
-public class classeprova {
+public class TestOld {
     
     private String CodiceFiscale = "CRSPLA";
     public int annoNascita;
@@ -10,7 +10,7 @@ public class classeprova {
     //public String nome;
 
 
-    public classeprova(int annoNascita){
+    public TestOld(int annoNascita){
         
         this.annoNascita = annoNascita;
         this.nomemese = " (maggio)";
@@ -18,7 +18,7 @@ public class classeprova {
     }
 
 
-    public classeprova(int giornoNascita, int mese, int annoNascita){
+    public TestOld(int giornoNascita, int mese, int annoNascita){
         this.giornoNascita = giornoNascita;
         this.mese = mese;
         this.annoNascita = annoNascita;
