@@ -66,7 +66,7 @@ public class TCS {
     PADDLE PAD;
     POSZERO PZ;
 
-    public void Configure(){
+    public void Configure(){ // CambiaConfig SalvaConfig ReadConfig
         this.CFG = new ConfigurationClass();
         this.GEN = new GENERALE(CFG);
         this.OSS = new OSSERVATORIO(CFG);
@@ -202,26 +202,12 @@ public class TCS {
             TraiettoriaX();
             TraiettoriaY();
 
+            //AsseX.SetMotAcc("X",TEL.MaxAccX);
+
+
+
             // Cupola
             //AsseX.SetMotAcc("X", TEL.Maz)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         }
     }
@@ -234,15 +220,117 @@ public class TCS {
 
     public void TraiettoriaY(){}
 
+    public void Controllore(){} // vari, utilizza funzione consolle
+
+    public void PuntamentoCoordinate(){}
+
+    public void PuntamentoMinimo(){}
+
+    public void UpdateTime(){}
+
+    public void UpdatePos(){}
+
+    public void Inizializzazione(){}
+
+    public void SettaTempo(){}
+
+    public void SettaMeteo(){}
+
+    public void FormatCoord(){}
+
+    public void VerificaVisibilitaAstro(){}
+
+    public void PuntamentoCatalogo(){}
+
+
+    public void TelescopioJoystic(){}
+
+    public void TelescopioSetHome(){}
+
+    public void TelescopioSettaZeroStar(){}
+
+    public void SettaPosHome(){
+        long ValoX = 0, ValoY = 0;
+        // modificare per tre assi?
+        
+        // aprire file Zeri.dat e prendere i valori degli zeri 
+        long ZeroX=0, ZeroY=0; // non sono assegnati, vengono dal file?
+
+        if (TEL.MonType == 0){
+            ValoX += (long) (ZeroX*3600*AsseX.CONVFACTOR[0] + 0.5 - 30*AsseX.CONVFACTOR[0]);
+            AsseX.CommandArray("AVSE", 8, (int) ValoX);
+            ValoX = AsseX.VALUECR;
+            AsseX.ExecProg("HOMEX");
+
+            ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
+            AsseY.CommandArray("AVSE", 8, (int) ValoY);
+            ValoY = AsseY.VALUECR;
+            AsseY.ExecProg("HOMEX");
+        }
+        else{
+            AsseX.CommandArray("AVSE", 8, (int) ValoX);
+            ValoX = AsseX.VALUECR;
+            AsseX.ExecProg("HOMEX");
+
+            AsseY.CommandArray("AVSE", 8, (int) ValoY);
+            ValoY = AsseY.VALUECR;
+            AsseY.ExecProg("HOMEX");
+        }
+    }
+
+    public void FermaMoto(){  // era dentro setta pos home
+        AsseX.CommandMot("PS");
+        AsseY.CommandMot("PS");
+
+        AsseX.StopMove("X");
+        AsseY.StopMove("X");
+    }
     
+    public void Timer(){}
 
+    // TELESCOPIO
 
+    public void SetTelTrackVel(){}
 
+    public void TelescoFermaMoto(){}
 
+    public void OnTelescoStartMotoOrario(){}
+    
+    public void OnTelescoStopInseguimento(){}
+    
+    public void OnTelescoInitAssi(){}
+    
+    public void OnTelescoInitAsseX(){}
+    
+    public void OnTelescoInitAsseY(){}
+    
+    public void OnTelescoInitAsseZ(){}
+    
+    public void OnTelescoParametri(){}
+    
+    public void OnTelescoVerificap(){}
 
+    // altro
 
+    public void OnPuntamentoPianeti(){}
 
-
+    public void OnExecuteRemote(){}
+    
+    public void OnSetGPStime(){}
+    
+    public void OnGetGPStime(){}
+    
+    public void OnMostraDatiMeteo(){}
+    
+    public void OnExternalObj(){}
+    
+    public void ReadCostPun(){}
+    
+    public void OnSettaZezoTelFile(){}
+    
+    public void CorreggiAZ(){}
+    
+    public void CorreggiEL(){}
 
 
 
@@ -524,6 +612,7 @@ public class TCS {
         }
     }
 
+    public void CupolaInseguimento(){}
 
 
 

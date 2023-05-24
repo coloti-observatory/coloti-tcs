@@ -1139,27 +1139,63 @@ public class ACS {
     return ValNum;
   }
 
-  public int CommandMot(byte[] instruction) { // VERIFICATO 
-    SerialWrite(instruction, 0);
+  public int CommandMot(String instruction) { // VERIFICATO 
+    byte[] Instruction = sbld(instruction);
+    SerialWrite(Instruction, 0);
     SerialRead();
 
     return Error();
   }
 
-  public int CommandArray(byte[] instruction, int element, int finalvalue){
+  public int CommandMot(byte[] Instruction) { // VERIFICATO 
+    SerialWrite(Instruction, 0);
+    SerialRead();
+
+    return Error();
+  }
+
+  public int CommandArray(String instruction, int element, int finalvalue){
     this.VALUECR = 0;
+    byte[] Instruction = sbld(instruction);
     int Count, Err, nBytes = 0;
     int[] Data = new int[4];
     int[] Val = new int[2];
-    if (instruction[2] == 'S'){
+    if (Instruction[2] == 'S'){
       Val[0] = element;
       Val[1] = finalvalue;
-      SerialWrite(instruction, Val, 2);
+      SerialWrite(Instruction, Val, 2);
       nBytes = SerialRead();
       this.serialAnswer[0] = '\0';
     }
     else{
-      SerialWrite(instruction, element);
+      SerialWrite(Instruction, element);
+      nBytes = SerialRead();
+      nBytes = RemoveDLE();
+      Err = Error();
+      if (Err != -1)
+        return Err;
+      for (Count = 1; Count < 5; Count++){
+        Data[Count - 1] = this.answerInt[Count];
+      }
+      this.VALUECR = DataConversionRX(Data);
+    }
+    return -1;
+  }
+
+  public int CommandArray(byte[] Instruction, int element, int finalvalue){
+    this.VALUECR = 0;
+    int Count, Err, nBytes = 0;
+    int[] Data = new int[4];
+    int[] Val = new int[2];
+    if (Instruction[2] == 'S'){
+      Val[0] = element;
+      Val[1] = finalvalue;
+      SerialWrite(Instruction, Val, 2);
+      nBytes = SerialRead();
+      this.serialAnswer[0] = '\0';
+    }
+    else{
+      SerialWrite(Instruction, element);
       nBytes = SerialRead();
       nBytes = RemoveDLE();
       Err = Error();
