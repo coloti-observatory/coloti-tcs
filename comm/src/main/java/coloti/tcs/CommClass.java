@@ -97,9 +97,8 @@ public class CommClass{
         port.setComPortTimeouts(1, timeout, timeout); // read and write timeout
     }
 
-    public void Close() {
-        port.closePort();
-        this.Status = false;
+    public boolean Close() {
+        return port.closePort();
     }
 
     public boolean GetStatus(){

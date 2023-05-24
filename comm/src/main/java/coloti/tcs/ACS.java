@@ -157,6 +157,14 @@ public class ACS {
     return status;
   }
 
+  public boolean CloseComm(){
+    boolean status = true;
+    if (this.communication.GetStatus())
+      status = this.communication.Close();
+    this.CommStatus = status;
+    return status;
+  }
+
   public void SetSimpleStart(int mode){ // VERIFICATO 
     if (OpenCommunications()) {
       SetMode(mode); // 0 host mode, 1 terminal mode
