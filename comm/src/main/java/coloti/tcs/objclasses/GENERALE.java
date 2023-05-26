@@ -9,6 +9,8 @@ public class GENERALE {
     public int NumeroAssi;
     public int NumeroControllori;
 
+    public boolean StopBotton;
+
     public GENERALE(ConfigurationClass cfg){
         this.TipoCupola = cfg.getTipoCupola();
         this.TipoTelescopio = cfg.getTipoTelescopio();

@@ -60,8 +60,8 @@ public class TCS {
     OSSERVATORIO OSS;
     CUPOLA CUP;
     TELESCOPIO TEL;
-    MOTOREARAZ MotAR;
-    MOTOREDECAL MotDEC;
+    MOTOREARAZ MotAZ;
+    MOTOREDECAL MotEL;
     SB129X SB;
     PADDLE PAD;
     POSZERO PZ;
@@ -72,8 +72,8 @@ public class TCS {
         this.OSS = new OSSERVATORIO(CFG);
         this.CUP = new CUPOLA(CFG);
         this.TEL = new TELESCOPIO(CFG);
-        this.MotAR = new MOTOREARAZ(CFG);
-        this.MotDEC = new MOTOREDECAL(CFG);
+        this.MotAZ = new MOTOREARAZ(CFG);
+        this.MotEL = new MOTOREDECAL(CFG);
         this.SB = new SB129X(CFG);
         this.PAD = new PADDLE(CFG);
         this.PZ = new POSZERO(CFG);
@@ -90,8 +90,176 @@ public class TCS {
         }
     }
 
+    // GET FUNCTIONS
 
-    // Utili
+    public boolean GetAzCw(){
+        return MotAZ.EmergencySwitchCW;
+    } // ClockWise
+    public boolean GetAzCcw(){
+        return MotAZ.EmergencySwitchCCW;
+    } // CounterClockWise
+    public boolean GetElHigh(){
+        return MotEL.EmergencySwitchHigh;
+    }
+    public boolean GetElLow(){
+        return MotEL.EmergencySwitchLow;
+    }
+
+    public boolean GetStopButton(){
+        return GEN.StopBotton;
+    }
+    
+    public boolean GetAzLsOpCw(){
+        return MotAZ.StatusLimitSwitchCW;
+    }
+
+    public boolean GetAzLsOpCcw(){
+        return MotAZ.StatusLimitSwitchCCW;
+    }
+
+    public boolean GetElLsOpLow(){
+        return MotEL.StatusLimitSwitchLow;
+    }
+    public boolean GetElLsOpHigh(){
+        return MotEL.StatusLimitSwitchHigh;
+    }
+
+    public int  GetAzMotorStatus(){
+        return MotAZ.MotorStatus; // cumulative status of the AZ motors: 0=both disabled; 1=both enabled; 2=degraded state i.e. 1 enabled; 1 in fault; 3=both in fault
+    }
+
+    public int GetAzMotorEncoderStatus(){
+        return MotAZ.MotorEncoderStatus; // status of the AZ motor with encoder: 0=disabled; 1=enabled; 2=fault
+    }
+
+    public int GetElMotorStatus(){
+        return MotEL.MotorStatus; // status of the EL motor: 0=disabled; 1=enabled; 2=fault
+    }
+
+    public double GetAzSkyPos(){
+        return MotAZ.SkyPos;
+    }
+
+    public double GetAzTelPos(){
+        return MotAZ.TelPos;
+    }
+
+    public double GetAzMotorTelPos(){
+        return MotAZ.MotorTelPos;
+    }
+
+    public double GetAzActVel(){
+        return MotAZ.ActualVel;
+    }
+
+    public double GetAzActAcc(){
+        return MotAZ.ActualAcc;
+    }
+
+    public double GetAzCommandedPos(){
+        return MotAZ.CommandedPos;
+    }
+
+    public double GetAzCommandedVel(){
+        return MotAZ.CommandedVel;
+    }
+
+    public double GetAzCommandedAcc(){
+        return MotAZ.CommendedAcc;
+    }
+
+    public double GetElSkyPos(){
+        return MotEL.SkyPos;
+    }
+
+    public double GetElTelPos(){
+        return MotEL.TelPos;
+    }
+
+    //public double GetA(){}
+
+    public void GetEL_ACT_ACC(){}
+    public void GetEL_COMMANDED_POS(){}
+    public void GetEL_COMMANDED_VEL(){}
+    public void GetEL_COMMANDED_ACC(){}
+    public void GetMOTION_STATE_AZIMUTH(){}
+    public void GetMOTION_STATE_ELEVATION(){}
+    public void GetIS_PARKING_AZIMUTH(){}
+    public void GetIS_PARKING_ELEVATION(){}
+    public void GetIS_PARKED_AZIMUTH(){}
+    public void GetIS_PARKED_ELEVATION(){}
+    public void GetAZ_ENC_OFFSET(){}
+    public void GetEL_ENC_OFFSET(){}
+    public void GetTARGET_ON_TRACKING(){}
+    public void GetTRACKING_DURATION_MAX(){}
+    public void GetTRACKING_NODES(){}
+    public void GetREFRACTION_STATUS(){}
+    public void GetPOINTING_MODEL_STATUS(){}
+    public void GetTARGET_POINTED(){}
+    public void GetTARGET_NOT_VALID(){}
+    public void GetAZ_POINTING_OFFSET(){}
+    public void GetEL_POINTING_OFFSET(){}
+    public void GetAZ_TPOINT_CORRECTION(){}
+    public void GetEL_TPOINT_CORRECTION(){}
+    public void GetREFRACTION_CORRECTION(){}
+    public void GetTIME_TO_TARGET(){}
+    public void GetSIMULATION_ACTIVE(){}
+    public void GetMACHINE_STATE(){}
+    public void GetMACHINE_STATE_PHASE(){}
+    public void GetTCU_MODE(){}
+    public void GetGO_LOADED_INFO(){}
+    public void GetGO_STANDBY_INFO(){}
+    public void GetGO_ONLINE_INFO(){}
+    public void GetGO_MAINTENANCE_INFO(){}
+    public void GetENABLE_AZ_MOTORS_INFO(){}
+    public void GetDISABLE_AZ_MOTORS_INFO(){}
+    public void GetENABLE_EL_MOTOR_INFO(){}
+    public void GetDISABLE_EL_MOTOR_INFO(){}
+    public void GetSTART_MOTION_INFO(){}
+    public void GetSTOP_MOTION_INFO(){}
+    public void GetSTART_AZ_MOTION_INFO(){}
+    public void GetSTOP_AZ_MOTION_INFO(){}
+    public void GetSTART_EL_MOTION_INFO(){}
+    public void GetSTOP_EL_MOTION_INFO(){}
+    public void GetEMERGENCY_STOP_INFO(){}
+    public void GetSTART_AZ_ENC_INIT_INFO(){}
+    public void GetSTOP_AZ_ENC_INIT_INFO(){}
+    public void GetSTART_AZ_PARKING_INFO(){}
+    public void GetSTOP_AZ_PARKING_INFO(){}
+    public void GetSTART_EL_PARKING_INFO(){}
+    public void GetSTOP_EL_PARKING_INFO(){}
+    public void GetSTART_PARKING_INFO(){}
+    public void GetSTOP_PARKING_INFO(){}
+    public void GetSTART_TRACKING_INFO(){}
+    public void GetSTOP_TRACKING_INFO(){}
+    public void GetUPDATE_TRAJECTORY_INFO(){}
+    public void GetSTART_POINTING_INFO(){}
+    public void GetSTOP_POINTING_INFO(){}
+    public void GetRESET_ALARMS_INFO(){}
+    public void GetRESET_AZ_AXIS_INFO(){}
+    public void GetRESET_EL_AXIS_INFO(){}
+    public void GetPC_SHUTDOWN_INFO(){}
+    public void GetPC_RESTART_INFO(){}
+    public void GetM2_ON_INFO(){}
+    public void GetM2_OFF_INFO(){}
+    public void GetDRIVE_400VAC_ON_INFO(){}
+    public void GetDRIVE_400VAC_OFF_INFO(){}
+    public void GetPMC_ON_INFO(){}
+    public void GetPMC_OFF_INFO(){}
+    public void GetCLEAR_ERROR_BUFFER_INFO(){}
+    public void GetERROR_NUMBER(){}
+    public void GetERROR_BUFFER(){}
+    public void GetERROR_BUFFER_OUT_OF_RANGE(){}
+    public void GetERROR_BUFFER_SIZE(){}
+    public void GetHEARTBEAT(){}
+    public void GetSW_VERSION(){}
+    public void GetLOG_MESSAGE(){}
+
+
+
+
+
+    // NON SERVONO
     
     public double[] AzEl2HaDec(double az, double el, double phi) {
         double sa, ca, se, ce, sp, cp, x, y, z, r;

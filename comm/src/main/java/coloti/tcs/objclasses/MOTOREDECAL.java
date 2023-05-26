@@ -12,6 +12,20 @@ public class MOTOREDECAL {
     public int PosizioneEncoder1;
     public int PosizioneEncoder2;
 
+    public boolean EmergencySwitchLow;
+    public boolean EmergencySwitchHigh;
+    public boolean StatusLimitSwitchLow;
+    public boolean StatusLimitSwitchHigh;
+    public int MotorStatus; // status of the EL motor: 0=disabled; 1=enabled; 2=fault
+
+
+
+
+
+
+
+    
+
     public MOTOREDECAL(ConfigurationClass cfg) {
         this.RisoluzioneEncoder1 = cfg.getElRisoluzioneEncoder1();
         this.RisoluzioneEncoder2 = cfg.getElRisoluzioneEncoder2();
