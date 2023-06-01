@@ -30,6 +30,36 @@ public class TELESCOPIO {
     public double SlewVelZ;
     public double AccZ;
 
+    public boolean TargetOnTracking;
+    public int TrackingMaxDuration;
+    public int TrackingNodes;
+    public boolean RefractionStatus;
+    public boolean PointingModelStatus;
+    public boolean TargetPointed;
+    public boolean TargetNotValid;
+    public double RefractionCorrection;
+    public double TimeToTarget;
+    public boolean SimulationActive;
+    public int MachineState;
+    public int MachineStatePhase;
+    public int TCUMode;
+    public String GoLoadedInfo;
+    public String GoStandbyInfo;
+    public String GoOnlineInfo;
+    public String GoMaintenanceInfo;
+    public String StartMotionInfo;
+    public String StopMotionInfo;
+    public String EmergencyStopInfo;
+    public String StartParkingInfo; 
+    public String StopParkingInfo; 
+    public String StartTrackingInfo; 
+    public String StopTrackingInfo; 
+    public String UpdateTrajectoryInfo;
+    public String StartPointingInfo;
+    public String StopPointingInfo;
+    public int MotionType;
+
+
 
     public TELESCOPIO(ConfigurationClass cfg){
         this.NomeTelescopio = cfg.getNomeTelescopio();

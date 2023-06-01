@@ -11,7 +11,7 @@ public class MOTOREARAZ {
     public int RiduzioneMotore;
     public int PosizioneEncoder1;
     public int PosizioneEncoder2;
-
+    // altro
     public boolean EmergencySwitchCW;
     public boolean EmergencySwitchCCW;
     public boolean StatusLimitSwitchCW;
@@ -25,7 +25,32 @@ public class MOTOREARAZ {
     public double ActualAcc; // positive CW, negative CCW
     public double CommandedPos;
     public double CommandedVel;
-    public double CommendedAcc;
+    public double CommandedAcc;
+    public int MotionState; // motion state in azimuth: 0=Stopped; 1=Stopping; 2=Slewing; 3=Tracking; 4=Jogging
+    public boolean IsParking;
+    public boolean IsParked;
+    public double EncOffset;
+    public double PointingOffset;
+    public double TPointCorrection;
+    public String EnableMotorsInfo;
+    public String DisableMotorsInfo;
+    public String StartMotionInfo;
+    public String StopMotionInfo;
+    public String StartEncInitInfo; //AZ
+    public String StopEncInitInfo; //AZ
+    public String StartParkingInfo; 
+    public String StopParkingInfo; 
+    public String ResetAxisInfo;
+    public int JogDirection;
+    public double JogVelocity;
+    public double TelPosition;
+    public double SkyPosition;
+    public boolean PositionTypeSky;
+    public double SlewVelocity;
+    public double SlewAceleration;
+    public double SlewDeceleration;
+    public double AbsEncOffset;
+    public double IncrementalEncOffset;
 
 
 

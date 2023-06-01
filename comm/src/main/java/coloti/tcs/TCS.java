@@ -1,5 +1,6 @@
 package coloti.tcs;
 
+import coloti.tcs.configuration.MotoreArAz;
 //import java.io.File;
 //import java.io.IOException;
 //import com.fasterxml.jackson.databind.ObjectMapper;
@@ -165,7 +166,7 @@ public class TCS {
     }
 
     public double GetAzCommandedAcc(){
-        return MotAZ.CommendedAcc;
+        return MotAZ.CommandedAcc;
     }
 
     public double GetElSkyPos(){
@@ -176,84 +177,415 @@ public class TCS {
         return MotEL.TelPos;
     }
 
-    //public double GetA(){}
+    public double GetElActVel(){
+        return MotEL.ActualVel;
+    }
 
-    public void GetEL_ACT_ACC(){}
-    public void GetEL_COMMANDED_POS(){}
-    public void GetEL_COMMANDED_VEL(){}
-    public void GetEL_COMMANDED_ACC(){}
-    public void GetMOTION_STATE_AZIMUTH(){}
-    public void GetMOTION_STATE_ELEVATION(){}
-    public void GetIS_PARKING_AZIMUTH(){}
-    public void GetIS_PARKING_ELEVATION(){}
-    public void GetIS_PARKED_AZIMUTH(){}
-    public void GetIS_PARKED_ELEVATION(){}
-    public void GetAZ_ENC_OFFSET(){}
-    public void GetEL_ENC_OFFSET(){}
-    public void GetTARGET_ON_TRACKING(){}
-    public void GetTRACKING_DURATION_MAX(){}
-    public void GetTRACKING_NODES(){}
-    public void GetREFRACTION_STATUS(){}
-    public void GetPOINTING_MODEL_STATUS(){}
-    public void GetTARGET_POINTED(){}
-    public void GetTARGET_NOT_VALID(){}
-    public void GetAZ_POINTING_OFFSET(){}
-    public void GetEL_POINTING_OFFSET(){}
-    public void GetAZ_TPOINT_CORRECTION(){}
-    public void GetEL_TPOINT_CORRECTION(){}
-    public void GetREFRACTION_CORRECTION(){}
-    public void GetTIME_TO_TARGET(){}
-    public void GetSIMULATION_ACTIVE(){}
-    public void GetMACHINE_STATE(){}
-    public void GetMACHINE_STATE_PHASE(){}
-    public void GetTCU_MODE(){}
-    public void GetGO_LOADED_INFO(){}
-    public void GetGO_STANDBY_INFO(){}
-    public void GetGO_ONLINE_INFO(){}
-    public void GetGO_MAINTENANCE_INFO(){}
-    public void GetENABLE_AZ_MOTORS_INFO(){}
-    public void GetDISABLE_AZ_MOTORS_INFO(){}
-    public void GetENABLE_EL_MOTOR_INFO(){}
-    public void GetDISABLE_EL_MOTOR_INFO(){}
-    public void GetSTART_MOTION_INFO(){}
-    public void GetSTOP_MOTION_INFO(){}
-    public void GetSTART_AZ_MOTION_INFO(){}
-    public void GetSTOP_AZ_MOTION_INFO(){}
-    public void GetSTART_EL_MOTION_INFO(){}
-    public void GetSTOP_EL_MOTION_INFO(){}
-    public void GetEMERGENCY_STOP_INFO(){}
-    public void GetSTART_AZ_ENC_INIT_INFO(){}
-    public void GetSTOP_AZ_ENC_INIT_INFO(){}
-    public void GetSTART_AZ_PARKING_INFO(){}
-    public void GetSTOP_AZ_PARKING_INFO(){}
-    public void GetSTART_EL_PARKING_INFO(){}
-    public void GetSTOP_EL_PARKING_INFO(){}
-    public void GetSTART_PARKING_INFO(){}
-    public void GetSTOP_PARKING_INFO(){}
-    public void GetSTART_TRACKING_INFO(){}
-    public void GetSTOP_TRACKING_INFO(){}
-    public void GetUPDATE_TRAJECTORY_INFO(){}
-    public void GetSTART_POINTING_INFO(){}
-    public void GetSTOP_POINTING_INFO(){}
-    public void GetRESET_ALARMS_INFO(){}
-    public void GetRESET_AZ_AXIS_INFO(){}
-    public void GetRESET_EL_AXIS_INFO(){}
-    public void GetPC_SHUTDOWN_INFO(){}
-    public void GetPC_RESTART_INFO(){}
-    public void GetM2_ON_INFO(){}
-    public void GetM2_OFF_INFO(){}
-    public void GetDRIVE_400VAC_ON_INFO(){}
-    public void GetDRIVE_400VAC_OFF_INFO(){}
-    public void GetPMC_ON_INFO(){}
-    public void GetPMC_OFF_INFO(){}
-    public void GetCLEAR_ERROR_BUFFER_INFO(){}
-    public void GetERROR_NUMBER(){}
-    public void GetERROR_BUFFER(){}
-    public void GetERROR_BUFFER_OUT_OF_RANGE(){}
-    public void GetERROR_BUFFER_SIZE(){}
-    public void GetHEARTBEAT(){}
-    public void GetSW_VERSION(){}
-    public void GetLOG_MESSAGE(){}
+    public double GetElActAcc(){
+        return MotEL.ActualAcc;
+    }
+
+    public double GetElCommandedPos(){
+        return MotEL.CommandedPos;
+    }
+    
+    public double GetElCommandedVel(){
+        return MotEL.CommandedVel;
+    }
+
+    public double GetElCommandedAcc(){
+        return MotEL.CommandedAcc;
+    }
+
+    public int GetAzMotionState(){
+        return MotAZ.MotionState;
+    }
+
+    public int GetElMotionState(){
+        return MotEL.MotionState;
+    }
+
+    public boolean GetAzIsParking(){
+        return MotAZ.IsParking;
+    }
+
+    public boolean GetElIsParking(){
+        return MotEL.IsParking;
+    }
+
+    public boolean GetAzIsParked(){
+        return MotAZ.IsParked;
+    }
+
+    public boolean GetElIsParked(){
+        return MotEL.IsParked;
+    }
+
+    public double GetAzEncOffset(){
+        return MotAZ.EncOffset;
+    }
+
+    public double GetElEncOffset(){
+        return MotEL.EncOffset;
+    }
+
+    public boolean GetTargetOnTracking(){
+        return TEL.TargetOnTracking;
+    }
+
+    public int GetTrackingMaxDuration(){
+        return TEL.TrackingMaxDuration;
+    }
+
+    public int GetTrackingNodes(){
+        return TEL.TrackingNodes;
+    }
+
+    public boolean GetRefractionStatus(){
+        return TEL.RefractionStatus;
+    }
+    
+    public boolean GetPointingModelStatus(){
+        return TEL.PointingModelStatus;
+    }
+
+    public boolean GetTargetPointed(){
+        return TEL.TargetPointed;
+    }
+
+    public boolean GetTARGET_NOT_VALID(){
+        return TEL.TargetNotValid;
+    }
+
+    public double GetAzPointingOffset(){
+        return MotAZ.PointingOffset;
+    }
+
+    public double GetElPointingOffset(){
+        return MotEL.PointingOffset;
+    }
+    
+    public double GetAzTpoingCorrection(){
+        return MotAZ.TPointCorrection;
+    }
+
+    public double GetElTpoingCorrection(){
+        return MotEL.TPointCorrection;
+    }
+    
+    public double GetRefractionCorrection(){
+        return TEL.RefractionCorrection;
+    }
+    
+    public double GetTimeToTarget(){
+        return TEL.TimeToTarget;
+    }
+    
+    public boolean GetSimulationActive(){
+        return TEL.SimulationActive;
+    }
+    
+    public int GetMachineState(){
+        return TEL.MachineState;
+    }
+    
+    public int GetMachineStatePhase(){
+        return TEL.MachineStatePhase;
+    }
+    
+    public int GetTCUMode(){
+        return TEL.TCUMode;
+    }
+    
+    public String GegGoLoadedInfo(){
+        return TEL.GoLoadedInfo;
+    }
+    
+    public String GetGoStandbyInfo(){
+        return TEL.GoStandbyInfo;
+    }
+    
+    public String GetGoOnlineInfo(){
+        return TEL.GoOnlineInfo;
+    }
+    
+    public String GetGoMaintenanceInfo(){
+        return TEL.GoMaintenanceInfo;
+    }
+    
+    public String GetAzEnableMotorsInfo(){
+        return MotAZ.EnableMotorsInfo;
+    }
+    
+    public String GetAzDisableMotorsInfo(){
+        return MotAZ.DisableMotorsInfo;
+    }
+
+    public String GetElEnableMotorsInfo(){
+        return MotEL.EnableMotorsInfo;
+    }
+    
+    public String GetElDisableMotorsInfo(){
+        return MotEL.DisableMotorsInfo;
+    }
+    
+    public String GetStartMotionInfo(){
+        return TEL.StartMotionInfo;
+    }
+    
+    public String GetStopMotionInfo(){
+        return TEL.StopMotionInfo;
+    }
+    
+    public String GetAzStartMotionInfo(){
+        return MotAZ.StartMotionInfo;
+    }
+    
+    public String GetAzStopMotionInfo(){
+        return MotAZ.StopMotionInfo;
+    }
+    
+    public String GetElStartMotionInfo(){
+        return MotEL.StartMotionInfo;
+    }
+    
+    public String GetElStopMotionInfo(){
+        return MotEL.StopMotionInfo;
+    }
+    
+    public String GetEmergencyStopInfo(){
+        return TEL.EmergencyStopInfo;
+    }
+    
+    public String GetAzStartEncInitInfo(){
+        return MotAZ.StartEncInitInfo;
+    }
+    
+    public String GetAzStopEncInitInfo(){
+        return MotAZ.StopEncInitInfo;
+    }
+    
+    public String GetAzStartParkingInfo(){
+        return MotAZ.StartParkingInfo;
+    }
+    public String GetAzStopParkingInfo(){
+        return MotAZ.StopParkingInfo;
+    }
+    public String GetElStartParkingInfo(){
+        return MotEL.StartParkingInfo;
+    }
+    public String GetElStopParkingInfo(){
+        return MotEL.StopParkingInfo;
+    }    
+
+    public String GetStartParkingInfo(){
+        return TEL.StartParkingInfo;
+    }
+    public String GetStopParkingInfo(){
+        return TEL.StopParkingInfo;
+    }
+
+    public String GetStartTrackingInfo(){
+        return TEL.StartTrackingInfo;
+    }
+    public String GetStopTrackingInfo(){
+        return TEL.StopTrackingInfo;
+    }    
+
+    public String GetUPDATE_TRAJECTORY_INFO(){
+        return TEL.UpdateTrajectoryInfo;
+    }
+
+    public String GetStartPointingInfo(){
+        return TEL.StartPointingInfo;
+    }
+    public String GetStopPointingInfo(){
+        return TEL.StopPointingInfo;
+    }
+
+    public String GetAzResetAxisInfo(){
+        return MotAZ.ResetAxisInfo;
+    }
+    
+    public String GetElResetAxisInfo(){
+        return MotEL.ResetAxisInfo;
+    }
+
+
+    //GEN
+
+    public String GetResetAlarmInfo(){
+        return GEN.ResetAlarmsInfo;
+    }
+    
+    public String GetPCShutdownInfo(){
+        return GEN.PCShutdownInfo;
+    }
+    
+    public String GetPcRestartInfo(){
+        return GEN.PCRestartInfo;
+    }
+    
+    public String GetM2onInfo(){
+        return GEN.M2onInfo;
+    }
+    
+    public String GetM2offInfo(){
+        return GEN.M2offInfo;
+    }
+    
+    public String GetDrive400VAConInfo(){
+        return GEN.Drive400VAConInfo;
+    }
+    
+    public String GetDrive400VACoffInfo(){
+        return GEN.Drive400VACoffInfo;
+    }
+    
+    public String GetPMConInfo(){
+        return GEN.PMConInfo;
+    }
+    
+    public String GetPMCoffInfo(){
+        return GEN.PMCoffInfo;
+    }
+    
+    public String GetClearErrorBufferInfo(){
+        return GEN.ClearErrorBufferInfo;
+    }
+    
+    public int GetErrorNumber(){
+        return GEN.ErrorNumber;
+    }
+    
+    public String GetErrorBuffer(){
+        return GEN.ErrorBuffer;
+    }
+    
+    public boolean GetErrorBufferOutOfRange(){
+        return GEN.ErrorBufferOutOfRange;
+    }
+    
+    public int GetErrorBufferSize(){
+        return GEN.ErrorBufferSize;
+    }
+    
+    public int GetHeartBeat(){
+        return GEN.HeartBeat;
+    }
+    
+    public String GetSwVersion(){
+        return GEN.SwVersion;
+    }
+    
+    public String GetLogMessage(){
+        return GEN.LogMessage;
+    }
+
+
+
+    // setters aggiuntivi
+    public void Set(){
+
+    }
+
+    public void SetAzTelPosition(double value){
+        this.MotAZ.TelPosition = value;
+    }
+
+    public void SetAzSkyPosition(double value){
+        this.MotAZ.SkyPosition = value;
+    }
+
+    public void SetAzJogDirection(int value){
+        this.MotAZ.JogDirection = value;
+    }
+
+    public void SetAzJogVelocity(double value){
+        this.MotAZ.JogVelocity = value;
+    }
+
+    public void SetElTelPosition(double value){
+        this.MotEL.TelPosition = value;
+    }
+
+    public void SetElSkyPosition(double value){
+        this.MotEL.SkyPosition = value;
+    }
+
+    public void SetElJogDirection(int value){
+        this.MotEL.JogDirection = value;
+    }
+
+    public void SetElJogVelocity(double value){
+        this.MotEL.JogVelocity = value;
+    }
+    
+    public void SetMotionType(int value){
+        this.TEL.MotionType = value;
+    }
+
+    public void SetAzPositionTypeSky(boolean value){
+        this.MotAZ.PositionTypeSky = value;
+    }
+
+    public void SetAzSlewVelocity(double value){
+        this.MotAZ.SlewVelocity = value;        
+    }
+
+    public void SetAzSlewAcceleration(double value){
+        this.MotAZ.SlewAceleration = value;        
+    }
+
+    public void SetAzSlewDeceleration(double value){
+        this.MotAZ.SlewDeceleration = value;        
+    }
+
+    public void SetElSlewVelocity(double value){
+        this.MotEL.SlewVelocity = value;        
+    }
+
+    public void SetElSlewAcceleration(double value){
+        this.MotEL.SlewAceleration = value;        
+    }
+
+    public void SetElSlewDeceleration(double value){
+        this.MotEL.SlewDeceleration = value;        
+    }
+
+    public void SetAzAbsoluteEncOffset(double value){
+        this.MotAZ.AbsEncOffset = value;
+    }
+
+    public void SetAzIncrementalEncOffset(double value){
+        this.MotAZ.IncrementalEncOffset = value;
+    }
+
+
+
+    
+
+
+
+
+    
+    
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
 
 
 
