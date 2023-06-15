@@ -91,17 +91,30 @@ public class TCS {
         }
     }
 
-    // GET FUNCTIONS
+
+
+
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+
+
+
+
+    // GETTERS
 
     public boolean GetAzCw(){
         return MotAZ.EmergencySwitchCW;
     } // ClockWise
+    
     public boolean GetAzCcw(){
         return MotAZ.EmergencySwitchCCW;
     } // CounterClockWise
+    
     public boolean GetElHigh(){
         return MotEL.EmergencySwitchHigh;
     }
+    
     public boolean GetElLow(){
         return MotEL.EmergencySwitchLow;
     }
@@ -121,6 +134,7 @@ public class TCS {
     public boolean GetElLsOpLow(){
         return MotEL.StatusLimitSwitchLow;
     }
+    
     public boolean GetElLsOpHigh(){
         return MotEL.StatusLimitSwitchHigh;
     }
@@ -368,12 +382,15 @@ public class TCS {
     public String GetAzStartParkingInfo(){
         return MotAZ.StartParkingInfo;
     }
+    
     public String GetAzStopParkingInfo(){
         return MotAZ.StopParkingInfo;
     }
+    
     public String GetElStartParkingInfo(){
         return MotEL.StartParkingInfo;
     }
+    
     public String GetElStopParkingInfo(){
         return MotEL.StopParkingInfo;
     }    
@@ -381,6 +398,7 @@ public class TCS {
     public String GetStartParkingInfo(){
         return TEL.StartParkingInfo;
     }
+    
     public String GetStopParkingInfo(){
         return TEL.StopParkingInfo;
     }
@@ -388,6 +406,7 @@ public class TCS {
     public String GetStartTrackingInfo(){
         return TEL.StartTrackingInfo;
     }
+    
     public String GetStopTrackingInfo(){
         return TEL.StopTrackingInfo;
     }    
@@ -399,6 +418,7 @@ public class TCS {
     public String GetStartPointingInfo(){
         return TEL.StartPointingInfo;
     }
+    
     public String GetStopPointingInfo(){
         return TEL.StopPointingInfo;
     }
@@ -410,7 +430,6 @@ public class TCS {
     public String GetElResetAxisInfo(){
         return MotEL.ResetAxisInfo;
     }
-
 
     //GEN
 
@@ -484,10 +503,16 @@ public class TCS {
 
 
 
-    // setters aggiuntivi
-    public void Set(){
 
-    }
+
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+
+
+
+
+    // SETTERS 
 
     public void SetAzTelPosition(double value){
         this.MotAZ.TelPosition = value;
@@ -561,20 +586,1172 @@ public class TCS {
         this.MotAZ.IncrementalEncOffset = value;
     }
 
+    public void SetElEncoderOffset(double value){
+        this.MotEL.EncoderOffset = value;
+    }
 
+    public void SetTrackFollowingError(double value){
+        this.GEN.TrackFollowingError = value;
+    }
 
+    public void SetAzMinAcc(double value){
+        this.MotAZ.MinAcc = value;
+    }
+
+    public void SetAzMaxAcc(double value){
+        this.MotAZ.MaxAcc = value;
+    }
+
+    public void SetAzMinDec(double value){
+        this.MotAZ.MinDec = value;
+    }
+
+    public void SetAzMaxDec(double value){
+        this.MotAZ.MaxDec = value;
+    }
     
+    public void SetAzMinVel(double value){
+        this.MotAZ.MinVel = value;
+    }
 
+    public void SetAzMaxVel(double value){
+        this.MotAZ.MaxVel = value;
+    }
 
+    public void SetAzTelMinPos(double value){
+        this.MotAZ.TelMinPos = value;
+    }
 
+    public void SetAzTelMaxPos(double value){
+        this.MotAZ.TelMaxPos = value;
+    }
 
+    public void SetAzSkyMinPos(double value){
+        this.MotAZ.SkyMinPos = value;
+    }
+
+    public void SetAzSkyMaxPos(double value){
+        this.MotAZ.SkyMaxPos = value;
+    }
+
+    public void SetElMinAcc(double value){
+        this.MotEL.MinAcc = value;
+    }
+
+    public void SetElMaxAcc(double value){
+        this.MotEL.MaxAcc = value;
+    }
+
+    public void SetElMinDec(double value){
+        this.MotEL.MinDec = value;
+    }
+
+    public void SetElMaxDec(double value){
+        this.MotEL.MaxDec = value;
+    }
     
+    public void SetElMinVel(double value){
+        this.MotEL.MinVel = value;
+    }
+
+    public void SetElMaxVel(double value){
+        this.MotEL.MaxVel = value;
+    }
+
+    public void SetElTelMinPos(double value){
+        this.MotEL.TelMinPos = value;
+    }
+
+    public void SetElTelMaxPos(double value){
+        this.MotEL.TelMaxPos = value;
+    }
+
+    public void SetElSkyMinPos(double value){
+        this.MotEL.SkyMinPos = value;
+    }
+
+    public void SetElSkyMaxPos(double value){
+        this.MotEL.SkyMaxPos = value;
+    }
+
+    public void SetAzLsOpCwPos(double value){
+        this.MotAZ.LsOpCwPos = value;
+    }
+
+    public void SetAzLsOpCcwPos(double value){
+        this.MotAZ.LsOpCcwPos = value;
+    }
+
+    public void SetAzPreLsOpCwPos(double value){
+        this.MotAZ.PreLsOpCwPos = value;
+    }
+
+    public void SetAzPreLsOpCcwPos(double value){
+        this.MotAZ.PreLsOpCcwPos = value;
+    }
+
+    public void SetElLsOpLowPos(double value){
+        this.MotEL.LsOpLowPos = value;
+    }
+
+    public void SetElLsOpHighPos(double value){
+        this.MotEL.LsOpHighPos = value;
+    }
+
+    public void SetElPreLsOpLowPos(double value){
+        this.MotEL.PreLsOpLowPos = value;
+    }
+
+    public void SetElPreLsOpHighPos(double value){
+        this.MotEL.PreLsOpHighPos = value;
+    }
+
+    public void SetAzLsEmergCwPos(double value){
+        this.MotAZ.LsEmergCwPos = value;
+    }
+
+    public void SetAzLsEmergCcwPos(double value){
+        this.MotAZ.LsEmergCcwPos = value;
+    }
+
+    public void SetElLsEmergLowPos(double value){
+        this.MotEL.LsEmergLowPos = value;
+    }
+
+    public void SetElLsEmergHighPos(double value){
+        this.MotEL.LsEmergHighPos = value;
+    }
+
+    public void SetAzCounterTorque(double value){
+        this.MotAZ.CounterTorque = value;
+    }
+
+    public void SetAzServoCoeff1(double value){
+        this.MotAZ.ServoCoeff1 = value;
+    }
+
+    public void SetAzServoCoeff2(double value){
+        this.MotAZ.ServoCoeff2 = value;
+    }
+
+    public void SetAzServoCoeff3(double value){
+        this.MotAZ.ServoCoeff3 = value;
+    }
+
+    public void SetElServoCoeff1(double value){
+        this.MotEL.ServoCoeff1 = value;
+    }
+
+    public void SetElServoCoeff2(double value){
+        this.MotEL.ServoCoeff2 = value;
+    }
+
+    public void SetElServoCoeff3(double value){
+        this.MotEL.ServoCoeff3 = value;
+    }
+
+    public void SetObserverLat(double value){
+        this.OSS.Latitudine = value; // oppure disaccoppiare: ObserverLat 
+    }
+
+    public void SetObserverLong(double value){
+        this.OSS.Longitudine = value;
+    }
+
+    public void SetObserverAlt(int value){
+        this.OSS.Altitudine = value;
+    }
+
+    public void SetParkingStowPinMode(boolean value){
+        this.GEN.ParkingStowPinMode = value;
+    }
+
+    public void SetAzParkPos(double value){
+        this.MotAZ.ParkPos = value;
+    }
+
+    public void SetElParkPos(double value){
+        this.MotEL.ParkPos = value;
+    }
+
+    public void SetResetHeartBeatInterval(int value){
+        this.GEN.ResetHeartBeatInterval = value;
+    }
+
+    public void SetEnableSunAvoidanceWindow(boolean value){
+        this.GEN.EnableSunAvoidanceWindow = value;
+    }
     
+    public void SetTPointCoeff1(double value){
+        this.GEN.TPointCoeff1 = value;
+    }
 
-
-
-
+    public void SetTPointCoeff2(double value){
+        this.GEN.TPointCoeff2 = value;
+    }
     
+    public void SetTPointCoeff3(double value){
+        this.GEN.TPointCoeff3 = value;
+    }
+    
+    public void SetTPointCoeff4(double value){
+        this.GEN.TPointCoeff4 = value;
+    }
+    
+    public void SetTPointCoeff5(double value){
+        this.GEN.TPointCoeff5 = value;
+    }
+    
+    public void SetTPointCoeff6(double value){
+        this.GEN.TPointCoeff6 = value;
+    }
+    
+    public void SetTPointCoeff7(double value){
+        this.GEN.TPointCoeff7 = value;
+    }
+    
+    public void SetTPointCoeff8(double value){
+        this.GEN.TPointCoeff8 = value;
+    }
+    
+    public void SetTPointCoeff9(double value){
+        this.GEN.TPointCoeff9 = value;
+    }
+    
+    public void SetTPointCoeff10(double value){
+        this.GEN.TPointCoeff10 = value;
+    }
+    
+    public void SetTPointCoeff11(double value){
+        this.GEN.TPointCoeff11 = value;
+    }
+    
+    public void SetTPointCoeff12(double value){
+        this.GEN.TPointCoeff12 = value;
+    }
+    
+    public void SetTPointCoeff13(double value){
+        this.GEN.TPointCoeff13 = value;
+    }
+    
+    public void SetTPointCoeff14(double value){
+        this.GEN.TPointCoeff14 = value;
+    }
+    
+    public void SetTPointCoeff15(double value){
+        this.GEN.TPointCoeff15 = value;
+    }
+    
+    public void SetTPointCoeff16(double value){
+        this.GEN.TPointCoeff16 = value;
+    }
+    
+    public void SetTPointCoeff17(double value){
+        this.GEN.TPointCoeff17 = value;
+    }
+    
+    public void SetTPointCoeff18(double value){
+        this.GEN.TPointCoeff18 = value;
+    }
+    
+    public void SetTPointCoeff19(double value){
+        this.GEN.TPointCoeff19 = value;
+    }
+    
+    public void SetTPointCoeff20(double value){
+        this.GEN.TPointCoeff20 = value;
+    }
+    
+    public void SetTPointCoeff21(double value){
+        this.GEN.TPointCoeff21 = value;
+    }
+    
+    public void SetTPointCoeff22(double value){
+        this.GEN.TPointCoeff22 = value;
+    }
+    
+    public void SetTPointCoeff23(double value){
+        this.GEN.TPointCoeff23 = value;
+    }
+    
+    public void SetTPointCoeff24(double value){
+        this.GEN.TPointCoeff24 = value;
+    }
+    
+    public void SetTPointCoeff25(double value){
+        this.GEN.TPointCoeff25 = value;
+    }
+
+    public void SetTrajectoryGenerationMode(int value){
+        this.TEL.TrajectoryGenerationMode = value;
+    }
+
+    public void SetPointingModelOnOff(boolean value){
+        this.TEL.PointingModelOnOff = value;
+    }
+
+    public void SetTrackingDuration(int value){
+        this.TEL.TrackingDuration = value;
+    }
+
+    public void SetTrajectoryNodeArray(double value){
+        this.TEL.TrajectoryNodeArray = value;
+    }
+
+    public void SetAzOffset(double value){
+        this.MotAZ.Offset = value;
+    }
+
+    public void SetElOffset(double value){
+        this.MotEL.Offset = value;
+    }
+
+    public void SetRefractionOnOff(boolean value){
+        this.TEL.Refraction = value;
+    }
+    
+    public void SetTargetName(String value){
+        this.TEL.TargetName = value;
+    }
+
+    public void SetTargetRA(double value){
+        this.TEL.TargetRA = value;
+    }
+
+    public void SetTargetDEC(double value){
+        this.TEL.TargetDEC = value;
+    }
+    
+    public void SetTargetPmRA(double value){
+        this.TEL.TargetPmRA = value;
+    }
+
+    public void SetTargetPmDEC(double value){
+        this.TEL.TargetPmDEC = value;
+    }
+
+    public void SetTargetPX(double value){
+        this.TEL.TargetPX = value;
+    }
+
+    public void SetTargetRV(double value){
+        this.TEL.TargetRV = value;
+    }
+
+    public void SetTargetEquinox(double value){
+        this.TEL.TargetEquinox = value;
+    }
+
+    public void SetTargetEpoch(double value){
+        this.TEL.TargetEpoch = value;
+    }
+
+    public void SetTargetCoordFrame(int value){
+        this.TEL.TargetCoordFrame = value;
+    }
+
+    public void SetTargetCoordType(int value){
+        this.TEL.TargetCoordType = value;
+    }
+
+    public void SetWeatherTemp(double value){
+        this.GEN.WeatherTemp = value;
+    }
+
+    public void SetWeatherPr(double value){
+        this.GEN.WeatherPr = value;
+    }
+
+    public void SetWeatherHum(double value){
+        this.GEN.WeatherHum = value;
+    }
+
+    public void SetWeatherWi(double value){
+        this.GEN.WeatherWi = value;
+    }
+
+    public void SetWeatherWiDir(double value){
+        this.GEN.WeatherWiDir = value;
+    }
+
+    public void SetWeatherWLen(double value){
+        this.GEN.WeatherWlen = value;
+    }
+
+    public void SetIersDut1(double value){
+        this.GEN.IersDut1 = value;
+    }
+
+    public void SetIersTaiUtc(double value){
+        this.GEN.IersTaiUtc = value;
+    }
+
+    public void SetIersXpp(double value){
+        this.GEN.IersXpp = value;
+    }
+
+    public void SetIersYpp(double value){
+        this.GEN.IersYpp = value;
+    }
+    
+    public void SetElObservLimitMin(double value){
+        this.MotEL.ObservLimitMin = value;
+    }
+
+    public void SetElObservLimitMax(double value){
+        this.MotEL.ObservLimitMax = value;
+    }
+
+
+
+
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+
+
+
+    // Getters dei setters
+
+    public double GetAzTelPosition(){
+        return MotAZ.TelPosition;
+    }
+
+    public double GetAzSkyPosition(){
+        return MotAZ.SkyPosition;
+    }
+
+    public int GetAzJogDirection(){
+        return MotAZ.JogDirection;
+    }
+
+    public double GetAzJogVelocity(){
+        return MotAZ.JogVelocity;
+    }
+
+    public double GetElTelPosition(){
+        return MotEL.TelPosition;
+    }
+
+    public double GetElSkyPosition(){
+        return MotEL.SkyPosition;
+    }
+
+    public int GetElJogDirection(){
+        return MotEL.JogDirection;
+    }
+
+    public double GetElJogVelocity(){
+        return MotEL.JogVelocity;
+    }
+    
+    public int GetMotionType(){
+        return TEL.MotionType;
+    }
+
+    public boolean GetAzPositionTypeSky(){
+        return MotAZ.PositionTypeSky;
+    }
+
+    public double GetAzSlewVelocity(){
+        return MotAZ.SlewVelocity;        
+    }
+
+    public double GetAzSlewAcceleration(){
+        return MotAZ.SlewAceleration;        
+    }
+
+    public double GetAzSlewDeceleration(){
+        return MotAZ.SlewDeceleration;        
+    }
+
+    public double GetElSlewVelocity(){
+        return MotEL.SlewVelocity;        
+    }
+
+    public double GetElSlewAcceleration(){
+        return MotEL.SlewAceleration;        
+    }
+
+    public double GetElSlewDeceleration(){
+        return MotEL.SlewDeceleration;        
+    }
+
+    public double GetAzAbsoluteEncOffset(){
+        return MotAZ.AbsEncOffset;
+    }
+
+    public double GetAzIncrementalEncOffset(){
+        return MotAZ.IncrementalEncOffset;
+    }
+
+    public double GetElEncoderOffset(){
+        return MotEL.EncoderOffset;
+    }
+
+    public double GetTrackFollowingError(){
+        return GEN.TrackFollowingError;
+    }
+
+    public double GetAzMinAcc(){
+        return MotAZ.MinAcc;
+    }
+
+    public double GetAzMaxAcc(){
+        return MotAZ.MaxAcc;
+    }
+
+    public double GetAzMinDec(){
+        return MotAZ.MinDec;
+    }
+
+    public double GetAzMaxDec(){
+        return MotAZ.MaxDec;
+    }
+    
+    public double GetAzMinVel(){
+        return MotAZ.MinVel;
+    }
+
+    public double GetAzMaxVel(){
+        return MotAZ.MaxVel;
+    }
+
+    public double GetAzTelMinPos(){
+        return MotAZ.TelMinPos;
+    }
+
+    public double GetAzTelMaxPos(){
+        return MotAZ.TelMaxPos;
+    }
+
+    public double GetAzSkyMinPos(){
+        return MotAZ.SkyMinPos;
+    }
+
+    public double GetAzSkyMaxPos(){
+        return MotAZ.SkyMaxPos;
+    }
+
+    public double GetElMinAcc(){
+        return MotEL.MinAcc;
+    }
+
+    public double GetElMaxAcc(){
+        return MotEL.MaxAcc;
+    }
+
+    public double GetElMinDec(){
+        return MotEL.MinDec;
+    }
+
+    public double GetElMaxDec(){
+        return MotEL.MaxDec;
+    }
+    
+    public double GetElMinVel(){
+        return MotEL.MinVel;
+    }
+
+    public double GetElMaxVel(){
+        return MotEL.MaxVel;
+    }
+
+    public double GetElTelMinPos(){
+        return MotEL.TelMinPos;
+    }
+
+    public double GetElTelMaxPos(){
+        return MotEL.TelMaxPos;
+    }
+
+    public double GetElSkyMinPos(){
+        return MotEL.SkyMinPos;
+    }
+
+    public double GetElSkyMaxPos(){
+        return MotEL.SkyMaxPos;
+    }
+
+    public double GetAzLsOpCwPos(){
+        return MotAZ.LsOpCwPos;
+    }
+
+    public double GetAzLsOpCcwPos(){
+        return MotAZ.LsOpCcwPos;
+    }
+
+    public double GetAzPreLsOpCwPos(){
+        return MotAZ.PreLsOpCwPos;
+    }
+
+    public double GetAzPreLsOpCcwPos(){
+        return MotAZ.PreLsOpCcwPos;
+    }
+
+    public double GetElLsOpLowPos(){
+        return MotEL.LsOpLowPos;
+    }
+
+    public double GetElLsOpHighPos(){
+        return MotEL.LsOpHighPos;
+    }
+
+    public double GetElPreLsOpLowPos(){
+        return MotEL.PreLsOpLowPos;
+    }
+
+    public double GetElPreLsOpHighPos(){
+        return MotEL.PreLsOpHighPos;
+    }
+
+    public double GetAzLsEmergCwPos(){
+        return MotAZ.LsEmergCwPos;
+    }
+
+    public double GetAzLsEmergCcwPos(){
+        return MotAZ.LsEmergCcwPos;
+    }
+
+    public double GetElLsEmergLowPos(){
+        return MotEL.LsEmergLowPos;
+    }
+
+    public double GetElLsEmergHighPos(){
+        return MotEL.LsEmergHighPos;
+    }
+
+    public double GetAzCounterTorque(){
+        return MotAZ.CounterTorque;
+    }
+
+    public double GetAzServoCoeff1(){
+        return MotAZ.ServoCoeff1;
+    }
+
+    public double GetAzServoCoeff2(){
+        return MotAZ.ServoCoeff2;
+    }
+
+    public double GetAzServoCoeff3(){
+        return MotAZ.ServoCoeff3;
+    }
+
+    public double GetElServoCoeff1(){
+        return MotEL.ServoCoeff1;
+    }
+
+    public double GetElServoCoeff2(){
+        return MotEL.ServoCoeff2;
+    }
+
+    public double GetElServoCoeff3(){
+        return MotEL.ServoCoeff3;
+    }
+
+    public double GetObserverLat(){
+        return OSS.Latitudine; // oppure disaccoppiare: ObserverLat 
+    }
+
+    public double GetObserverLong(){
+        return OSS.Longitudine;
+    }
+
+    public int GetObserverAlt(){
+        return OSS.Altitudine;
+    }
+
+    public boolean GetParkingStowPinMode(){
+        return GEN.ParkingStowPinMode;
+    }
+
+    public double GetAzParkPos(){
+        return MotAZ.ParkPos;
+    }
+
+    public double GetElParkPos(){
+        return MotEL.ParkPos;
+    }
+
+    public int GetResetHeartBeatInterval(){
+        return GEN.ResetHeartBeatInterval;
+    }
+
+    public boolean GetEnableSunAvoidanceWindow(){
+        return GEN.EnableSunAvoidanceWindow;
+    }
+
+    public double GetTPointCoeff1(){
+        return GEN.TPointCoeff1;
+    }
+
+    public double GetTPointCoeff2(){
+        return GEN.TPointCoeff2;
+    }
+    
+    public double GetTPointCoeff3(){
+        return GEN.TPointCoeff3;
+    }
+    
+    public double GetTPointCoeff4(){
+        return GEN.TPointCoeff4;
+    }
+    
+    public double GetTPointCoeff5(){
+        return GEN.TPointCoeff5;
+    }
+    
+    public double GetTPointCoeff6(){
+        return GEN.TPointCoeff6;
+    }
+    
+    public double GetTPointCoeff7(){
+        return GEN.TPointCoeff7;
+    }
+    
+    public double GetTPointCoeff8(){
+        return GEN.TPointCoeff8;
+    }
+    
+    public double GetTPointCoeff9(){
+        return GEN.TPointCoeff9;
+    }
+    
+    public double GetTPointCoeff10(){
+        return GEN.TPointCoeff10;
+    }
+    
+    public double GetTPointCoeff11(){
+        return GEN.TPointCoeff11;
+    }
+    
+    public double GetTPointCoeff12(){
+        return GEN.TPointCoeff12;
+    }
+    
+    public double GetTPointCoeff13(){
+        return GEN.TPointCoeff13;
+    }
+    
+    public double GetTPointCoeff14(){
+        return GEN.TPointCoeff14;
+    }
+    
+    public double GetTPointCoeff15(){
+        return GEN.TPointCoeff15;
+    }
+    
+    public double GetTPointCoeff16(){
+        return GEN.TPointCoeff16;
+    }
+    
+    public double GetTPointCoeff17(){
+        return GEN.TPointCoeff17;
+    }
+    
+    public double GetTPointCoeff18(){
+        return GEN.TPointCoeff18;
+    }
+    
+    public double GetTPointCoeff19(){
+        return GEN.TPointCoeff19;
+    }
+    
+    public double GetTPointCoeff20(){
+        return GEN.TPointCoeff20;
+    }
+    
+    public double GetTPointCoeff21(){
+        return GEN.TPointCoeff21;
+    }
+    
+    public double GetTPointCoeff22(){
+        return GEN.TPointCoeff22;
+    }
+    
+    public double GetTPointCoeff23(){
+        return GEN.TPointCoeff23;
+    }
+    
+    public double GetTPointCoeff24(){
+        return GEN.TPointCoeff24;
+    }
+    
+    public double GetTPointCoeff25(){
+        return GEN.TPointCoeff25;
+    }
+
+    public int GetTrajectoryGenerationMode(){
+        return TEL.TrajectoryGenerationMode;
+    }
+
+    public boolean GetPointingModelOnOff(){
+        return TEL.PointingModelOnOff;
+    }
+
+    public int GetTrackingDuration(){
+        return TEL.TrackingDuration;
+    }
+
+    public double GetTrajectoryNodeArray(){
+        return TEL.TrajectoryNodeArray;
+    }
+
+    public double GetAzOffset(){
+        return MotAZ.Offset;
+    }
+
+    public double GetElOffset(){
+        return MotEL.Offset;
+    }
+
+    public boolean GetRefractionOnOff(){
+        return TEL.Refraction;
+    }
+    
+    public String GetTargetName(){
+        return TEL.TargetName;
+    }
+
+    public double GetTargetRA(){
+        return TEL.TargetRA;
+    }
+
+    public double GetTargetDEC(){
+        return TEL.TargetDEC;
+    }
+    
+    public double GetTargetPmRA(){
+        return TEL.TargetPmRA;
+    }
+
+    public double GetTargetPmDEC(){
+        return TEL.TargetPmDEC;
+    }
+
+    public double GetTargetPX(){
+        return TEL.TargetPX;
+    }
+
+    public double GetTargetRV(){
+        return TEL.TargetRV;
+    }
+
+    public double GetTargetEquinox(){
+        return TEL.TargetEquinox;
+    }
+
+    public double GetTargetEpoch(){
+        return TEL.TargetEpoch;
+    }
+
+    public int GetTargetCoordFrame(){
+        return TEL.TargetCoordFrame;
+    }
+
+    public int GetTargetCoordType(){
+        return TEL.TargetCoordType;
+    }
+
+    public double GetWeatherTemp(){
+        return GEN.WeatherTemp;
+    }
+
+    public double GetWeatherPr(){
+        return GEN.WeatherPr;
+    }
+
+    public double GetWeatherHum(){
+        return GEN.WeatherHum;
+    }
+
+    public double GetWeatherWi(){
+        return GEN.WeatherWi;
+    }
+
+    public double GetWeatherWiDir(){
+        return GEN.WeatherWiDir;
+    }
+
+    public double GetWeatherWLen(){
+        return GEN.WeatherWlen;
+    }
+
+    public double GetIersDut1(){
+        return GEN.IersDut1;
+    }
+
+    public double GetIersTaiUtc(){
+        return GEN.IersTaiUtc;
+    }
+
+    public double GetIersXpp(){
+        return GEN.IersXpp;
+    }
+
+    public double GetIersYpp(){
+        return GEN.IersYpp;
+    }
+    
+    public double GetElObservLimitMin(){
+        return MotEL.ObservLimitMin;
+    }
+
+    public double GetElObservLimitMax(){
+        return MotEL.ObservLimitMax;
+    }
+
+
+
+
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+
+
+
+
+    // COMANDI OPCUA
+
+    public void CmdGoLoaded(boolean value){
+        
+    }
+
+    public void CmdGoStanby(boolean value){
+        
+    }
+
+    public void CmdGoOnline(boolean value){
+        
+    }
+
+    public void CmdGoMaintenance(boolean value){
+        
+    }
+
+
+    public void CmdEnableAzMotors(boolean value){
+        int err;
+        long ValoX;
+        if (!AsseX.CommStatus){
+            AsseX.OpenCommunications();
+            AsseX.SetMotorOn("X");
+            err = AsseX.GetMotEncPos("X");
+            ValoX = AsseX.VALUECR;
+        }
+    }
+
+    public void CmdDisableAzMotors(boolean value){
+        int err;
+        long ValoX;
+        if (AsseX.CommStatus){
+            if (AsseX.IsMoving("X") == 1){
+                AsseX.StopMove("X");
+            }
+            AsseX.SetMotorOff("X");
+            err = AsseX.GetMotEncPos("X");
+            ValoX = AsseX.VALUECR;
+            AsseX.CloseComm();
+        }
+    }
+
+
+    public void CmdEnableElMotors(boolean value){
+        int err;
+        long ValoY;
+        if (!AsseY.CommStatus){
+            AsseY.OpenCommunications();
+            AsseY.SetMotorOn("X");
+            err = AsseY.GetMotEncPos("X");
+            ValoY = AsseY.VALUECR;
+        }
+    }
+
+    public void CmdDisableElMotors(boolean value){
+        int err;
+        long ValoY;
+        if (AsseY.CommStatus){
+            if (AsseY.IsMoving("X") == 1){
+                AsseY.StopMove("X");
+            }
+            AsseY.SetMotorOff("X");
+            err = AsseY.GetMotEncPos("X");
+            ValoY = AsseY.VALUECR;
+            AsseY.CloseComm();
+        }
+    }
+
+
+    public void CmdStartMotion(boolean value){
+        if (AsseX.CommStatus && AsseY.CommStatus){
+
+            AsseX.StopMove("X");
+            if(AsseX.IsMoving("X") == 1)
+                Sleep(200);
+            AsseY.StopMove("X");
+            if(AsseY.IsMoving("X") == 1)
+                Sleep(200);
+
+            AsseX.SetSlewMode("X");
+            AsseY.SetSlewMode("X");
+            AsseX.SetMotAcc("X", MotAZ.MaxAcc);
+            AsseX.SetMotDec("X", MotAZ.MaxAcc);
+            AsseY.SetMotAcc("X", MotEL.MaxAcc);
+            AsseY.SetMotDec("X", MotEL.MaxAcc);
+
+            AsseX.Move("X", TEL.TargetRA, MotAZ.SlewVelocity);
+            AsseY.Move("X", TEL.TargetDEC, MotEL.SlewVelocity);
+
+            Sleep(300);
+
+            PuntaCupola(TEL.TargetRA);
+        }
+    }
+
+    public void CmdStopMotion(boolean value){
+        AsseX.StopMove("X");
+        AsseY.StopMove("X");
+        FermaCupola();
+    }
+
+    public void CmdStartAzMotion(boolean value){
+        if (AsseX.CommStatus){
+            AsseX.StopMove("X");
+            if(AsseX.IsMoving("X") == 1)
+                Sleep(200);
+
+            AsseX.SetSlewMode("X");
+            AsseX.SetMotAcc("X", MotAZ.MaxAcc);
+            AsseX.SetMotDec("X", MotAZ.MaxAcc);
+
+            AsseX.Move("X", TEL.TargetRA, MotAZ.SlewVelocity);
+
+            Sleep(300);
+
+            PuntaCupola(TEL.TargetRA);
+        }
+    }
+    
+    public void CmdStopAzMotion(boolean value){
+        AsseX.StopMove("X");
+        FermaCupola();
+    }
+
+    public void CmdStartElMotion(boolean value){
+        if (AsseY.CommStatus){
+            AsseY.StopMove("X");
+            if(AsseY.IsMoving("X") == 1)
+                Sleep(200);
+
+            AsseY.SetSlewMode("X");
+            AsseY.SetMotAcc("X", MotEL.MaxAcc);
+            AsseY.SetMotDec("X", MotEL.MaxAcc);
+
+            AsseY.Move("X", TEL.TargetDEC, MotEL.SlewVelocity);
+
+            Sleep(300);
+        }
+    }
+    
+    public void CmdStopElMotion(boolean value){
+        AsseY.StopMove("X");
+    }
+
+    public void CmdEmergencyStop(boolean value){
+        // ?
+    }
+
+    public void CmdStartAzEncInit(boolean value){
+
+    }
+
+    public void CmdStopAzEncInit(boolean value){
+        
+    }
+
+    public void CmdStartParking(boolean value){
+        
+    }
+
+    public void CmdStopParking(boolean value){
+        
+    }
+
+    public void CmdStartAzParking(boolean value){
+        
+    }
+
+    public void CmdStopAzParking(boolean value){
+        
+    }
+
+    public void CmdStartElParking(boolean value){
+        
+    }
+
+    public void CmdStopElParking(boolean value){
+        
+    }
+
+    public void CmdStartTracking(boolean value){
+        
+    }
+
+    public void CmdStopTracking(boolean value){
+        
+    }
+
+    public void CmdUpdateTrajectory(boolean value){
+        
+    }
+
+    public void CmdStartPointing(boolean value){
+        
+    }
+
+    public void CmdStopPointing(boolean value){
+        
+    }
+
+    public void CmdResetAlarms(boolean value){
+        
+    }
+
+    public void CmdResetAzAxis(boolean value){
+        
+    }
+
+    public void CmdResetElAxis(boolean value){
+        
+    }
+
+    public void CmdPCshutdown(boolean value){
+        
+    }
+
+    public void CmdPCrestart(boolean value){
+        
+    }
+
+    public void CmdM2on(boolean value){
+        
+    }
+
+    public void CmdM2off(boolean value){
+        
+    }
+
+    public void CmdClearErrorBuffer(boolean value){
+        
+    }
+
+    public void CmdSaveParameters(boolean value){
+        
+    }
+
+    public void CmdResetParameters(boolean value){
+        
+    }
 
 
 
@@ -588,6 +1765,49 @@ public class TCS {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
 
 
@@ -855,9 +2075,14 @@ public class TCS {
         }
 
         if (AsseY.CommStatus){
-            if (AsseY.IsMoving("X") == 1)
+            if (AsseY.IsMoving("X") == 1){
                 AsseY.StopMove("X");
                 // update tcs log
+            }
+            AsseX.SetMotorOff("X");
+            err = AsseX.GetMotEncPos("X");
+            ValoX = AsseX.VALUECR;
+            AsseX.CloseComm();
         }
 
         if (AsseCupola.CommStatus){
@@ -881,24 +2106,25 @@ public class TCS {
     // SEMPLICI GET FATTI
 
     public void GetTelInfo(){
-        double ra;
+        //double ra;
         if (TEL.MonType == 0){
             GetTelInfoX();
             GetTelInfoY();
-            double[] hadec = AzEl2HaDec(TEL.AZ, TEL.EL, OSS.Latitudine);
-            TEL.H = hadec[0];
-            TEL.DEC = hadec[1];
-            double teltimegetlsathour = 0; // ???
-            ra = teltimegetlsathour - TEL.H;
-            if (ra < 0.0)
-                ra += 24.0;
-            if (ra > 24.0)
-                ra -= 24.0;
-            TEL.RA = ra;
-
-            double[] azel = HaDec2AzEl(TEL.H, TEL.DEC, OSS.Latitudine);
-            TEL.AZ = azel[0];
-            TEL.EL = azel[1];
+            
+            
+            //double[] hadec = AzEl2HaDec(TEL.AZ, TEL.EL, OSS.Latitudine);
+            //TEL.H = hadec[0];
+            //TEL.DEC = hadec[1];
+            //double teltimegetlsathour = 0; // ???
+            //ra = teltimegetlsathour - TEL.H;
+            //if (ra < 0.0)
+            //    ra += 24.0;
+            //if (ra > 24.0)
+            //    ra -= 24.0;
+            //TEL.RA = ra;
+            //double[] azel = HaDec2AzEl(TEL.H, TEL.DEC, OSS.Latitudine);
+            //TEL.AZ = azel[0];
+            //TEL.EL = azel[1];
         }
     }
 
@@ -1045,7 +2271,7 @@ public class TCS {
         return Err;
     }
 
-    public int CupolaVai(double az){
+    /*public int CupolaVai(double az){
 
         if (AsseCupola.CommStatus){
             int azi = (int) (3600*az*AsseCupola.CONVFACTOR[0]);
@@ -1062,8 +2288,9 @@ public class TCS {
 
         return -1;
     }
+    */
 
-    public int CupolaFerma(){
+    public int FermaCupola(){
         int Err;
         if (AsseCupola.CommStatus){
             Err = AsseCupola.ExecProg("FERMACUP");
@@ -1077,18 +2304,22 @@ public class TCS {
     }
 
     public int PuntaCupola(double azObj){
-        int az = (int) (3600*azObj*AsseCupola.CONVFACTOR[0]);
-        int Err;
-        byte[] command = AsseCupola.sbld("AVSE");
-        AsseCupola.CommandArray(command, 10, az);
-        Err = AsseCupola.ExecProg("PUNTA");
-        if (Err != -1){
-            return Err;
+        if (AsseCupola.CommStatus){
+            int az = (int) (3600*azObj*AsseCupola.CONVFACTOR[0]);
+            int Err;
+            byte[] command = AsseCupola.sbld("AVSE");
+            AsseCupola.CommandArray(command, 10, az);
+            Err = AsseCupola.ExecProg("PUNTA");
+            if (Err != -1){
+                return Err;
+            }
         }
+        CUP.StatusRotazione = 1;
+        CUP.Direzione = -1;
         return -1;
     }
 
-    public int PuntaCupolaAngle(double angle){
+    /* public int PuntaCupolaAngle(double angle){
         int az = (int) (3600*angle*AsseCupola.CONVFACTOR[0]);
         int Err;
         byte[] command = AsseCupola.sbld("AVSE");
@@ -1099,6 +2330,7 @@ public class TCS {
         }
         return -1;
     }
+    */
 
     public void GetCupolaInfo(){
         long valo;

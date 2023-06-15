@@ -51,13 +51,28 @@ public class MOTOREARAZ {
     public double SlewDeceleration;
     public double AbsEncOffset;
     public double IncrementalEncOffset;
-
-
-
-
-
-
-
+    public double MinAcc;
+    public double MaxAcc;
+    public double MinDec;
+    public double MaxDec;
+    public double MinVel;
+    public double MaxVel;
+    public double TelMinPos;
+    public double TelMaxPos;
+    public double SkyMinPos;
+    public double SkyMaxPos;
+    public double LsOpCwPos;
+    public double LsOpCcwPos;
+    public double PreLsOpCwPos;
+    public double PreLsOpCcwPos;
+    public double LsEmergCwPos;
+    public double LsEmergCcwPos;
+    public double CounterTorque;
+    public double ServoCoeff1;
+    public double ServoCoeff2;
+    public double ServoCoeff3;
+    public double ParkPos;
+    public double Offset;
 
 
     public MOTOREARAZ(ConfigurationClass cfg) {
@@ -70,5 +85,8 @@ public class MOTOREARAZ {
         this.RiduzioneMotore = cfg.getAzRiduzioneMotore();
         this.PosizioneEncoder1 = cfg.getAzPosizioneEncoder1();
         this.PosizioneEncoder2 = cfg.getAzPosizioneEncoder2();
+
+        this.MaxVel = this.VelocitaMassima*3600.0;
+        this.MaxAcc = this.VelocitaMassima*3600.0;
     }
 }

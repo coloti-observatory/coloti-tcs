@@ -44,10 +44,30 @@ public class MOTOREDECAL {
     public double SlewVelocity;
     public double SlewAceleration;
     public double SlewDeceleration;
-
-
-
-
+    public double EncoderOffset;
+    public double MinAcc;
+    public double MaxAcc;
+    public double MinDec;
+    public double MaxDec;
+    public double MinVel;
+    public double MaxVel;
+    public double TelMinPos;
+    public double TelMaxPos;
+    public double SkyMinPos;
+    public double SkyMaxPos;
+    public double LsOpLowPos;
+    public double LsOpHighPos;
+    public double PreLsOpLowPos;
+    public double PreLsOpHighPos;
+    public double LsEmergLowPos;
+    public double LsEmergHighPos;
+    public double ServoCoeff1;
+    public double ServoCoeff2;
+    public double ServoCoeff3;
+    public double ParkPos;
+    public double Offset;
+    public double ObservLimitMin;
+    public double ObservLimitMax;
 
 
     public MOTOREDECAL(ConfigurationClass cfg) {
@@ -60,6 +80,9 @@ public class MOTOREDECAL {
         this.RiduzioneMotore = cfg.getElRiduzioneMotore();
         this.PosizioneEncoder1 = cfg.getElPosizioneEncoder1();
         this.PosizioneEncoder2 = cfg.getElPosizioneEncoder2();
+
+        this.MaxVel = this.VelocitaMassima*3600.0;
+        this.MaxAcc = this.VelocitaMassima*3600.0;
     }
 }
 

@@ -58,6 +58,22 @@ public class TELESCOPIO {
     public String StartPointingInfo;
     public String StopPointingInfo;
     public int MotionType;
+    public int TrajectoryGenerationMode;
+    public boolean PointingModelOnOff;
+    public int TrackingDuration;
+    public double TrajectoryNodeArray;
+    public boolean Refraction;
+    public String TargetName;
+    public double TargetRA;
+    public double TargetDEC;
+    public double TargetPmRA;
+    public double TargetPmDEC;
+    public double TargetPX;
+    public double TargetRV;
+    public double TargetEquinox;
+    public double TargetEpoch;
+    public int TargetCoordFrame;
+    public int TargetCoordType;
 
 
 
