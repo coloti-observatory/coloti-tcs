@@ -66,6 +66,8 @@ public class TELESCOPIO {
     public String TargetName;
     public double TargetRA;
     public double TargetDEC;
+    public double TargetAZ;
+    public double TargetEL;
     public double TargetPmRA;
     public double TargetPmDEC;
     public double TargetPX;

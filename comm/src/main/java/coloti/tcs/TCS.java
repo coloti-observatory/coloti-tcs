@@ -66,6 +66,8 @@ public class TCS {
     SB129X SB;
     PADDLE PAD;
     POSZERO PZ;
+    private double DPX;
+    private double DPY;
 
     public void Configure(){ // CambiaConfig SalvaConfig ReadConfig
         this.CFG = new ConfigurationClass();
@@ -1511,23 +1513,12 @@ public class TCS {
 
 
 
-    // COMANDI OPCUA
+    // COMANDI OPCUA        boolean dove va? è il result o è un parametro?
 
-    public void CmdGoLoaded(boolean value){
-        
-    }
-
-    public void CmdGoStanby(boolean value){
-        
-    }
-
-    public void CmdGoOnline(boolean value){
-        
-    }
-
-    public void CmdGoMaintenance(boolean value){
-        
-    }
+    public void CmdGoLoaded(boolean value){}
+    public void CmdGoStanby(boolean value){}
+    public void CmdGoOnline(boolean value){}
+    public void CmdGoMaintenance(boolean value){}
 
 
     public void CmdEnableAzMotors(boolean value){
@@ -1554,7 +1545,6 @@ public class TCS {
             AsseX.CloseComm();
         }
     }
-
 
     public void CmdEnableElMotors(boolean value){
         int err;
@@ -1609,8 +1599,10 @@ public class TCS {
     }
 
     public void CmdStopMotion(boolean value){
-        AsseX.StopMove("X");
-        AsseY.StopMove("X");
+        if (AsseX.IsMoving("X") == 1)
+            AsseX.StopMove("X");
+        if (AsseY.IsMoving("X") == 1)
+            AsseY.StopMove("X");
         FermaCupola();
     }
 
@@ -1633,7 +1625,8 @@ public class TCS {
     }
     
     public void CmdStopAzMotion(boolean value){
-        AsseX.StopMove("X");
+        if (AsseX.IsMoving("X") == 1)
+            AsseX.StopMove("X");
         FermaCupola();
     }
 
@@ -1654,109 +1647,72 @@ public class TCS {
     }
     
     public void CmdStopElMotion(boolean value){
-        AsseY.StopMove("X");
+        if (AsseY.IsMoving("X") == 1)
+            AsseY.StopMove("X");
     }
 
-    public void CmdEmergencyStop(boolean value){
-        // ?
+    public void CmdEmergencyStop(boolean value){ /* ? */ }
+    public void CmdStartAzEncInit(boolean value){ /* ? */ }
+    public void CmdStopAzEncInit(boolean value){ /* ? */ }
+
+    public void CmdStartParking(boolean value){}
+    public void CmdStopParking(boolean value){}
+    public void CmdStartAzParking(boolean value){}
+    public void CmdStopAzParking(boolean value){}
+    public void CmdStartElParking(boolean value){}
+    public void CmdStopElParking(boolean value){}
+
+    public void CmdStartTracking(boolean value){}
+    public void CmdStopTracking(boolean value){}
+    public void CmdUpdateTrajectory(boolean value){}
+
+    public void CmdStartPointing(boolean value){}
+    public void CmdStopPointing(boolean value){}
+
+    public void CmdResetAlarms(boolean value){}
+    public void CmdResetAzAxis(boolean value){}
+    public void CmdResetElAxis(boolean value){}
+
+    public void CmdPCshutdown(boolean value){}
+    public void CmdPCrestart(boolean value){}
+
+    public void CmdM2on(boolean value){}
+    public void CmdM2off(boolean value){}
+
+    public void CmdClearErrorBuffer(boolean value){}
+    public void CmdSaveParameters(boolean value){}
+    public void CmdResetParameters(boolean value){}
+
+
+    // ALTRI COMANDI
+
+    public void CmdOpenCupola(boolean value){
+        CupolaApertura();
     }
 
-    public void CmdStartAzEncInit(boolean value){
-
+    public void CmdCloseCupola(boolean value){
+        CupolaChiusura();
     }
 
-    public void CmdStopAzEncInit(boolean value){
-        
+    public void CmdStartCupolaPointing(boolean value) {
+        PuntaCupola(TEL.TargetRA);
     }
 
-    public void CmdStartParking(boolean value){
-        
+    public void CmdStopCupola(boolean value){
+        FermaCupola();
     }
 
-    public void CmdStopParking(boolean value){
-        
+    public void CmdSetZeroCupola(boolean value){
+        CupolaSetZero();
     }
 
-    public void CmdStartAzParking(boolean value){
-        
+    public void CmdSetHomePos(boolean value){
+        SettaPosHome();
     }
 
-    public void CmdStopAzParking(boolean value){
-        
+    public void CmdStopPointMotion(boolean value){
+        FermaMoto();
     }
-
-    public void CmdStartElParking(boolean value){
-        
-    }
-
-    public void CmdStopElParking(boolean value){
-        
-    }
-
-    public void CmdStartTracking(boolean value){
-        
-    }
-
-    public void CmdStopTracking(boolean value){
-        
-    }
-
-    public void CmdUpdateTrajectory(boolean value){
-        
-    }
-
-    public void CmdStartPointing(boolean value){
-        
-    }
-
-    public void CmdStopPointing(boolean value){
-        
-    }
-
-    public void CmdResetAlarms(boolean value){
-        
-    }
-
-    public void CmdResetAzAxis(boolean value){
-        
-    }
-
-    public void CmdResetElAxis(boolean value){
-        
-    }
-
-    public void CmdPCshutdown(boolean value){
-        
-    }
-
-    public void CmdPCrestart(boolean value){
-        
-    }
-
-    public void CmdM2on(boolean value){
-        
-    }
-
-    public void CmdM2off(boolean value){
-        
-    }
-
-    public void CmdClearErrorBuffer(boolean value){
-        
-    }
-
-    public void CmdSaveParameters(boolean value){
-        
-    }
-
-    public void CmdResetParameters(boolean value){
-        
-    }
-
-
-
-
-
 
 
 
@@ -1965,9 +1921,23 @@ public class TCS {
 
     public void TelescopioJoystic(){}
 
-    public void TelescopioSetHome(){}
+    public void TelescopioSetHome(){
+        double valAZ, valEL;
+        //calcolo astronomico
+        //if (TEL.MonType == 0){}
+        valAZ = (180 - TEL.TargetAZ)*3600;
+        valEL = TEL.TargetEL*3600;
+        this.DPX = TEL.PosX - valAZ; //desired position x
+        this.DPY = TEL.PosY - valEL;
+
+        AsseX.SetAxisZeroPos("X", valAZ);
+        AsseY.SetAxisZeroPos("X", valEL);
+
+        //modifica zeri dat file
+    }
 
     public void TelescopioSettaZeroStar(){}
+
 
     public void SettaPosHome(){
         long ValoX = 0, ValoY = 0;
@@ -2009,47 +1979,27 @@ public class TCS {
     public void Timer(){}
 
     // TELESCOPIO
-
     public void SetTelTrackVel(){}
-
     public void TelescoFermaMoto(){}
-
     public void OnTelescoStartMotoOrario(){}
-    
     public void OnTelescoStopInseguimento(){}
-    
     public void OnTelescoInitAssi(){}
-    
     public void OnTelescoInitAsseX(){}
-    
     public void OnTelescoInitAsseY(){}
-    
     public void OnTelescoInitAsseZ(){}
-    
     public void OnTelescoParametri(){}
-    
     public void OnTelescoVerificap(){}
 
     // altro
-
     public void OnPuntamentoPianeti(){}
-
-    public void OnExecuteRemote(){}
-    
+    public void OnExecuteRemote(){}   
     public void OnSetGPStime(){}
-    
     public void OnGetGPStime(){}
-    
     public void OnMostraDatiMeteo(){}
-    
     public void OnExternalObj(){}
-    
     public void ReadCostPun(){}
-    
     public void OnSettaZezoTelFile(){}
-    
     public void CorreggiAZ(){}
-    
     public void CorreggiEL(){}
 
 
