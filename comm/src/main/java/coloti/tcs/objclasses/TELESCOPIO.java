@@ -25,10 +25,13 @@ public class TELESCOPIO {
     public double PA;
     public double SlewVelX;
     public double AccX;
+    public double MaxAccX;
     public double SlewVelY;
     public double AccY;
+    public double MaxAccY;
     public double SlewVelZ;
     public double AccZ;
+    public double MaxAccZ;
 
     public boolean TargetOnTracking;
     public int TrackingMaxDuration;
@@ -64,6 +67,8 @@ public class TELESCOPIO {
     public double TrajectoryNodeArray;
     public boolean Refraction;
     public String TargetName;
+    public double TargetPosX;
+    public double TargetPosY;
     public double TargetRA;
     public double TargetDEC;
     public double TargetAZ;

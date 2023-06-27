@@ -1526,8 +1526,8 @@ public class TCS {
         long ValoX;
         if (!AsseX.CommStatus){
             AsseX.OpenCommunications();
-            AsseX.SetMotorOn("X");
-            err = AsseX.GetMotEncPos("X");
+            AsseX.SetMotorOn(X);
+            err = AsseX.GetMotEncPos(X);
             ValoX = AsseX.VALUECR;
         }
     }
@@ -1536,11 +1536,11 @@ public class TCS {
         int err;
         long ValoX;
         if (AsseX.CommStatus){
-            if (AsseX.IsMoving("X") == 1){
-                AsseX.StopMove("X");
+            if (AsseX.IsMoving(X) == 1){
+                AsseX.StopMove(X);
             }
-            AsseX.SetMotorOff("X");
-            err = AsseX.GetMotEncPos("X");
+            AsseX.SetMotorOff(X);
+            err = AsseX.GetMotEncPos(X);
             ValoX = AsseX.VALUECR;
             AsseX.CloseComm();
         }
@@ -1551,8 +1551,8 @@ public class TCS {
         long ValoY;
         if (!AsseY.CommStatus){
             AsseY.OpenCommunications();
-            AsseY.SetMotorOn("X");
-            err = AsseY.GetMotEncPos("X");
+            AsseY.SetMotorOn(X);
+            err = AsseY.GetMotEncPos(X);
             ValoY = AsseY.VALUECR;
         }
     }
@@ -1561,62 +1561,63 @@ public class TCS {
         int err;
         long ValoY;
         if (AsseY.CommStatus){
-            if (AsseY.IsMoving("X") == 1){
-                AsseY.StopMove("X");
+            if (AsseY.IsMoving(X) == 1){
+                AsseY.StopMove(X);
             }
-            AsseY.SetMotorOff("X");
-            err = AsseY.GetMotEncPos("X");
+            AsseY.SetMotorOff(X);
+            err = AsseY.GetMotEncPos(X);
             ValoY = AsseY.VALUECR;
             AsseY.CloseComm();
         }
     }
 
-
+    // Cosa ci va nelle coordinate della posizione per move? 
     public void CmdStartMotion(boolean value){
         if (AsseX.CommStatus && AsseY.CommStatus){
 
-            AsseX.StopMove("X");
-            if(AsseX.IsMoving("X") == 1)
+            AsseX.StopMove(X);
+            if(AsseX.IsMoving(X) == 1)
                 Sleep(200);
-            AsseY.StopMove("X");
-            if(AsseY.IsMoving("X") == 1)
+            AsseY.StopMove(X);
+            if(AsseY.IsMoving(X) == 1)
                 Sleep(200);
 
-            AsseX.SetSlewMode("X");
-            AsseY.SetSlewMode("X");
-            AsseX.SetMotAcc("X", MotAZ.MaxAcc);
-            AsseX.SetMotDec("X", MotAZ.MaxAcc);
-            AsseY.SetMotAcc("X", MotEL.MaxAcc);
-            AsseY.SetMotDec("X", MotEL.MaxAcc);
+            AsseX.SetSlewMode(X);
+            AsseY.SetSlewMode(X);
+            AsseX.SetMotAcc(X, MotAZ.MaxAcc);
+            AsseX.SetMotDec(X, MotAZ.MaxAcc);
+            AsseY.SetMotAcc(X, MotEL.MaxAcc);
+            AsseY.SetMotDec(X, MotEL.MaxAcc);
 
-            AsseX.Move("X", TEL.TargetRA, MotAZ.SlewVelocity);
-            AsseY.Move("X", TEL.TargetDEC, MotEL.SlewVelocity);
+            AsseX.Move(X, TEL.TargetRA, MotAZ.SlewVelocity); // TEL.SlewVelX
+            AsseY.Move(X, TEL.TargetDEC, MotEL.SlewVelocity); // TEL.SlewVelY
 
             Sleep(300);
 
-            PuntaCupola(TEL.TargetRA);
+            PuntaCupola();  // target AZ
+            //PuntaCupola(TEL.TargetRA); // no
         }
     }
 
     public void CmdStopMotion(boolean value){
-        if (AsseX.IsMoving("X") == 1)
-            AsseX.StopMove("X");
-        if (AsseY.IsMoving("X") == 1)
-            AsseY.StopMove("X");
+        if (AsseX.IsMoving(X) == 1)
+            AsseX.StopMove(X);
+        if (AsseY.IsMoving(X) == 1)
+            AsseY.StopMove(X);
         FermaCupola();
     }
 
     public void CmdStartAzMotion(boolean value){
         if (AsseX.CommStatus){
-            AsseX.StopMove("X");
-            if(AsseX.IsMoving("X") == 1)
+            AsseX.StopMove(X);
+            if(AsseX.IsMoving(X) == 1)
                 Sleep(200);
 
-            AsseX.SetSlewMode("X");
-            AsseX.SetMotAcc("X", MotAZ.MaxAcc);
-            AsseX.SetMotDec("X", MotAZ.MaxAcc);
+            AsseX.SetSlewMode(X);
+            AsseX.SetMotAcc(X, MotAZ.MaxAcc);
+            AsseX.SetMotDec(X, MotAZ.MaxAcc);
 
-            AsseX.Move("X", TEL.TargetRA, MotAZ.SlewVelocity);
+            AsseX.Move(X, TEL.TargetRA, MotAZ.SlewVelocity);
 
             Sleep(300);
 
@@ -1625,33 +1626,37 @@ public class TCS {
     }
     
     public void CmdStopAzMotion(boolean value){
-        if (AsseX.IsMoving("X") == 1)
-            AsseX.StopMove("X");
+        if (AsseX.IsMoving(X) == 1)
+            AsseX.StopMove(X);
         FermaCupola();
     }
 
     public void CmdStartElMotion(boolean value){
         if (AsseY.CommStatus){
-            AsseY.StopMove("X");
-            if(AsseY.IsMoving("X") == 1)
+            AsseY.StopMove(X);
+            if(AsseY.IsMoving(X) == 1)
                 Sleep(200);
 
-            AsseY.SetSlewMode("X");
-            AsseY.SetMotAcc("X", MotEL.MaxAcc);
-            AsseY.SetMotDec("X", MotEL.MaxAcc);
+            AsseY.SetSlewMode(X);
+            AsseY.SetMotAcc(X, MotEL.MaxAcc);
+            AsseY.SetMotDec(X, MotEL.MaxAcc);
 
-            AsseY.Move("X", TEL.TargetDEC, MotEL.SlewVelocity);
+            AsseY.Move(X, TEL.TargetDEC, MotEL.SlewVelocity);
 
             Sleep(300);
         }
     }
     
     public void CmdStopElMotion(boolean value){
-        if (AsseY.IsMoving("X") == 1)
-            AsseY.StopMove("X");
+        if (AsseY.IsMoving(X) == 1)
+            AsseY.StopMove(X);
     }
 
-    public void CmdEmergencyStop(boolean value){ /* ? */ }
+    public void CmdEmergencyStop(boolean value){ /* ? */ 
+        AsseX.StopMove(X);
+        AsseY.StopMove(X);
+        FermaCupola();
+    }
     public void CmdStartAzEncInit(boolean value){ /* ? */ }
     public void CmdStopAzEncInit(boolean value){ /* ? */ }
 
@@ -1695,7 +1700,7 @@ public class TCS {
     }
 
     public void CmdStartCupolaPointing(boolean value) {
-        PuntaCupola(TEL.TargetRA);
+        PuntaCupola(TEL.TargetAZ);
     }
 
     public void CmdStopCupola(boolean value){
@@ -1713,46 +1718,6 @@ public class TCS {
     public void CmdStopPointMotion(boolean value){
         FermaMoto();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1860,7 +1825,7 @@ public class TCS {
         int setTrackY = 0;
         int setTracX = 0;
         int noCentered = 0;
-        if (AsseX.CommStatus){
+        if (AsseX.CommStatus && AsseY.CommStatus){
             // killertimer (2)
             AsseX.StopMove(X);
             if (AsseX.IsMoving(X) == 1){
@@ -1875,15 +1840,20 @@ public class TCS {
             AsseX.SetSlewMode(X);
             AsseY.SetSlewMode(X);
 
-            TraiettoriaX();
-            TraiettoriaY();
+            //TraiettoriaX();
+            //TraiettoriaY();
 
-            //AsseX.SetMotAcc("X",TEL.MaxAccX);
+            AsseX.SetMotAcc(X, MotAZ.MaxAcc);
+            AsseX.SetMotDec(X, MotAZ.MaxAcc);
 
+            AsseY.SetMotAcc(X, MotEL.MaxAcc);
+            AsseY.SetMotDec(X, MotEL.MaxAcc);
 
+            AsseX.Move(X, TEL.TargetPosX, TEL.SlewVelX);
+            AsseY.Move(X, TEL.TargetPosY, TEL.SlewVelY);
 
-            // Cupola
-            //AsseX.SetMotAcc("X", TEL.Maz)
+            Sleep(300);
+            PuntaCupola();
 
         }
     }
@@ -1921,6 +1891,7 @@ public class TCS {
 
     public void TelescopioJoystic(){}
 
+    // INCOMPLETO
     public void TelescopioSetHome(){
         double valAZ, valEL;
         //calcolo astronomico
@@ -1930,15 +1901,15 @@ public class TCS {
         this.DPX = TEL.PosX - valAZ; //desired position x
         this.DPY = TEL.PosY - valEL;
 
-        AsseX.SetAxisZeroPos("X", valAZ);
-        AsseY.SetAxisZeroPos("X", valEL);
+        AsseX.SetAxisZeroPos(X, valAZ);
+        AsseY.SetAxisZeroPos(X, valEL);
 
         //modifica zeri dat file
     }
 
     public void TelescopioSettaZeroStar(){}
 
-
+    // INCOMPLETO
     public void SettaPosHome(){
         long ValoX = 0, ValoY = 0;
         // modificare per tre assi?
@@ -1972,11 +1943,28 @@ public class TCS {
         AsseX.CommandMot("PS");
         AsseY.CommandMot("PS");
 
-        AsseX.StopMove("X");
-        AsseY.StopMove("X");
+        AsseX.StopMove(X);
+        AsseY.StopMove(X);
     }
     
     public void Timer(){}
+
+    // INCOMPLETO
+    public void SetZeroFromFile(){
+        int valx = 1, valy = 1, valc = 1;
+        // assegnati da file lastpos.dat
+        byte[] istruzione = AsseX.sbld("SXZP");
+        AsseX.CommandSet(istruzione,valx);
+        Sleep(100);
+        AsseY.CommandSet(istruzione,valy);
+        Sleep(100);
+        AsseCupola.CommandSet(istruzione,valc);
+    }
+
+
+
+
+
 
     // TELESCOPIO
     public void SetTelTrackVel(){}
@@ -1998,14 +1986,15 @@ public class TCS {
     public void OnMostraDatiMeteo(){}
     public void OnExternalObj(){}
     public void ReadCostPun(){}
-    public void OnSettaZezoTelFile(){}
+    public void OnSettaZeroTelFile(){}
     public void CorreggiAZ(){}
     public void CorreggiEL(){}
 
 
 
-    // FUNZIONI
+    // FUNZIONI come apm
 
+    // INCOMPLETO
     public void Exit(){
         // ofstream lastopos("lastpos.dat")
         long ValoX, ValoY, ValoC;
@@ -2014,23 +2003,23 @@ public class TCS {
         // KillTimer(2);
 
         if (AsseX.CommStatus){
-            if (AsseX.IsMoving("X") == 1){
-                AsseX.StopMove("X");
+            if (AsseX.IsMoving(X) == 1){
+                AsseX.StopMove(X);
                 // update tcs log
             }
-            AsseX.SetMotorOff("X");
-            err = AsseX.GetMotEncPos("X");
+            AsseX.SetMotorOff(X);
+            err = AsseX.GetMotEncPos(X);
             ValoX = AsseX.VALUECR;
             AsseX.CloseComm();
         }
 
         if (AsseY.CommStatus){
-            if (AsseY.IsMoving("X") == 1){
-                AsseY.StopMove("X");
+            if (AsseY.IsMoving(X) == 1){
+                AsseY.StopMove(X);
                 // update tcs log
             }
-            AsseX.SetMotorOff("X");
-            err = AsseX.GetMotEncPos("X");
+            AsseX.SetMotorOff(X);
+            err = AsseX.GetMotEncPos(X);
             ValoX = AsseX.VALUECR;
             AsseX.CloseComm();
         }
@@ -2041,7 +2030,7 @@ public class TCS {
                 Sleep(8000);
             }
             
-            err = AsseCupola.GetMotEncPos("X");
+            err = AsseCupola.GetMotEncPos(X);
             ValoC = AsseCupola.VALUECR;
         }
 
@@ -2086,7 +2075,7 @@ public class TCS {
         if (AsseX.CommStatus){
             // caso TelMonTipo = 0
             if (TEL.MonType == 0){
-                err = AsseX.GetMotEncPos("X");
+                err = AsseX.GetMotEncPos(X);
                 valo = AsseX.VALUECR;
                 PosX = valo/AsseX.CONVFACTOR[0] - CostX[0];
                 TEL.PosX = PosX;
@@ -2096,7 +2085,7 @@ public class TCS {
             
             // caso Tel MonTipo = 1
             else{
-                err = AsseX.GetMotEncPos("X");
+                err = AsseX.GetMotEncPos(X);
                 valo = AsseX.VALUECR;
                 PosX = valo/AsseX.CONVFACTOR[0];
                 TEL.PosX = PosX;
@@ -2105,10 +2094,10 @@ public class TCS {
                     TEL.H += 24;
             }
 
-            err = AsseX.GetMotVel("X");
+            err = AsseX.GetMotVel(X);
             TEL.SlewVelX = AsseX.VelAx[0];
 
-            err = AsseX.GetMotAcc("X");
+            err = AsseX.GetMotAcc(X);
             TEL.AccX = AsseX.AccAx[0];
         }
     }
@@ -2119,7 +2108,7 @@ public class TCS {
         int err;
 
         if (AsseY.CommStatus){
-            err = AsseY.GetMotEncPos("X");
+            err = AsseY.GetMotEncPos(X);
             valo = AsseY.VALUECR;
             PosY = valo/AsseY.CONVFACTOR[0] - CostY[0];
             TEL.PosY = PosY;
@@ -2131,10 +2120,10 @@ public class TCS {
                 TEL.DEC = PosY/3600.0;
             }
 
-            err = AsseY.GetMotVel("X");
+            err = AsseY.GetMotVel(X);
             TEL.SlewVelY = AsseY.VelAx[0];
 
-            err = AsseY.GetMotAcc("X");
+            err = AsseY.GetMotAcc(X);
             TEL.AccY = AsseY.AccAx[0];
         }
     }
@@ -2145,16 +2134,16 @@ public class TCS {
         int err;
 
         if (AsseZ.CommStatus){
-            err = AsseZ.GetMotEncPos("X");
+            err = AsseZ.GetMotEncPos(X);
             valo = AsseZ.VALUECR;
             PosZ = valo/AsseZ.CONVFACTOR[0];
             TEL.PosZ = PosZ;
             TEL.PA = PosZ/3600.0;
 
-            err = AsseZ.GetMotVel("X");
+            err = AsseZ.GetMotVel(X);
             TEL.SlewVelZ = AsseZ.VelAx[0];
 
-            err = AsseZ.GetMotAcc("X");
+            err = AsseZ.GetMotAcc(X);
             TEL.AccZ = AsseZ.AccAx[0];
         }
     }
@@ -2269,6 +2258,22 @@ public class TCS {
         return -1;
     }
 
+    public int PuntaCupola(){
+        if (AsseCupola.CommStatus){
+            int az = (int) (3600*TEL.TargetAZ*AsseCupola.CONVFACTOR[0]);
+            int Err;
+            byte[] command = AsseCupola.sbld("AVSE");
+            AsseCupola.CommandArray(command, 10, az);
+            Err = AsseCupola.ExecProg("PUNTA");
+            if (Err != -1){
+                return Err;
+            }
+        }
+        CUP.StatusRotazione = 1;
+        CUP.Direzione = -1;
+        return -1;
+    }
+
     /* public int PuntaCupolaAngle(double angle){
         int az = (int) (3600*angle*AsseCupola.CONVFACTOR[0]);
         int Err;
@@ -2285,7 +2290,7 @@ public class TCS {
     public void GetCupolaInfo(){
         long valo;
         if (AsseCupola.CommStatus){
-            AsseCupola.GetMotEncPos("X");
+            AsseCupola.GetMotEncPos(X);
             valo = AsseCupola.VALUECR;
             CUP.Pos = valo/AsseCupola.CONVFACTOR[0];
             CUP.AZ = CUP.Pos/3600.0;
