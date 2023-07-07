@@ -9,6 +9,9 @@ import coloti.tcs.objclasses.*;
 //import coloti.tcs.ConfigurationClass;
 import java.util.concurrent.TimeUnit;
 import java.lang.Math.*;
+import org.jboss.util.state.DefaultStateMachineModel;
+import org.jboss.util.state.State;
+import org.jboss.util.state.StateMachine;
 
 /*
 import java.io.UnsupportedEncodingException;
@@ -104,26 +107,6 @@ public class TCS {
 
 
     // GETTERS
-
-    public boolean GetAzCw(){
-        return MotAZ.EmergencySwitchCW;
-    } // ClockWise
-    
-    public boolean GetAzCcw(){
-        return MotAZ.EmergencySwitchCCW;
-    } // CounterClockWise
-    
-    public boolean GetElHigh(){
-        return MotEL.EmergencySwitchHigh;
-    }
-    
-    public boolean GetElLow(){
-        return MotEL.EmergencySwitchLow;
-    }
-
-    public boolean GetStopButton(){
-        return GEN.StopBotton;
-    }
     
     public boolean GetAzLsOpCw(){
         return MotAZ.StatusLimitSwitchCW;
@@ -142,34 +125,36 @@ public class TCS {
     }
 
     public int  GetAzMotorStatus(){
+        AsseX.GetMotorStatus("X");
+        this.MotAZ.MotorStatus = AsseX.MOTORSTATUS[0];
         return MotAZ.MotorStatus; // cumulative status of the AZ motors: 0=both disabled; 1=both enabled; 2=degraded state i.e. 1 enabled; 1 in fault; 3=both in fault
     }
 
-    public int GetAzMotorEncoderStatus(){
-        return MotAZ.MotorEncoderStatus; // status of the AZ motor with encoder: 0=disabled; 1=enabled; 2=fault
-    }
-
     public int GetElMotorStatus(){
+        AsseY.GetMotorStatus("X");
+        this.MotEL.MotorStatus = AsseY.MOTORSTATUS[0];
         return MotEL.MotorStatus; // status of the EL motor: 0=disabled; 1=enabled; 2=fault
     }
 
-    public double GetAzSkyPos(){
-        return MotAZ.SkyPos;
-    }
-
     public double GetAzTelPos(){
+        AsseX.GetMotPos("X");
+        this.MotAZ.TelPos = AsseX.PositionAx[0];
         return MotAZ.TelPos;
     }
-
+    // quale dei due ci piace?
     public double GetAzMotorTelPos(){
         return MotAZ.MotorTelPos;
     }
 
     public double GetAzActVel(){
+        AsseX.GetMotVel("X");
+        this.MotAZ.ActualVel = AsseX.VelAx[0];
         return MotAZ.ActualVel;
     }
 
     public double GetAzActAcc(){
+        AsseX.GetMotAcc("X");
+        this.MotAZ.ActualAcc = AsseX.AccAx[0];
         return MotAZ.ActualAcc;
     }
 
@@ -185,19 +170,21 @@ public class TCS {
         return MotAZ.CommandedAcc;
     }
 
-    public double GetElSkyPos(){
-        return MotEL.SkyPos;
-    }
-
     public double GetElTelPos(){
+        AsseY.GetMotPos("X");
+        this.MotEL.TelPos = AsseY.PositionAx[0];
         return MotEL.TelPos;
     }
 
     public double GetElActVel(){
+        AsseY.GetMotVel("X");
+        this.MotEL.ActualVel = AsseY.VelAx[0];
         return MotEL.ActualVel;
     }
 
     public double GetElActAcc(){
+        AsseY.GetMotAcc("X");
+        this.MotEL.ActualAcc = AsseY.AccAx[0];
         return MotEL.ActualAcc;
     }
 
@@ -221,84 +208,12 @@ public class TCS {
         return MotEL.MotionState;
     }
 
-    public boolean GetAzIsParking(){
-        return MotAZ.IsParking;
-    }
-
-    public boolean GetElIsParking(){
-        return MotEL.IsParking;
-    }
-
-    public boolean GetAzIsParked(){
-        return MotAZ.IsParked;
-    }
-
-    public boolean GetElIsParked(){
-        return MotEL.IsParked;
-    }
-
     public double GetAzEncOffset(){
         return MotAZ.EncOffset;
     }
 
     public double GetElEncOffset(){
         return MotEL.EncOffset;
-    }
-
-    public boolean GetTargetOnTracking(){
-        return TEL.TargetOnTracking;
-    }
-
-    public int GetTrackingMaxDuration(){
-        return TEL.TrackingMaxDuration;
-    }
-
-    public int GetTrackingNodes(){
-        return TEL.TrackingNodes;
-    }
-
-    public boolean GetRefractionStatus(){
-        return TEL.RefractionStatus;
-    }
-    
-    public boolean GetPointingModelStatus(){
-        return TEL.PointingModelStatus;
-    }
-
-    public boolean GetTargetPointed(){
-        return TEL.TargetPointed;
-    }
-
-    public boolean GetTARGET_NOT_VALID(){
-        return TEL.TargetNotValid;
-    }
-
-    public double GetAzPointingOffset(){
-        return MotAZ.PointingOffset;
-    }
-
-    public double GetElPointingOffset(){
-        return MotEL.PointingOffset;
-    }
-    
-    public double GetAzTpoingCorrection(){
-        return MotAZ.TPointCorrection;
-    }
-
-    public double GetElTpoingCorrection(){
-        return MotEL.TPointCorrection;
-    }
-    
-    public double GetRefractionCorrection(){
-        return TEL.RefractionCorrection;
-    }
-    
-    public double GetTimeToTarget(){
-        return TEL.TimeToTarget;
-    }
-    
-    public boolean GetSimulationActive(){
-        return TEL.SimulationActive;
     }
     
     public int GetMachineState(){
@@ -381,100 +296,6 @@ public class TCS {
         return MotAZ.StopEncInitInfo;
     }
     
-    public String GetAzStartParkingInfo(){
-        return MotAZ.StartParkingInfo;
-    }
-    
-    public String GetAzStopParkingInfo(){
-        return MotAZ.StopParkingInfo;
-    }
-    
-    public String GetElStartParkingInfo(){
-        return MotEL.StartParkingInfo;
-    }
-    
-    public String GetElStopParkingInfo(){
-        return MotEL.StopParkingInfo;
-    }    
-
-    public String GetStartParkingInfo(){
-        return TEL.StartParkingInfo;
-    }
-    
-    public String GetStopParkingInfo(){
-        return TEL.StopParkingInfo;
-    }
-
-    public String GetStartTrackingInfo(){
-        return TEL.StartTrackingInfo;
-    }
-    
-    public String GetStopTrackingInfo(){
-        return TEL.StopTrackingInfo;
-    }    
-
-    public String GetUPDATE_TRAJECTORY_INFO(){
-        return TEL.UpdateTrajectoryInfo;
-    }
-
-    public String GetStartPointingInfo(){
-        return TEL.StartPointingInfo;
-    }
-    
-    public String GetStopPointingInfo(){
-        return TEL.StopPointingInfo;
-    }
-
-    public String GetAzResetAxisInfo(){
-        return MotAZ.ResetAxisInfo;
-    }
-    
-    public String GetElResetAxisInfo(){
-        return MotEL.ResetAxisInfo;
-    }
-
-    //GEN
-
-    public String GetResetAlarmInfo(){
-        return GEN.ResetAlarmsInfo;
-    }
-    
-    public String GetPCShutdownInfo(){
-        return GEN.PCShutdownInfo;
-    }
-    
-    public String GetPcRestartInfo(){
-        return GEN.PCRestartInfo;
-    }
-    
-    public String GetM2onInfo(){
-        return GEN.M2onInfo;
-    }
-    
-    public String GetM2offInfo(){
-        return GEN.M2offInfo;
-    }
-    
-    public String GetDrive400VAConInfo(){
-        return GEN.Drive400VAConInfo;
-    }
-    
-    public String GetDrive400VACoffInfo(){
-        return GEN.Drive400VACoffInfo;
-    }
-    
-    public String GetPMConInfo(){
-        return GEN.PMConInfo;
-    }
-    
-    public String GetPMCoffInfo(){
-        return GEN.PMCoffInfo;
-    }
-    
-    public String GetClearErrorBufferInfo(){
-        return GEN.ClearErrorBufferInfo;
-    }
-    
     public int GetErrorNumber(){
         return GEN.ErrorNumber;
     }
@@ -495,14 +316,6 @@ public class TCS {
         return GEN.HeartBeat;
     }
     
-    public String GetSwVersion(){
-        return GEN.SwVersion;
-    }
-    
-    public String GetLogMessage(){
-        return GEN.LogMessage;
-    }
-
 
 
 
@@ -517,11 +330,8 @@ public class TCS {
     // SETTERS 
 
     public void SetAzTelPosition(double value){
+        AsseX.SetAbsTargPos("X", value);
         this.MotAZ.TelPosition = value;
-    }
-
-    public void SetAzSkyPosition(double value){
-        this.MotAZ.SkyPosition = value;
     }
 
     public void SetAzJogDirection(int value){
@@ -533,11 +343,8 @@ public class TCS {
     }
 
     public void SetElTelPosition(double value){
+        AsseY.SetAbsTargPos("X", value);
         this.MotEL.TelPosition = value;
-    }
-
-    public void SetElSkyPosition(double value){
-        this.MotEL.SkyPosition = value;
     }
 
     public void SetElJogDirection(int value){
@@ -549,6 +356,14 @@ public class TCS {
     }
     
     public void SetMotionType(int value){
+        if (value == 0){
+            AsseX.SetSlewMode("X");
+            AsseY.SetSlewMode("X");
+        }
+        else if (value == 1){
+            AsseX.SetTrackMode("X");
+            AsseY.SetTrackMode("X");
+        }
         this.TEL.MotionType = value;
     }
 
