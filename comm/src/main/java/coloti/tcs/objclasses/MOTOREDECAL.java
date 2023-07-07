@@ -37,12 +37,12 @@ public class MOTOREDECAL {
     public String StartParkingInfo; 
     public String StopParkingInfo; 
     public String ResetAxisInfo;
-    public int JogDirection;
-    public double JogVelocity;
+    public int JogDirection = 1;
+    public double JogVelocity = 0.001;
     public double TelPosition;
     public double SkyPosition;
-    public double SlewVelocity;
-    public double SlewAceleration;
+    public double SlewVelocity = 0.0;
+    public double SlewAcceleration;
     public double SlewDeceleration;
     public double EncoderOffset;
     public double MinAcc;

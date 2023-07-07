@@ -147,26 +147,30 @@ public class TCS {
     }
 
     public double GetAzActVel(){
-        AsseX.GetMotVel("X");
-        this.MotAZ.ActualVel = AsseX.VelAx[0];
+        AsseX.GetActualMotVel("X");
+        this.MotAZ.ActualVel = AsseX.ActualVelAx[0];
         return MotAZ.ActualVel;
     }
 
     public double GetAzActAcc(){
-        AsseX.GetMotAcc("X");
-        this.MotAZ.ActualAcc = AsseX.AccAx[0];
         return MotAZ.ActualAcc;
     }
 
     public double GetAzCommandedPos(){
+        AsseX.GetAbsTargPos("X");
+        this.MotAZ.CommandedPos = AsseX.AbsTargPosAx[0];
         return MotAZ.CommandedPos;
     }
 
     public double GetAzCommandedVel(){
+        AsseX.GetMotVel("X");
+        this.MotAZ.CommandedVel = AsseX.VelAx[0];
         return MotAZ.CommandedVel;
     }
 
     public double GetAzCommandedAcc(){
+        AsseX.GetMotAcc("X");
+        this.MotAZ.CommandedAcc = AsseX.AccAx[0];
         return MotAZ.CommandedAcc;
     }
 
@@ -177,26 +181,30 @@ public class TCS {
     }
 
     public double GetElActVel(){
-        AsseY.GetMotVel("X");
-        this.MotEL.ActualVel = AsseY.VelAx[0];
+        AsseY.GetActualMotVel("X");
+        this.MotEL.ActualVel = AsseY.ActualVelAx[0];
         return MotEL.ActualVel;
     }
 
     public double GetElActAcc(){
-        AsseY.GetMotAcc("X");
-        this.MotEL.ActualAcc = AsseY.AccAx[0];
         return MotEL.ActualAcc;
     }
 
     public double GetElCommandedPos(){
+        AsseY.GetAbsTargPos("X");
+        this.MotEL.CommandedPos = AsseY.AbsTargPosAx[0];
         return MotEL.CommandedPos;
     }
     
     public double GetElCommandedVel(){
+        AsseY.GetMotVel("X");
+        this.MotEL.ActualVel = AsseY.VelAx[0];
         return MotEL.CommandedVel;
     }
 
     public double GetElCommandedAcc(){
+        AsseY.GetMotAcc("X");
+        this.MotEL.CommandedAcc = AsseY.AccAx[0];
         return MotEL.CommandedAcc;
     }
 
@@ -331,95 +339,137 @@ public class TCS {
 
     public void SetAzTelPosition(double value){
         AsseX.SetAbsTargPos("X", value);
-        this.MotAZ.TelPosition = value;
+        AsseX.GetAbsTargPos("X");
+        this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
     }
 
     public void SetAzJogDirection(int value){
-        this.MotAZ.JogDirection = value;
+        if (value == -1 || value == 1)
+            this.MotAZ.JogDirection = value;
     }
 
     public void SetAzJogVelocity(double value){
-        this.MotAZ.JogVelocity = value;
+        /*
+        AsseX.GetMotionMode("X");
+        if (AsseX.MOTIONMODE[0] == 10){
+            AsseX.SetMotVel("X", value);
+            this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
+        }
+        */
+        this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
+
     }
 
     public void SetElTelPosition(double value){
         AsseY.SetAbsTargPos("X", value);
-        this.MotEL.TelPosition = value;
+        AsseY.GetAbsTargPos("X");
+        this.MotEL.TelPosition = AsseY.AbsTargPosAx[0];
     }
 
     public void SetElJogDirection(int value){
-        this.MotEL.JogDirection = value;
+        if (value == -1 || value == 1)
+            this.MotEL.JogDirection = value;
     }
 
     public void SetElJogVelocity(double value){
-        this.MotEL.JogVelocity = value;
+        /*
+        AsseY.GetMotionMode("X");
+        if (AsseY.MOTIONMODE[0] == 10){
+            AsseY.SetMotVel("X", value);
+            this.MotEL.JogVelocity = value*MotEL.JogDirection;
+        }
+        */
+        this.MotEL.JogVelocity = value*MotEL.JogDirection;
+
     }
     
     public void SetMotionType(int value){
         if (value == 0){
             AsseX.SetSlewMode("X");
             AsseY.SetSlewMode("X");
+
+            AsseX.SetMotVel("X", MotAZ.SlewVelocity);
+            AsseY.SetMotVel("X", MotEL.SlewVelocity);
         }
         else if (value == 1){
             AsseX.SetTrackMode("X");
             AsseY.SetTrackMode("X");
+
+            AsseX.SetMotVel("X", MotAZ.JogVelocity);
+            AsseY.SetMotVel("X", MotEL.JogVelocity);
         }
         this.TEL.MotionType = value;
     }
 
-    public void SetAzPositionTypeSky(boolean value){
-        this.MotAZ.PositionTypeSky = value;
-    }
-
     public void SetAzSlewVelocity(double value){
-        this.MotAZ.SlewVelocity = value;        
+        
+        int sign = 1;
+        if (value < 0)
+            sign = -1;
+
+        /*
+        AsseX.GetMotionMode("X");
+        if (AsseX.MOTIONMODE[0] == 0){
+            AsseX.SetMotVel("X", value*sign);
+            this.MotAZ.SlewVelocity = value*sign;
+        }
+        */
+
+        this.MotAZ.SlewVelocity = value*sign;        
     }
 
     public void SetAzSlewAcceleration(double value){
-        this.MotAZ.SlewAceleration = value;        
+        AsseX.SetMotAcc("X", value);
+        AsseX.GetMotAcc("X");
+        this.MotAZ.SlewAcceleration = AsseX.AccAx[0];        
     }
 
     public void SetAzSlewDeceleration(double value){
-        this.MotAZ.SlewDeceleration = value;        
+        AsseX.SetMotDec("X", value);
+        AsseX.GetMotDec("X");
+        this.MotAZ.SlewAcceleration = AsseX.DecAx[0];
     }
 
     public void SetElSlewVelocity(double value){
-        this.MotEL.SlewVelocity = value;        
+         
+        int sign = 1;
+        if (value < 0)
+            sign = -1;
+
+        /*
+        AsseY.GetMotionMode("X");
+        if (AsseY.MOTIONMODE[0] == 0){
+            AsseY.SetMotVel("X", value*sign);
+            this.MotEL.SlewVelocity = value*sign;
+        }
+        */
+
+        this.MotEL.SlewVelocity = value*sign;
     }
 
     public void SetElSlewAcceleration(double value){
-        this.MotEL.SlewAceleration = value;        
+        AsseY.SetMotAcc("X", value);
+        AsseY.GetMotAcc("X");
+        this.MotEL.SlewAcceleration = AsseY.AccAx[0];
     }
 
     public void SetElSlewDeceleration(double value){
-        this.MotEL.SlewDeceleration = value;        
-    }
-
-    public void SetAzAbsoluteEncOffset(double value){
-        this.MotAZ.AbsEncOffset = value;
-    }
-
-    public void SetAzIncrementalEncOffset(double value){
-        this.MotAZ.IncrementalEncOffset = value;
-    }
-
-    public void SetElEncoderOffset(double value){
-        this.MotEL.EncoderOffset = value;
-    }
-
-    public void SetTrackFollowingError(double value){
-        this.GEN.TrackFollowingError = value;
+        AsseY.SetMotDec("X", value);
+        AsseY.GetMotDec("X");
+        this.MotEL.SlewAcceleration = AsseY.AccAx[0];
     }
 
     public void SetAzMinAcc(double value){
-        this.MotAZ.MinAcc = value;
+        AsseX.SetMaxMinAcc("X", 0, value);
+        this.MotAZ.MinAcc = AsseX.MinAcc[0];
     }
 
     public void SetAzMaxAcc(double value){
-        this.MotAZ.MaxAcc = value;
+        AsseX.SetMaxMinAcc("X", value, 0);
+        this.MotAZ.MaxAcc = AsseX.MaxAcc[0];
     }
 
-    public void SetAzMinDec(double value){
+    public void SetAzMinDec(double value){ 
         this.MotAZ.MinDec = value;
     }
 
@@ -428,27 +478,22 @@ public class TCS {
     }
     
     public void SetAzMinVel(double value){
-        this.MotAZ.MinVel = value;
+        AsseX.SetMaxMinVel("X", 0, value);
+        this.MotAZ.MinVel = AsseX.MinVel[0];
     }
 
     public void SetAzMaxVel(double value){
-        this.MotAZ.MaxVel = value;
+        AsseX.SetMaxMinVel("X", value, 0);
+        this.MotAZ.MinAcc = AsseX.MinVel[0];
     }
 
     public void SetAzTelMinPos(double value){
-        this.MotAZ.TelMinPos = value;
+        AsseX.SetMaxMinPos("X", 0, value);
+        this.MotAZ.TelMinPos = AsseX.MinPos[0];
     }
 
     public void SetAzTelMaxPos(double value){
         this.MotAZ.TelMaxPos = value;
-    }
-
-    public void SetAzSkyMinPos(double value){
-        this.MotAZ.SkyMinPos = value;
-    }
-
-    public void SetAzSkyMaxPos(double value){
-        this.MotAZ.SkyMaxPos = value;
     }
 
     public void SetElMinAcc(double value){

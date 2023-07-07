@@ -50,10 +50,13 @@ public class ACS {
   double[] MaxPos;
   double[] MinPos;
 
+  double[] AbsTargPosAx;
   double[] PositionAx;
   double[] VelAx;
   double[] AccAx;
   double[] DecAx;
+
+  double[] ActualVelAx;
 
   byte[] serialAnswer; 
   byte[] serialCommand;
@@ -82,7 +85,9 @@ public class ACS {
     this.CommStatus = false;
 
     this.PositionAx = new double[1];
+    this.AbsTargPosAx = new double[1];
     this.VelAx = new double[1];
+    this.ActualVelAx = new double[1];
     this.AccAx = new double[1];
     this.DecAx = new double[1];
     this.ENCODERRES = new double[1];
@@ -119,7 +124,9 @@ public class ACS {
     this.CommStatus = false;
 
     this.PositionAx = new double[nax];
+    this.AbsTargPosAx = new double[nax];
     this.VelAx = new double[nax];
+    this.ActualVelAx = new double[nax];
     this.AccAx = new double[nax];
     this.DecAx = new double[nax];
     this.ENCODERRES = new double[nax];
@@ -851,9 +858,25 @@ public class ACS {
     return Err;
   }
 
+  public int GetAbsTargPos(String ax) { // VERIFICATO 
+    this.VALUECR = 0L;
+    byte[] command = sbld("R%sAP", ax);
+    int Err = CommandReport(command, false);
+    this.AbsTargPosAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
+    return Err;
+  }
+
   public int GetMotEncPos(String ax) { // VERIFICATO 
     byte[] command = sbld("R%sCP", ax);
     int Err = CommandReport(command, false);
+    return Err;
+  }
+
+  public int GetActualMotVel(String ax) { // VERIFICATO 
+    this.VALUECR = 0L;
+    byte[] command = sbld("R%sAV", ax);
+    int Err = CommandReport(command, false);
+    this.ActualVelAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
     return Err;
   }
 
