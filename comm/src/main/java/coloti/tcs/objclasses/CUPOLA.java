@@ -11,6 +11,7 @@ public class CUPOLA {
     public int StatusApertura;
     public int StatusRotazione;
     public double Direzione;
+    public double ParkPos;
 
     public CUPOLA(ConfigurationClass cfg){
         this.ControlloreCupola = cfg.getControlloreCupola();

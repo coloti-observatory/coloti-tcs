@@ -12,6 +12,7 @@ import java.lang.Math.*;
 import org.jboss.util.state.DefaultStateMachineModel;
 import org.jboss.util.state.State;
 import org.jboss.util.state.StateMachine;
+import java.util.concurrent.CompletableFuture;
 
 /*
 import java.io.UnsupportedEncodingException;
@@ -72,6 +73,16 @@ public class TCS {
     private double DPX;
     private double DPY;
 
+    // opcua states
+    private StateMachine mcsStateMachine;
+    public State OFF = new State(0, "OFF");
+    public State LOADED = new State(1, "LOADED");
+    public State STANDBY = new State(2, "STANDBY");
+    public State ONLINE = new State(3, "ONLINE");
+    public State MAINTENANCE = new State(4, "MAINTENANCE");
+    public State FAULT = new State(5, "FAULT");
+
+
     public void Configure(){ // CambiaConfig SalvaConfig ReadConfig
         this.CFG = new ConfigurationClass();
         this.GEN = new GENERALE(CFG);
@@ -103,6 +114,33 @@ public class TCS {
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
 
+    // OPCUA
+    public StateMachine getMcsStateMachine() {
+        return mcsStateMachine;
+    }
+
+    private void initHwStateMachine(State init) {
+
+        StateMachine.Model model = new DefaultStateMachineModel();
+        model.addState(OFF, new State[] { LOADED, MAINTENANCE, FAULT });
+        model.addState(LOADED, new State[] { STANDBY, MAINTENANCE, FAULT });
+        model.addState(STANDBY, new State[] { LOADED, ONLINE, MAINTENANCE, FAULT });
+        model.addState(ONLINE, new State[] { STANDBY, MAINTENANCE, FAULT });
+        model.addState(MAINTENANCE, new State[] { STANDBY });
+        model.addState(FAULT, new State[] { MAINTENANCE });
+
+        // Set the initial state
+        model.setInitialState(init);
+        mcsStateMachine = new StateMachine(model);
+    }
+    
+
+
+
+    
+
+
+
 
 
 
@@ -125,19 +163,19 @@ public class TCS {
     }
 
     public int  GetAzMotorStatus(){
-        AsseX.GetMotorStatus("X");
+        AsseX.GetMotorStatus(X);
         this.MotAZ.MotorStatus = AsseX.MOTORSTATUS[0];
         return MotAZ.MotorStatus; // cumulative status of the AZ motors: 0=both disabled; 1=both enabled; 2=degraded state i.e. 1 enabled; 1 in fault; 3=both in fault
     }
 
     public int GetElMotorStatus(){
-        AsseY.GetMotorStatus("X");
+        AsseY.GetMotorStatus(X);
         this.MotEL.MotorStatus = AsseY.MOTORSTATUS[0];
         return MotEL.MotorStatus; // status of the EL motor: 0=disabled; 1=enabled; 2=fault
     }
 
     public double GetAzTelPos(){
-        AsseX.GetMotPos("X");
+        AsseX.GetMotPos(X);
         this.MotAZ.TelPos = AsseX.PositionAx[0];
         return MotAZ.TelPos;
     }
@@ -147,7 +185,7 @@ public class TCS {
     }
 
     public double GetAzActVel(){
-        AsseX.GetActualMotVel("X");
+        AsseX.GetActualMotVel(X);
         this.MotAZ.ActualVel = AsseX.ActualVelAx[0];
         return MotAZ.ActualVel;
     }
@@ -157,31 +195,31 @@ public class TCS {
     }
 
     public double GetAzCommandedPos(){
-        AsseX.GetAbsTargPos("X");
-        this.MotAZ.CommandedPos = AsseX.AbsTargPosAx[0];
-        return MotAZ.CommandedPos;
+        AsseX.GetAbsTargPos(X);
+        this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
+        return MotAZ.TelPosition;
     }
 
     public double GetAzCommandedVel(){
-        AsseX.GetMotVel("X");
+        AsseX.GetMotVel(X);
         this.MotAZ.CommandedVel = AsseX.VelAx[0];
         return MotAZ.CommandedVel;
     }
 
     public double GetAzCommandedAcc(){
-        AsseX.GetMotAcc("X");
+        AsseX.GetMotAcc(X);
         this.MotAZ.CommandedAcc = AsseX.AccAx[0];
         return MotAZ.CommandedAcc;
     }
 
     public double GetElTelPos(){
-        AsseY.GetMotPos("X");
+        AsseY.GetMotPos(X);
         this.MotEL.TelPos = AsseY.PositionAx[0];
         return MotEL.TelPos;
     }
 
     public double GetElActVel(){
-        AsseY.GetActualMotVel("X");
+        AsseY.GetActualMotVel(X);
         this.MotEL.ActualVel = AsseY.ActualVelAx[0];
         return MotEL.ActualVel;
     }
@@ -191,19 +229,19 @@ public class TCS {
     }
 
     public double GetElCommandedPos(){
-        AsseY.GetAbsTargPos("X");
-        this.MotEL.CommandedPos = AsseY.AbsTargPosAx[0];
-        return MotEL.CommandedPos;
+        AsseY.GetAbsTargPos(X);
+        this.MotEL.TelPosition = AsseY.AbsTargPosAx[0];
+        return MotEL.TelPosition;
     }
     
     public double GetElCommandedVel(){
-        AsseY.GetMotVel("X");
+        AsseY.GetMotVel(X);
         this.MotEL.ActualVel = AsseY.VelAx[0];
         return MotEL.CommandedVel;
     }
 
     public double GetElCommandedAcc(){
-        AsseY.GetMotAcc("X");
+        AsseY.GetMotAcc(X);
         this.MotEL.CommandedAcc = AsseY.AccAx[0];
         return MotEL.CommandedAcc;
     }
@@ -338,8 +376,8 @@ public class TCS {
     // SETTERS 
 
     public void SetAzTelPosition(double value){
-        AsseX.SetAbsTargPos("X", value);
-        AsseX.GetAbsTargPos("X");
+        AsseX.SetAbsTargPos(X, value);
+        AsseX.GetAbsTargPos(X);
         this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
     }
 
@@ -350,9 +388,9 @@ public class TCS {
 
     public void SetAzJogVelocity(double value){
         /*
-        AsseX.GetMotionMode("X");
+        AsseX.GetMotionMode(X);
         if (AsseX.MOTIONMODE[0] == 10){
-            AsseX.SetMotVel("X", value);
+            AsseX.SetMotVel(X, value);
             this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
         }
         */
@@ -361,8 +399,8 @@ public class TCS {
     }
 
     public void SetElTelPosition(double value){
-        AsseY.SetAbsTargPos("X", value);
-        AsseY.GetAbsTargPos("X");
+        AsseY.SetAbsTargPos(X, value);
+        AsseY.GetAbsTargPos(X);
         this.MotEL.TelPosition = AsseY.AbsTargPosAx[0];
     }
 
@@ -373,9 +411,9 @@ public class TCS {
 
     public void SetElJogVelocity(double value){
         /*
-        AsseY.GetMotionMode("X");
+        AsseY.GetMotionMode(X);
         if (AsseY.MOTIONMODE[0] == 10){
-            AsseY.SetMotVel("X", value);
+            AsseY.SetMotVel(X, value);
             this.MotEL.JogVelocity = value*MotEL.JogDirection;
         }
         */
@@ -385,18 +423,18 @@ public class TCS {
     
     public void SetMotionType(int value){
         if (value == 0){
-            AsseX.SetSlewMode("X");
-            AsseY.SetSlewMode("X");
+            AsseX.SetSlewMode(X);
+            AsseY.SetSlewMode(X);
 
-            AsseX.SetMotVel("X", MotAZ.SlewVelocity);
-            AsseY.SetMotVel("X", MotEL.SlewVelocity);
+            AsseX.SetMotVel(X, MotAZ.SlewVelocity);
+            AsseY.SetMotVel(X, MotEL.SlewVelocity);
         }
         else if (value == 1){
-            AsseX.SetTrackMode("X");
-            AsseY.SetTrackMode("X");
+            AsseX.SetTrackMode(X);
+            AsseY.SetTrackMode(X);
 
-            AsseX.SetMotVel("X", MotAZ.JogVelocity);
-            AsseY.SetMotVel("X", MotEL.JogVelocity);
+            AsseX.SetMotVel(X, MotAZ.JogVelocity);
+            AsseY.SetMotVel(X, MotEL.JogVelocity);
         }
         this.TEL.MotionType = value;
     }
@@ -408,9 +446,9 @@ public class TCS {
             sign = -1;
 
         /*
-        AsseX.GetMotionMode("X");
+        AsseX.GetMotionMode(X);
         if (AsseX.MOTIONMODE[0] == 0){
-            AsseX.SetMotVel("X", value*sign);
+            AsseX.SetMotVel(X, value*sign);
             this.MotAZ.SlewVelocity = value*sign;
         }
         */
@@ -419,14 +457,14 @@ public class TCS {
     }
 
     public void SetAzSlewAcceleration(double value){
-        AsseX.SetMotAcc("X", value);
-        AsseX.GetMotAcc("X");
+        AsseX.SetMotAcc(X, value);
+        AsseX.GetMotAcc(X);
         this.MotAZ.SlewAcceleration = AsseX.AccAx[0];        
     }
 
     public void SetAzSlewDeceleration(double value){
-        AsseX.SetMotDec("X", value);
-        AsseX.GetMotDec("X");
+        AsseX.SetMotDec(X, value);
+        AsseX.GetMotDec(X);
         this.MotAZ.SlewAcceleration = AsseX.DecAx[0];
     }
 
@@ -437,9 +475,9 @@ public class TCS {
             sign = -1;
 
         /*
-        AsseY.GetMotionMode("X");
+        AsseY.GetMotionMode(X);
         if (AsseY.MOTIONMODE[0] == 0){
-            AsseY.SetMotVel("X", value*sign);
+            AsseY.SetMotVel(X, value*sign);
             this.MotEL.SlewVelocity = value*sign;
         }
         */
@@ -448,24 +486,24 @@ public class TCS {
     }
 
     public void SetElSlewAcceleration(double value){
-        AsseY.SetMotAcc("X", value);
-        AsseY.GetMotAcc("X");
+        AsseY.SetMotAcc(X, value);
+        AsseY.GetMotAcc(X);
         this.MotEL.SlewAcceleration = AsseY.AccAx[0];
     }
 
     public void SetElSlewDeceleration(double value){
-        AsseY.SetMotDec("X", value);
-        AsseY.GetMotDec("X");
+        AsseY.SetMotDec(X, value);
+        AsseY.GetMotDec(X);
         this.MotEL.SlewAcceleration = AsseY.AccAx[0];
     }
 
     public void SetAzMinAcc(double value){
-        AsseX.SetMaxMinAcc("X", 0, value);
+        AsseX.SetMaxMinAcc(X, MotAZ.MaxAcc, value);
         this.MotAZ.MinAcc = AsseX.MinAcc[0];
     }
 
     public void SetAzMaxAcc(double value){
-        AsseX.SetMaxMinAcc("X", value, 0);
+        AsseX.SetMaxMinAcc(X, value, MotAZ.MinAcc);
         this.MotAZ.MaxAcc = AsseX.MaxAcc[0];
     }
 
@@ -478,30 +516,33 @@ public class TCS {
     }
     
     public void SetAzMinVel(double value){
-        AsseX.SetMaxMinVel("X", 0, value);
+        AsseX.SetMaxMinVel(X, MotAZ.MaxVel, value);
         this.MotAZ.MinVel = AsseX.MinVel[0];
     }
 
     public void SetAzMaxVel(double value){
-        AsseX.SetMaxMinVel("X", value, 0);
-        this.MotAZ.MinAcc = AsseX.MinVel[0];
+        AsseX.SetMaxMinVel(X, value, MotAZ.MinVel);
+        this.MotAZ.MaxVel = AsseX.MaxVel[0];
     }
 
     public void SetAzTelMinPos(double value){
-        AsseX.SetMaxMinPos("X", 0, value);
+        AsseX.SetMaxMinPos(X, MotAZ.TelMaxPos, value);
         this.MotAZ.TelMinPos = AsseX.MinPos[0];
     }
 
     public void SetAzTelMaxPos(double value){
-        this.MotAZ.TelMaxPos = value;
+        AsseX.SetMaxMinPos(X, value, MotAZ.TelMinPos);
+        this.MotAZ.TelMaxPos = AsseX.MaxPos[0];
     }
 
     public void SetElMinAcc(double value){
-        this.MotEL.MinAcc = value;
+        AsseY.SetMaxMinAcc(X, MotEL.MaxAcc, value);
+        this.MotEL.MinAcc = AsseY.MinAcc[0];
     }
 
     public void SetElMaxAcc(double value){
-        this.MotEL.MaxAcc = value;
+        AsseY.SetMaxMinAcc(X, value, MotEL.MinAcc);
+        this.MotEL.MaxAcc = AsseY.MaxAcc[0];
     }
 
     public void SetElMinDec(double value){
@@ -513,27 +554,23 @@ public class TCS {
     }
     
     public void SetElMinVel(double value){
-        this.MotEL.MinVel = value;
+        AsseY.SetMaxMinVel(X, MotEL.MaxVel, value);
+        this.MotEL.MinVel = AsseY.MinVel[0];
     }
 
     public void SetElMaxVel(double value){
-        this.MotEL.MaxVel = value;
+        AsseY.SetMaxMinVel(X, value, MotEL.MinVel);
+        this.MotEL.MaxVel = AsseY.MaxVel[0];
     }
 
     public void SetElTelMinPos(double value){
-        this.MotEL.TelMinPos = value;
+        AsseY.SetMaxMinPos(X, MotEL.TelMaxPos, value);
+        this.MotEL.TelMinPos = AsseY.MinPos[0];
     }
 
     public void SetElTelMaxPos(double value){
-        this.MotEL.TelMaxPos = value;
-    }
-
-    public void SetElSkyMinPos(double value){
-        this.MotEL.SkyMinPos = value;
-    }
-
-    public void SetElSkyMaxPos(double value){
-        this.MotEL.SkyMaxPos = value;
+        AsseY.SetMaxMinPos(X, value, MotEL.TelMinPos);
+        this.MotEL.TelMaxPos = AsseY.MaxPos[0];
     }
 
     public void SetAzLsOpCwPos(double value){
@@ -544,72 +581,12 @@ public class TCS {
         this.MotAZ.LsOpCcwPos = value;
     }
 
-    public void SetAzPreLsOpCwPos(double value){
-        this.MotAZ.PreLsOpCwPos = value;
-    }
-
-    public void SetAzPreLsOpCcwPos(double value){
-        this.MotAZ.PreLsOpCcwPos = value;
-    }
-
     public void SetElLsOpLowPos(double value){
         this.MotEL.LsOpLowPos = value;
     }
 
     public void SetElLsOpHighPos(double value){
         this.MotEL.LsOpHighPos = value;
-    }
-
-    public void SetElPreLsOpLowPos(double value){
-        this.MotEL.PreLsOpLowPos = value;
-    }
-
-    public void SetElPreLsOpHighPos(double value){
-        this.MotEL.PreLsOpHighPos = value;
-    }
-
-    public void SetAzLsEmergCwPos(double value){
-        this.MotAZ.LsEmergCwPos = value;
-    }
-
-    public void SetAzLsEmergCcwPos(double value){
-        this.MotAZ.LsEmergCcwPos = value;
-    }
-
-    public void SetElLsEmergLowPos(double value){
-        this.MotEL.LsEmergLowPos = value;
-    }
-
-    public void SetElLsEmergHighPos(double value){
-        this.MotEL.LsEmergHighPos = value;
-    }
-
-    public void SetAzCounterTorque(double value){
-        this.MotAZ.CounterTorque = value;
-    }
-
-    public void SetAzServoCoeff1(double value){
-        this.MotAZ.ServoCoeff1 = value;
-    }
-
-    public void SetAzServoCoeff2(double value){
-        this.MotAZ.ServoCoeff2 = value;
-    }
-
-    public void SetAzServoCoeff3(double value){
-        this.MotAZ.ServoCoeff3 = value;
-    }
-
-    public void SetElServoCoeff1(double value){
-        this.MotEL.ServoCoeff1 = value;
-    }
-
-    public void SetElServoCoeff2(double value){
-        this.MotEL.ServoCoeff2 = value;
-    }
-
-    public void SetElServoCoeff3(double value){
-        this.MotEL.ServoCoeff3 = value;
     }
 
     public void SetObserverLat(double value){
@@ -623,248 +600,6 @@ public class TCS {
     public void SetObserverAlt(int value){
         this.OSS.Altitudine = value;
     }
-
-    public void SetParkingStowPinMode(boolean value){
-        this.GEN.ParkingStowPinMode = value;
-    }
-
-    public void SetAzParkPos(double value){
-        this.MotAZ.ParkPos = value;
-    }
-
-    public void SetElParkPos(double value){
-        this.MotEL.ParkPos = value;
-    }
-
-    public void SetResetHeartBeatInterval(int value){
-        this.GEN.ResetHeartBeatInterval = value;
-    }
-
-    public void SetEnableSunAvoidanceWindow(boolean value){
-        this.GEN.EnableSunAvoidanceWindow = value;
-    }
-    
-    public void SetTPointCoeff1(double value){
-        this.GEN.TPointCoeff1 = value;
-    }
-
-    public void SetTPointCoeff2(double value){
-        this.GEN.TPointCoeff2 = value;
-    }
-    
-    public void SetTPointCoeff3(double value){
-        this.GEN.TPointCoeff3 = value;
-    }
-    
-    public void SetTPointCoeff4(double value){
-        this.GEN.TPointCoeff4 = value;
-    }
-    
-    public void SetTPointCoeff5(double value){
-        this.GEN.TPointCoeff5 = value;
-    }
-    
-    public void SetTPointCoeff6(double value){
-        this.GEN.TPointCoeff6 = value;
-    }
-    
-    public void SetTPointCoeff7(double value){
-        this.GEN.TPointCoeff7 = value;
-    }
-    
-    public void SetTPointCoeff8(double value){
-        this.GEN.TPointCoeff8 = value;
-    }
-    
-    public void SetTPointCoeff9(double value){
-        this.GEN.TPointCoeff9 = value;
-    }
-    
-    public void SetTPointCoeff10(double value){
-        this.GEN.TPointCoeff10 = value;
-    }
-    
-    public void SetTPointCoeff11(double value){
-        this.GEN.TPointCoeff11 = value;
-    }
-    
-    public void SetTPointCoeff12(double value){
-        this.GEN.TPointCoeff12 = value;
-    }
-    
-    public void SetTPointCoeff13(double value){
-        this.GEN.TPointCoeff13 = value;
-    }
-    
-    public void SetTPointCoeff14(double value){
-        this.GEN.TPointCoeff14 = value;
-    }
-    
-    public void SetTPointCoeff15(double value){
-        this.GEN.TPointCoeff15 = value;
-    }
-    
-    public void SetTPointCoeff16(double value){
-        this.GEN.TPointCoeff16 = value;
-    }
-    
-    public void SetTPointCoeff17(double value){
-        this.GEN.TPointCoeff17 = value;
-    }
-    
-    public void SetTPointCoeff18(double value){
-        this.GEN.TPointCoeff18 = value;
-    }
-    
-    public void SetTPointCoeff19(double value){
-        this.GEN.TPointCoeff19 = value;
-    }
-    
-    public void SetTPointCoeff20(double value){
-        this.GEN.TPointCoeff20 = value;
-    }
-    
-    public void SetTPointCoeff21(double value){
-        this.GEN.TPointCoeff21 = value;
-    }
-    
-    public void SetTPointCoeff22(double value){
-        this.GEN.TPointCoeff22 = value;
-    }
-    
-    public void SetTPointCoeff23(double value){
-        this.GEN.TPointCoeff23 = value;
-    }
-    
-    public void SetTPointCoeff24(double value){
-        this.GEN.TPointCoeff24 = value;
-    }
-    
-    public void SetTPointCoeff25(double value){
-        this.GEN.TPointCoeff25 = value;
-    }
-
-    public void SetTrajectoryGenerationMode(int value){
-        this.TEL.TrajectoryGenerationMode = value;
-    }
-
-    public void SetPointingModelOnOff(boolean value){
-        this.TEL.PointingModelOnOff = value;
-    }
-
-    public void SetTrackingDuration(int value){
-        this.TEL.TrackingDuration = value;
-    }
-
-    public void SetTrajectoryNodeArray(double value){
-        this.TEL.TrajectoryNodeArray = value;
-    }
-
-    public void SetAzOffset(double value){
-        this.MotAZ.Offset = value;
-    }
-
-    public void SetElOffset(double value){
-        this.MotEL.Offset = value;
-    }
-
-    public void SetRefractionOnOff(boolean value){
-        this.TEL.Refraction = value;
-    }
-    
-    public void SetTargetName(String value){
-        this.TEL.TargetName = value;
-    }
-
-    public void SetTargetRA(double value){
-        this.TEL.TargetRA = value;
-    }
-
-    public void SetTargetDEC(double value){
-        this.TEL.TargetDEC = value;
-    }
-    
-    public void SetTargetPmRA(double value){
-        this.TEL.TargetPmRA = value;
-    }
-
-    public void SetTargetPmDEC(double value){
-        this.TEL.TargetPmDEC = value;
-    }
-
-    public void SetTargetPX(double value){
-        this.TEL.TargetPX = value;
-    }
-
-    public void SetTargetRV(double value){
-        this.TEL.TargetRV = value;
-    }
-
-    public void SetTargetEquinox(double value){
-        this.TEL.TargetEquinox = value;
-    }
-
-    public void SetTargetEpoch(double value){
-        this.TEL.TargetEpoch = value;
-    }
-
-    public void SetTargetCoordFrame(int value){
-        this.TEL.TargetCoordFrame = value;
-    }
-
-    public void SetTargetCoordType(int value){
-        this.TEL.TargetCoordType = value;
-    }
-
-    public void SetWeatherTemp(double value){
-        this.GEN.WeatherTemp = value;
-    }
-
-    public void SetWeatherPr(double value){
-        this.GEN.WeatherPr = value;
-    }
-
-    public void SetWeatherHum(double value){
-        this.GEN.WeatherHum = value;
-    }
-
-    public void SetWeatherWi(double value){
-        this.GEN.WeatherWi = value;
-    }
-
-    public void SetWeatherWiDir(double value){
-        this.GEN.WeatherWiDir = value;
-    }
-
-    public void SetWeatherWLen(double value){
-        this.GEN.WeatherWlen = value;
-    }
-
-    public void SetIersDut1(double value){
-        this.GEN.IersDut1 = value;
-    }
-
-    public void SetIersTaiUtc(double value){
-        this.GEN.IersTaiUtc = value;
-    }
-
-    public void SetIersXpp(double value){
-        this.GEN.IersXpp = value;
-    }
-
-    public void SetIersYpp(double value){
-        this.GEN.IersYpp = value;
-    }
-    
-    public void SetElObservLimitMin(double value){
-        this.MotEL.ObservLimitMin = value;
-    }
-
-    public void SetElObservLimitMax(double value){
-        this.MotEL.ObservLimitMax = value;
-    }
-
-
 
 
     // ---------------------------------------------------------------------------------------------
@@ -944,20 +679,28 @@ public class TCS {
             if(AsseY.IsMoving(X) == 1)
                 Sleep(200);
 
-            AsseX.SetSlewMode(X);
-            AsseY.SetSlewMode(X);
-            AsseX.SetMotAcc(X, MotAZ.MaxAcc);
-            AsseX.SetMotDec(X, MotAZ.MaxAcc);
-            AsseY.SetMotAcc(X, MotEL.MaxAcc);
-            AsseY.SetMotDec(X, MotEL.MaxAcc);
+            if(TEL.MotionType == 0){
+                //SetMotionType(0);
+                AsseX.SetMotAcc(X, MotAZ.MaxAcc);
+                AsseX.SetMotDec(X, MotAZ.MaxAcc);
+                AsseY.SetMotAcc(X, MotEL.MaxAcc);
+                AsseY.SetMotDec(X, MotEL.MaxAcc);
 
-            AsseX.Move(X, TEL.TargetRA, MotAZ.SlewVelocity); // TEL.SlewVelX
-            AsseY.Move(X, TEL.TargetDEC, MotEL.SlewVelocity); // TEL.SlewVelY
+                AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity); // TEL.SlewVelX
+                AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity); // TEL.SlewVelY
+            }
+
+            if(TEL.MotionType == 1){
+                AsseX.SetMotAcc(X, MotAZ.JogVelocity);
+                //AsseX.SetMotDec(X, MotAZ.JogVelocity);
+                AsseY.SetMotAcc(X, MotEL.JogVelocity);
+                //AsseY.SetMotDec(X, MotEL.JogVelocity);
+
+                AsseX.Move(X, MotAZ.TelPosition, MotAZ.JogVelocity); // TEL.SlewVelX
+                AsseY.Move(X, MotEL.TelPosition, MotEL.JogVelocity); // TEL.SlewVelY
+            }
 
             Sleep(300);
-
-            PuntaCupola();  // target AZ
-            //PuntaCupola(TEL.TargetRA); // no
         }
     }
 
@@ -979,11 +722,11 @@ public class TCS {
             AsseX.SetMotAcc(X, MotAZ.MaxAcc);
             AsseX.SetMotDec(X, MotAZ.MaxAcc);
 
-            AsseX.Move(X, TEL.TargetRA, MotAZ.SlewVelocity);
+            AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity);
 
             Sleep(300);
 
-            PuntaCupola(TEL.TargetRA);
+            PuntaCupola(MotAZ.TelPosition);
         }
     }
     
@@ -1003,7 +746,7 @@ public class TCS {
             AsseY.SetMotAcc(X, MotEL.MaxAcc);
             AsseY.SetMotDec(X, MotEL.MaxAcc);
 
-            AsseY.Move(X, TEL.TargetDEC, MotEL.SlewVelocity);
+            AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity);
 
             Sleep(300);
         }
@@ -1014,44 +757,89 @@ public class TCS {
             AsseY.StopMove(X);
     }
 
-    public void CmdEmergencyStop(boolean value){ /* ? */ 
+    public void CmdEmergencyStop(boolean value){
+        AsseX.StopMove(X);
+        AsseY.StopMove(X);
+        FermaCupola();
+
+        Sleep(300);
+
+        AsseX.StopMove(X);
+        AsseY.StopMove(X);
+        FermaCupola();
+
+        Sleep(300);
+
         AsseX.StopMove(X);
         AsseY.StopMove(X);
         FermaCupola();
     }
-    public void CmdStartAzEncInit(boolean value){ /* ? */ }
-    public void CmdStopAzEncInit(boolean value){ /* ? */ }
 
-    public void CmdStartParking(boolean value){}
-    public void CmdStopParking(boolean value){}
-    public void CmdStartAzParking(boolean value){}
-    public void CmdStopAzParking(boolean value){}
-    public void CmdStartElParking(boolean value){}
-    public void CmdStopElParking(boolean value){}
+    public void CmdStartParking(boolean value){
+        CmdStartAzParking(value);
+        CmdStartElParking(value);
+        CmdCupolaParking(value);
+    }
 
-    public void CmdStartTracking(boolean value){}
-    public void CmdStopTracking(boolean value){}
-    public void CmdUpdateTrajectory(boolean value){}
 
-    public void CmdStartPointing(boolean value){}
-    public void CmdStopPointing(boolean value){}
+    public void CmdStopParking(boolean value){
+        CmdStopMotion(value);
+    }
 
-    public void CmdResetAlarms(boolean value){}
-    public void CmdResetAzAxis(boolean value){}
-    public void CmdResetElAxis(boolean value){}
+    public void CmdStartAzParking(boolean value){
+        SetAzTelPosition(MotAZ.ParkPos);
+        CmdStartAzMotion(true);
+    }
 
-    public void CmdPCshutdown(boolean value){}
-    public void CmdPCrestart(boolean value){}
+    public void CmdStopAzParking(boolean value){
+        CmdStopMotion(value);
+    }
 
-    public void CmdM2on(boolean value){}
-    public void CmdM2off(boolean value){}
+    public void CmdStartElParking(boolean value){
+        SetElTelPosition(MotEL.ParkPos);
+        CmdStartElMotion(true);
+    }
 
-    public void CmdClearErrorBuffer(boolean value){}
-    public void CmdSaveParameters(boolean value){}
-    public void CmdResetParameters(boolean value){}
+    public void CmdStopElParking(boolean value){
+        CmdStopMotion(value);
+    }
+
+    public void CmdStartTracking(boolean value){
+        SetMotionType(0);
+        CmdStartMotion(value);
+        SetMotionType(1);
+        CmdStartMotion(value);
+    }
+
+    public void CmdStopTracking(boolean value){
+        CmdStopMotion(value);
+    }
+
+    public void CmdStartPointing(boolean value){
+        SetMotionType(0);
+        CmdStartMotion(value);
+    }
+
+    public void CmdStopPointing(boolean value){
+        CmdStopMotion(value);
+    }
+
 
 
     // ALTRI COMANDI
+
+    public void SetAzParkingPosition(double value){
+        this.MotAZ.ParkPos = value;
+    }
+
+    public void SetElParkingPosition(double value){
+        this.MotEL.ParkPos = value;
+    }
+
+    public void SetCupolaParkingPosition(double value){
+        this.CUP.ParkPos = value;
+    }
+    
 
     public void CmdOpenCupola(boolean value){
         CupolaApertura();
@@ -1062,7 +850,11 @@ public class TCS {
     }
 
     public void CmdStartCupolaPointing(boolean value) {
-        PuntaCupola(TEL.TargetAZ);
+        PuntaCupola(MotAZ.TelPosition);
+    }
+
+    public void CmdCupolaParking(boolean value) {
+        PuntaCupola(CUP.ParkPos);
     }
 
     public void CmdStopCupola(boolean value){
@@ -1190,27 +982,18 @@ public class TCS {
         if (AsseX.CommStatus && AsseY.CommStatus){
             // killertimer (2)
             AsseX.StopMove(X);
-            if (AsseX.IsMoving(X) == 1){
+            if (AsseX.IsMoving(X) == 1)
                 Sleep(200) ;
-            }
-
             AsseY.StopMove(X);
-            if (AsseY.IsMoving(X) == 1){
+            if (AsseY.IsMoving(X) == 1)
                 Sleep(200) ;
-            }
 
             AsseX.SetSlewMode(X);
             AsseY.SetSlewMode(X);
-
-            //TraiettoriaX();
-            //TraiettoriaY();
-
             AsseX.SetMotAcc(X, MotAZ.MaxAcc);
             AsseX.SetMotDec(X, MotAZ.MaxAcc);
-
             AsseY.SetMotAcc(X, MotEL.MaxAcc);
             AsseY.SetMotDec(X, MotEL.MaxAcc);
-
             AsseX.Move(X, TEL.TargetPosX, TEL.SlewVelX);
             AsseY.Move(X, TEL.TargetPosY, TEL.SlewVelY);
 
@@ -1622,7 +1405,7 @@ public class TCS {
 
     public int PuntaCupola(){
         if (AsseCupola.CommStatus){
-            int az = (int) (3600*TEL.TargetAZ*AsseCupola.CONVFACTOR[0]);
+            int az = (int) (3600*MotAZ.TelPos*AsseCupola.CONVFACTOR[0]);
             int Err;
             byte[] command = AsseCupola.sbld("AVSE");
             AsseCupola.CommandArray(command, 10, az);
