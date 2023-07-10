@@ -1,0 +1,11 @@
+15:38:19.268 a.t.AivMountSoftware - null
+15:54:11.696 a.t.AivMountSoftware - Command Execution State:IDLE
+15:54:11.890 a.t.AivMountSoftware - MCS in Remote Mode
+15:54:11.956 a.t.AivMountSoftware - Current State:ONLINE
+15:54:11.960 a.t.AivMountSoftware - UaConnector will use:ICD_WS_V200_2022_08_21.xlsx
+15:54:11.961 a.t.AivMountSoftware - UaConnector will try to connect to:opc.tcp://10.10.1.76:62651//OPCUA/AMA_WS2_Server
+15:54:18.402 a.t.AivMountSoftware - connected to Server: BuildInfo(productUri=urn:ASTRI_miniArray:OPCUA:AMA_WS2_Server, manufacturerName=Prosys PMS Ltd, productName=AMA_WS2_Server, softwareVersion=2.2.2, buildNumber=638, buildDate=DateTime{utcTime=0, javaDate=Mon Jan 01 01:00:00 CET 1601})
+15:54:18.403 a.t.AivMountSoftware - Server State: Running
+15:54:18.403 a.t.AivMountSoftware - Unable to connect to the server
+15:54:18.404 a.t.AivMountSoftware - Error Connecting to Ws
+15:54:41.230 a.t.AivMountSoftware - Current Az Position:-89.99999750124537
