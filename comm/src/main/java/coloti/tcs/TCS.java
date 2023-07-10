@@ -668,7 +668,6 @@ public class TCS {
         }
     }
 
-    // Cosa ci va nelle coordinate della posizione per move? 
     public void CmdStartMotion(boolean value){
         if (AsseX.CommStatus && AsseY.CommStatus){
 
@@ -780,7 +779,6 @@ public class TCS {
         CmdStartElParking(value);
         CmdCupolaParking(value);
     }
-
 
     public void CmdStopParking(boolean value){
         CmdStopMotion(value);
