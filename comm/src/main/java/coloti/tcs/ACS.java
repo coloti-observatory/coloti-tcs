@@ -62,12 +62,14 @@ public class ACS {
   byte[] serialCommand;
   String answerString;
   int[] answerInt = new int[50];
+  char[] serialCommandCaratteri;
 
 
-  public ACS(){}
 
-  public ACS(String SerialID) { // VERIFICATO 
-    this.communication = new CommClass(SerialID);
+  //public ACS(){}
+
+  public ACS() { // VERIFICATO 
+    //this.communication = new CommClass(SerialID);
     this.NAXES = 1;
     this.CONVFACTOR[X] = 1.;
     this.CONVFACTOR[Y] = 1.;
@@ -103,6 +105,14 @@ public class ACS {
     this.MaxPos = new double[1];
     this.MinPos = new double[1];
 
+    //SetUserUnit(X, )
+
+  }
+
+
+  public ACS(String SerialID) { // VERIFICATO 
+    this();
+    this.communication = new CommClass(SerialID);
   }
 
   public ACS(String SerialID, int nax) { // VERIFICATO 
@@ -176,6 +186,14 @@ public class ACS {
     if (OpenCommunications()) {
       SetMode(mode); // 0 host mode, 1 terminal mode
     }
+  }
+
+  public boolean SetSimpleStartCheck(int mode){ // VERIFICATO 
+    boolean status = OpenCommunications();
+    if (status) {
+      SetMode(mode); // 0 host mode, 1 terminal mode
+    }
+    return status;
   }
 
   public void SetStart(int mode){ // VERIFICATO 
@@ -301,6 +319,7 @@ public class ACS {
   }
 
   Tell2 Tell2 = new Tell2();
+  
 
   public int AxesNumber(String ax) { // VERIFICATO 
     int axint = 0;
@@ -352,6 +371,14 @@ public class ACS {
     int arrSize = arr.length;
     for (int i = 0; i < arrSize; i++) {
       System.out.print((char) arr[i]);
+    }
+    System.out.println();
+  }
+
+  public void PrintCharln(char[] arr) { // VERIFICATO 
+    int arrSize = arr.length;
+    for (int i = 0; i < arrSize; i++) {
+      System.out.print(arr[i]);
     }
     System.out.println();
   }
@@ -478,7 +505,10 @@ public class ACS {
 
   public int SetAbsTargPos(String ax, double pos) { // VERIFICATO 
     int Value = 0;
+    System.out.println("Position: " + pos);
     Value = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * pos);
+    System.out.println("xxxxxxxxxxxxxxxxx");
+    System.out.println(Value);
     byte[] command = sbld("S%sAP", ax);
     int Err = CommandSet(command, Value);
     return Err;
@@ -504,13 +534,17 @@ public class ACS {
 
   public int SetMotVel(String ax, double vel) { // VERIFICATO 
     int Value = 0;
+    /* 
     if (vel > MaxVel[AxesNumber(ax)])
       vel = MaxVel[AxesNumber(ax)];
     if (vel < MinVel[AxesNumber(ax)])
       vel = MinVel[AxesNumber(ax)];
+      */
 
     Value = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * vel);
+    
     byte[] command = sbld("S%sLV", ax);
+
     int Err = CommandSet(command, Value);
     return Err;
   }
@@ -570,7 +604,9 @@ public class ACS {
   }
 
   public int SetSlewMode(String ax) { // forse manca un GetMotionMode
-    if (MOTIONMODE[AxesNumber(ax)] != 0) {
+    boolean condmode = true;
+    if (condmode) //(MOTIONMODE[AxesNumber(ax)] != 0) 
+    {
       byte[] command = sbld("S%sMM", ax);
       int Err = CommandSet(command, 0);
       if (Err == -1)
@@ -581,7 +617,9 @@ public class ACS {
   }
 
   public int SetTrackMode(String ax) { // forse manca un GetMotionMode
-    if (MOTIONMODE[AxesNumber(ax)] != 1) {
+    boolean condmode = true;
+    if (condmode) //MOTIONMODE[AxesNumber(ax)] != 1) {
+    {
       byte[] command = sbld("S%sMM", ax);
       int Err = CommandSet(command, 10);
       if (Err == -1)
@@ -762,13 +800,23 @@ public class ACS {
     this.VALUECR = 0L;
     double EncRes;
     byte[] command = sbld("R%sLR", ax);
-    int ErrorCode = CommandReport(command, false);
+    int ErrorCode = CommandReport(command, true);
     EncRes = this.VALUECR;
+
+    System.out.println("LR: ");
+    System.out.println(EncRes);
+
     if (ErrorCode != ACSOK)
       return ErrorCode;
     command = sbld("R%sLF", ax);
-    ErrorCode = CommandReport(command, false);
+    ErrorCode = CommandReport(command, true);
     EncRes = (EncRes) * Math.round(Math.pow(2., this.VALUECR)); // dnint = Math.round
+    
+
+
+    System.out.println("LF: ");
+    System.out.println(this.VALUECR);
+    System.out.println(EncRes);
 
     //System.out.print("Encoder Resolution for axes " + ax + " : ");
     //System.out.println(EncRes);
@@ -782,8 +830,9 @@ public class ACS {
     this.VALUECR = 0L;
     int axI = AxesNumber(ax);
     byte[] command = sbld("R%sMM", ax);
-    int ErrorCode = CommandReport(command, false);
+    int ErrorCode = CommandReport(command, true);
     this.MOTIONMODE[axI] = (int) this.VALUECR;
+    System.out.println(MOTIONMODE[axI]);
     return ErrorCode;
   }
 
@@ -861,7 +910,8 @@ public class ACS {
   public int GetAbsTargPos(String ax) { // VERIFICATO 
     this.VALUECR = 0L;
     byte[] command = sbld("R%sAP", ax);
-    int Err = CommandReport(command, false);
+    int Err = CommandReport(command, true);
+    System.out.println(this.VALUECR);
     this.AbsTargPosAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
     return Err;
   }
@@ -883,8 +933,9 @@ public class ACS {
   public int GetMotVel(String ax) { // VERIFICATO 
     this.VALUECR = 0L;
     byte[] command = sbld("R%sLV", ax);
-    int Err = CommandReport(command, false);
+    int Err = CommandReport(command, true);
     this.VelAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
+    System.out.println(VelAx[AxesNumber(ax)]);
     return Err;
   }
 
@@ -1030,31 +1081,33 @@ public class ACS {
 
   public int CommandSet(byte[] Instruction, int Value) { // VERIFICATO 
     SerialWrite(Instruction, Value);
+    Sleep(200);
     int nBytes = SerialRead();
     boolean PRINT = true;
     if (PRINT) {
       System.out.print("Comando Set inviato: ");
-      PrintBytesln(this.serialCommand);
-      System.out.println("Risposta al comando: ");
-      PrintBytesln(this.serialAnswer);
+      PrintCharln(this.serialCommandCaratteri);
+      //System.out.println("Risposta al comando: ");
+      //PrintBytesln(this.serialAnswer);
     }
     return Error();
   }
 
   public int CommandSet(byte[] Instruction) { // VERIFICATO 
     SerialWrite(Instruction);
+    Sleep(200);
     int nBytes = SerialRead();
     boolean PRINT = true;
     if (PRINT) {
       System.out.print("Comando Set inviato: ");
-      PrintBytesln(this.serialCommand);
-      System.out.println("Risposta al comando: ");
-      PrintBytesln(this.serialAnswer);
+      PrintCharln(this.serialCommandCaratteri);
+      //System.out.println("Risposta al comando: ");
+      //PrintBytesln(this.serialAnswer);
     }
     return Error();
   }
   
-  public int CommandReport(byte[] instruction, boolean PRINT) { // VERIFICATO 
+  public int CommandReport(byte[] instruction, boolean PRINT) { // VERIFICATO
     this.VALUECR = 0;
     int Count, Err, nBytes = 0;
     int[] Data = new int[4];
@@ -1068,7 +1121,8 @@ public class ACS {
     if (PRINT) {
       System.out.println("Comando inviato: ");
       //PrintArray(this.serialCommand);
-      PrintBytesln(this.serialCommand);
+      //PrintBytesln(this.serialCommand);
+      PrintCharln(this.serialCommandCaratteri);
       System.out.println("Risposta al comando: ");
       //System.out.println(this.answerString);
       PrintBytesln(this.serialAnswer);
@@ -1381,7 +1435,7 @@ public class ACS {
     return new byte[0];
   }
 
-  public int SerialWrite(byte[] c) { // VERIFICATO 
+  public int SerialWriteOLD(byte[] c) { // VERIFICATO 
     int i;
     int CheckSum = 0;
     String buffer = ""; //new String();
@@ -1408,10 +1462,43 @@ public class ACS {
     return 0;
   }
   
-  public int SerialWrite(byte[] c, int Value) { // VERIFICATO 
+
+  public int SerialWrite(byte[] c) { // ? 
     int i, CheckSum = 0;
     String buffer = "";
+    byte[] Dati = new byte[4];
+        
+    for (i = 0; i < c.length; i++) {
+      CheckSum = CheckSum + (int) c[i];
+      buffer += (char) c[i];
+    }
 
+    CheckSum = mod(CheckSum, 256);
+    if ((CheckSum == 13) || (CheckSum == 16))
+      CheckSum += 128;
+
+    buffer += (char) (CheckSum & 0XFF);
+    buffer += '\r';
+
+    char[] bufferCaratteri = buffer.toCharArray();
+    int[] bufferInteri = new int[bufferCaratteri.length];
+    for (i = 0; i < bufferCaratteri.length; i++){
+        bufferInteri[i] = (int) (bufferCaratteri[i] & 0XFF);
+    }
+
+    this.serialCommandCaratteri = bufferCaratteri;
+    //byte[] finalBuffer = String.valueOf(buffer).getBytes();
+    //this.serialCommand = finalBuffer;
+
+    communication.Write(bufferInteri);
+    return 0;
+
+  }
+
+
+  public int SerialWrite(byte[] c, int Value) { // ? 
+    int i, CheckSum = 0;
+    String buffer = "";
     byte[] Dati = new byte[4];
         
     for (i = 0; i < c.length; i++) {
@@ -1434,28 +1521,81 @@ public class ACS {
     if ((CheckSum == 13) || (CheckSum == 16))
       CheckSum += 128;
 
-    buffer += (char) CheckSum;
+    buffer += (char) (CheckSum & 0XFF);
     buffer += '\r';
-    byte[] finalBuffer = String.valueOf(buffer).getBytes();
-    this.serialCommand = finalBuffer;
 
-    communication.Write(finalBuffer);
+    char[] bufferCaratteri = buffer.toCharArray();
+    int[] bufferInteri = new int[bufferCaratteri.length];
+    for (i = 0; i < bufferCaratteri.length; i++){
+        bufferInteri[i] = (int) (bufferCaratteri[i] & 0XFF);
+    }
+
+    this.serialCommandCaratteri = bufferCaratteri;
+    PrintArray(bufferInteri);
+    //byte[] finalBuffer = String.valueOf(buffer).getBytes();
+    //this.serialCommand = finalBuffer;
+
+    communication.Write(bufferInteri);
     return 0;
 
   }
 
 
-
-  public int SerialWrite(byte[] c, int[] Value, int numdata) { // VERIFICATO 
+  public int SerialWrite(byte[] c, int[] Value, int numdata) { // ? 
     int i, CheckSum = 0;
     String buffer = "";
-
     byte[] Dati = new byte[4];
         
     for (i = 0; i < c.length; i++) {
       CheckSum = CheckSum + (int) c[i];
       buffer += (char) c[i];
     }
+    
+    for (int j = 0; j < numdata; j++){
+      for (i = 0; i < 4; i++) {
+        Dati[3 - i] = (byte) (Value[j] >> 8 * i);
+      }
+      for (i = 0; i < 4; i++) {
+        if ((Dati[i] == 16) || (Dati[i] == 13))
+          buffer += 0x10; //sedici
+        CheckSum += (int) Dati[i];
+        buffer += (char) Dati[i];
+      }
+    }
+
+    CheckSum = mod(CheckSum, 256);
+    if ((CheckSum == 13) || (CheckSum == 16))
+      CheckSum += 128;
+
+    buffer += (char) (CheckSum & 0XFF);
+    buffer += '\r';
+
+    char[] bufferCaratteri = buffer.toCharArray();
+    int[] bufferInteri = new int[bufferCaratteri.length];
+    for (i = 0; i < bufferCaratteri.length; i++){
+        bufferInteri[i] = (int) (bufferCaratteri[i] & 0XFF);
+    }
+
+    this.serialCommandCaratteri = bufferCaratteri;
+    //byte[] finalBuffer = String.valueOf(buffer).getBytes();
+    //this.serialCommand = finalBuffer;
+
+    communication.Write(bufferInteri);
+    return 0;
+
+  }
+
+
+  public int SerialWriteOLD(byte[] c, int[] Value, int numdata) { // VERIFICATO 
+    int i, CheckSum = 0;
+    String buffer = "";
+    byte[] Dati = new byte[4];
+        
+    for (i = 0; i < c.length; i++) {
+      CheckSum = CheckSum + (int) c[i];
+      buffer += (char) c[i];
+    }
+
     for (int j = 0; j < numdata; j++){
       for (i = 0; i < 4; i++) {
         Dati[3 - i] = (byte) (Value[j] >> 8 * i);
@@ -1489,14 +1629,16 @@ public class ACS {
 
   public int SerialRead() { // VERIFICATO 
     int nBytes;
-
+    this.answerString = "";
     if (this.HostStatus) {
-      this.answerInt = this.communication.ReadMessageInt();
-      nBytes = this.answerInt.length;
+      int[] localAnswerInt = this.communication.ReadMessageInt();
+      this.answerInt = localAnswerInt;
+      //this.answerInt = this.communication.ReadMessageInt();
+      nBytes = localAnswerInt.length;
       this.serialAnswer = new byte[nBytes];
       for (int i = 0; i < nBytes; i++){
-        this.serialAnswer[i] = (byte) this.answerInt[i];
-        this.answerString += (char) this.answerInt[i];
+        this.serialAnswer[i] = (byte) localAnswerInt[i]; //his.answerInt[i];
+        this.answerString += (char) localAnswerInt[i]; //this.answerInt[i];
       }
     }
 
@@ -1608,11 +1750,27 @@ public class ACS {
 
     ///* 
     ACS acs = new ACS("/dev/ttyUSB0",1);
-    acs.SetStart(0);
-    int ErrorCode;
-    byte[] command;
+    acs.SetSimpleStart(0);
 
     
+    //acs.GetEncoderRes("X");
+
+
+    //acs.SetSlewMode("X");
+
+    acs.Sleep(1000);
+
+    acs.GetMotionMode("X");
+
+    System.out.println("\n--------\n");
+
+    acs.SetMotVel("X", 4000);
+
+    acs.Sleep(5000);
+
+    acs.GetMotVel("X");
+
+
 
 
 

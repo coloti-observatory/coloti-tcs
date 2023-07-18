@@ -118,11 +118,15 @@ public class App {
 
     //String ANS;
 
+    /*
+     
     byte val = '?';
 
     System.out.println((char) val);
     System.out.println("\nin bit risulta essere: ");
     PrintBits(val);
+
+     */
 
 
 
@@ -144,7 +148,7 @@ public class App {
 
 
     
-     //ACS acs = new ACS("/dev/ttyUSB0", 9600);
+    ACS acs = new ACS("/dev/ttyUSB0");
 
      //acs.SetHostMode();
 
