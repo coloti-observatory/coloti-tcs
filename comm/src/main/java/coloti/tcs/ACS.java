@@ -1,19 +1,22 @@
 package coloti.tcs;
 
 import java.io.UnsupportedEncodingException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+/* Altri import superflui 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.DrbgParameters.NextBytes;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.IntPredicate;
-
 import javax.lang.model.util.ElementScanner6;
 import coloti.tcs.CommClass;
+*/
 
 public class ACS {
 
   private CommClass communication;
+  boolean PRINT = false;
   int ACSOK = -1;
   int ACSposoverflow = -2;
   int ACSmotorerror = -3;
@@ -116,7 +119,6 @@ public class ACS {
   }
 
   public ACS(String SerialID, int nax) { // VERIFICATO 
-    this.communication = new CommClass(SerialID);
     this.NAXES = nax;
     this.CONVFACTOR[X] = 1.;
     this.CONVFACTOR[Y] = 1.;
@@ -151,6 +153,8 @@ public class ACS {
     this.MinAcc = new double[nax];
     this.MaxPos = new double[nax];
     this.MinPos = new double[nax];
+    
+    this.communication = new CommClass(SerialID);
   }
 
   // STARTING
@@ -182,66 +186,26 @@ public class ACS {
     return status;
   }
 
-  public void SetSimpleStart(int mode){ // VERIFICATO 
+  /*public void SetSimpleStart(int mode){ // VERIFICATO 
     if (OpenCommunications()) {
       SetMode(mode); // 0 host mode, 1 terminal mode
     }
-  }
+  }*/
 
-  public boolean SetSimpleStartCheck(int mode){ // VERIFICATO 
-    boolean status = OpenCommunications();
-    if (status) {
+  public boolean SetSimpleStart(int mode){ // VERIFICATO 
+    OpenCommunications();
+    if (this.CommStatus) {
       SetMode(mode); // 0 host mode, 1 terminal mode
     }
-    return status;
+    return this.CommStatus;
   }
 
-  public void SetStart(int mode){ // VERIFICATO 
-    int Err = 0;
-    if (OpenCommunications()) {
+  public boolean SetSimpleStart(int mode, int baud, byte bytesize, byte stop, byte parity, int timeout){ // VERIFICATO 
+    OpenCommunications(baud, bytesize, stop, parity, timeout);
+    if (this.CommStatus) {
       SetMode(mode); // 0 host mode, 1 terminal mode
-      if (this.CommStatus) {
-        for (int i = 0; i < this.NAXES; i++) {
-          Err = GetEncoderRes(this.axes[i]);
-          this.GEARRATIO[i] = 1;
-          this.CONVFACTOR[i] = 1;
-          Err = GetMotionMode(this.axes[i]);
-          if (this.ENCODERRES[i] == 0)
-            this.MOTIONMODE[i] = 0;
-          if (this.ENCODERRES[i] == 10)
-            this.MOTIONMODE[i] = 1;
-          this.MaxAbsVel[i] = this.MaxVel[i] = this.ENCODERRES[i];
-          this.MinAbsVel[i] = this.MinVel[i] = 0;
-          this.MaxAbsAcc[i] = this.MaxAcc[i] = this.ENCODERRES[i];
-          this.MinAbsAcc[i] = this.MinAcc[i] = 1000;
-          Err = GetMotMaxMinPos(this.axes[i]);
-        }
-      }
     }
-  }
-
-  public void SetStart(int mode, int baud, byte bytesize, byte stop, byte parity, int timeout){ // VERIFICATO 
-    int Err = 0;
-    if (OpenCommunications(baud, bytesize, stop, parity, timeout)) {
-      SetMode(mode); // 0 host mode, 1 terminal mode
-      if (this.CommStatus) {
-        for (int i = 0; i < this.NAXES; i++) {
-          Err = GetEncoderRes(this.axes[i]);
-          this.GEARRATIO[i] = 1;
-          this.CONVFACTOR[i] = 1;
-          Err = GetMotionMode(this.axes[i]);
-          if (this.ENCODERRES[i] == 0)
-            this.MOTIONMODE[i] = 0;
-          if (this.ENCODERRES[i] == 10)
-            this.MOTIONMODE[i] = 1;
-          this.MaxAbsVel[i] = this.MaxVel[i] = this.ENCODERRES[i];
-          this.MinAbsVel[i] = this.MinVel[i] = 0;
-          this.MaxAbsAcc[i] = this.MaxAcc[i] = this.ENCODERRES[i];
-          this.MinAbsAcc[i] = this.MinAcc[i] = 1000;
-          Err = GetMotMaxMinPos(this.axes[i]);
-        }
-      }
-    }
+    return this.CommStatus;
   }
 
   public int InitAxes() { // VERIFICATO 
@@ -252,10 +216,6 @@ public class ACS {
         this.GEARRATIO[i] = 1;
         this.CONVFACTOR[i] = 1;
         Err = GetMotionMode(this.axes[i]);
-        if (this.ENCODERRES[i] == 0)
-          this.MOTIONMODE[i] = 0;
-        if (this.ENCODERRES[i] == 10)
-          this.MOTIONMODE[i] = 1;
         this.MaxAbsVel[i] = this.MaxVel[i] = this.ENCODERRES[i];
         this.MinAbsVel[i] = this.MinVel[i] = 0;
         this.MaxAbsAcc[i] = this.MaxAcc[i] = this.ENCODERRES[i];
@@ -268,6 +228,43 @@ public class ACS {
   }
 
   // UTILITY
+
+  public double SetUserUnit(String ax, int um, double gr) { // VERIFICATO 
+    int axI = AxesNumber(ax);
+    switch (um) {
+      case RAD:
+        this.UM = RAD;
+        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[RAD];
+        return CONVFACTOR[axI]; //break;
+
+      case GRAD:
+        this.UM = GRAD;
+        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[GRAD];
+        return CONVFACTOR[axI]; //break;
+
+      case HOUR:
+        this.UM = HOUR;
+        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[HOUR];
+        return CONVFACTOR[axI];
+
+      case ARCSECS:
+        this.UM = ARCSECS;
+        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[ARCSECS];
+        return CONVFACTOR[axI];
+
+      default:
+        return 1.0;
+    }
+  }
+
+  public void MotConfig(String ax, int um, double gr, double rev) {
+    SetUserUnit(ax, um, gr);
+    int axI = AxesNumber(ax);
+    this.MaxVel[axI] = this.MaxAbsVel[axI] = 0.85 * (rev / 60) * this.ENCODERRES[axI] / this.CONVFACTOR[axI];
+    this.MaxAbsAcc[axI] = this.MaxAcc[axI] = this.MaxVel[axI];
+    this.MinAbsVel[axI] = this.MinVel[axI] = -this.MaxVel[axI];
+    this.MinAbsAcc[axI] = 1000 / this.CONVFACTOR[axI];
+  }
 
   public class Tell0 {
     byte T0Control;
@@ -448,15 +445,6 @@ public class ACS {
 
     return this.ACSOK;
   }
-  
-  public void MotConfig(String ax, int um, double gr, double rev) {
-    SetUserUnit(ax, um, gr);
-    int axI = AxesNumber(ax);
-    this.MaxVel[axI] = this.MaxAbsVel[axI] = 0.85 * (rev / 60) * this.ENCODERRES[axI] / this.CONVFACTOR[axI];
-    this.MaxAbsAcc[axI] = this.MaxAcc[axI] = this.MaxVel[axI];
-    this.MinAbsVel[axI] = this.MinVel[axI] = -this.MaxVel[axI];
-    this.MinAbsAcc[axI] = 1000 / this.CONVFACTOR[axI];
-  }
 
   public void Sleep(int millisecondsTime) { // VERIFICATO 
     try {
@@ -498,17 +486,25 @@ public class ACS {
     else{
       System.out.println("You are in Terminal Mode (1)");
     }
-    System.out.println();
 
     return Err;
   }
 
   public int SetAbsTargPos(String ax, double pos) { // VERIFICATO 
     int Value = 0;
-    System.out.println("Position: " + pos);
+
+    if (PRINT){
+      System.out.println("Check set abs targ function");
+      System.out.println("Position: " + pos);
+    }
+
     Value = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * pos);
-    System.out.println("xxxxxxxxxxxxxxxxx");
-    System.out.println(Value);
+
+    if (PRINT){
+      System.out.println("Conversion Factor: "+CONVFACTOR[AxesNumber(ax)]);
+      System.out.println("Resulting Value: "+Value);
+    }
+
     byte[] command = sbld("S%sAP", ax);
     int Err = CommandSet(command, Value);
     return Err;
@@ -604,8 +600,7 @@ public class ACS {
   }
 
   public int SetSlewMode(String ax) { // forse manca un GetMotionMode
-    boolean condmode = true;
-    if (condmode) //(MOTIONMODE[AxesNumber(ax)] != 0) 
+    if (MOTIONMODE[AxesNumber(ax)] != 0) 
     {
       byte[] command = sbld("S%sMM", ax);
       int Err = CommandSet(command, 0);
@@ -617,8 +612,7 @@ public class ACS {
   }
 
   public int SetTrackMode(String ax) { // forse manca un GetMotionMode
-    boolean condmode = true;
-    if (condmode) //MOTIONMODE[AxesNumber(ax)] != 1) {
+    if (MOTIONMODE[AxesNumber(ax)] != 1)
     {
       byte[] command = sbld("S%sMM", ax);
       int Err = CommandSet(command, 10);
@@ -708,33 +702,7 @@ public class ACS {
   }
   
 
-  public void SetUserUnit(String ax, int um, double gr) { // VERIFICATO 
-    int axI = AxesNumber(ax);
-    switch (um) {
-      case RAD:
-        this.UM = RAD;
-        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[RAD];
-        break;
 
-      case GRAD:
-        this.UM = GRAD;
-        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[GRAD];
-        break;
-
-      case HOUR:
-        this.UM = HOUR;
-        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[HOUR];
-        break;
-
-      case ARCSECS:
-        this.UM = ARCSECS;
-        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[ARCSECS];
-        break;
-
-      default:
-        break;
-    }
-  }
 
 
   // GET FUNCTIONS
@@ -800,23 +768,23 @@ public class ACS {
     this.VALUECR = 0L;
     double EncRes;
     byte[] command = sbld("R%sLR", ax);
-    int ErrorCode = CommandReport(command, true);
+    int ErrorCode = CommandReport(command, PRINT);
     EncRes = this.VALUECR;
 
-    System.out.println("LR: ");
-    System.out.println(EncRes);
+    //System.out.println("LR: ");
+    //System.out.println(EncRes);
 
     if (ErrorCode != ACSOK)
       return ErrorCode;
     command = sbld("R%sLF", ax);
-    ErrorCode = CommandReport(command, true);
+    ErrorCode = CommandReport(command, PRINT);
     EncRes = (EncRes) * Math.round(Math.pow(2., this.VALUECR)); // dnint = Math.round
     
 
 
-    System.out.println("LF: ");
-    System.out.println(this.VALUECR);
-    System.out.println(EncRes);
+    //System.out.println("LF: ");
+    //System.out.println(this.VALUECR);
+    //System.out.println(EncRes);
 
     //System.out.print("Encoder Resolution for axes " + ax + " : ");
     //System.out.println(EncRes);
@@ -830,8 +798,13 @@ public class ACS {
     this.VALUECR = 0L;
     int axI = AxesNumber(ax);
     byte[] command = sbld("R%sMM", ax);
-    int ErrorCode = CommandReport(command, true);
-    this.MOTIONMODE[axI] = (int) this.VALUECR;
+    int ErrorCode = CommandReport(command, PRINT);
+    if ((int) VALUECR == 0)
+      this.MOTIONMODE[axI] = 0;
+    else if ((int) VALUECR == 10)
+      this.MOTIONMODE[axI] = 1;
+    else
+      this.MOTIONMODE[axI] = (int) this.VALUECR;
     System.out.println(MOTIONMODE[axI]);
     return ErrorCode;
   }
@@ -885,7 +858,7 @@ public class ACS {
   }
 
   public int GetEndMotionStatus(String ax){ // VERIFICATO 
-    int Err = TellCommand("T2\r");
+    TellCommand("T2\r");
 
     if (ax.equals("X"))
       return Tell2.T2DataX;
@@ -910,8 +883,9 @@ public class ACS {
   public int GetAbsTargPos(String ax) { // VERIFICATO 
     this.VALUECR = 0L;
     byte[] command = sbld("R%sAP", ax);
-    int Err = CommandReport(command, true);
-    System.out.println(this.VALUECR);
+    int Err = CommandReport(command, PRINT);
+    if (PRINT)
+      System.out.println("Position setted before conversion: "+this.VALUECR);
     this.AbsTargPosAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
     return Err;
   }
@@ -933,7 +907,7 @@ public class ACS {
   public int GetMotVel(String ax) { // VERIFICATO 
     this.VALUECR = 0L;
     byte[] command = sbld("R%sLV", ax);
-    int Err = CommandReport(command, true);
+    int Err = CommandReport(command, PRINT);
     this.VelAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
     System.out.println(VelAx[AxesNumber(ax)]);
     return Err;
@@ -955,7 +929,7 @@ public class ACS {
     return Err;
   }
 
-  public int GetMoveInfo(boolean PRINT) { // VERIFICATO 
+  public int GetMoveInfo() { // VERIFICATO 
     int Err = this.NAXES * 4; // se tutto va bene poi Err ritornato diventa 0
     for (int i = 0; i < this.NAXES; i++) {
       Err += GetMotPos(axes[i]);
@@ -1011,7 +985,7 @@ public class ACS {
 
   public int IsMoving(String ax) { // VERIFICATO 
     int res = 0;
-    int Err = TellCommand("T0");
+    TellCommand("T0");
 
     if (ax.equals("X")) {
       if (((this.Tell0.T0MotorStateX) & (1)) == 0)
@@ -1038,7 +1012,7 @@ public class ACS {
   }
 
   public void GetAllTell0Info() { // VERIFICATO 
-    int Err = TellCommand("T0");
+    TellCommand("T0");
     System.out.println(this.Tell0.T0Control);
     System.out.println(this.Tell0.T0MotorStateX);
     System.out.println(this.Tell0.T0MotorStateString);
@@ -1082,8 +1056,7 @@ public class ACS {
   public int CommandSet(byte[] Instruction, int Value) { // VERIFICATO 
     SerialWrite(Instruction, Value);
     Sleep(200);
-    int nBytes = SerialRead();
-    boolean PRINT = true;
+    SerialRead();
     if (PRINT) {
       System.out.print("Comando Set inviato: ");
       PrintCharln(this.serialCommandCaratteri);
@@ -1096,8 +1069,7 @@ public class ACS {
   public int CommandSet(byte[] Instruction) { // VERIFICATO 
     SerialWrite(Instruction);
     Sleep(200);
-    int nBytes = SerialRead();
-    boolean PRINT = true;
+    SerialRead();
     if (PRINT) {
       System.out.print("Comando Set inviato: ");
       PrintCharln(this.serialCommandCaratteri);
@@ -1120,11 +1092,8 @@ public class ACS {
     
     if (PRINT) {
       System.out.println("Comando inviato: ");
-      //PrintArray(this.serialCommand);
-      //PrintBytesln(this.serialCommand);
       PrintCharln(this.serialCommandCaratteri);
       System.out.println("Risposta al comando: ");
-      //System.out.println(this.answerString);
       PrintBytesln(this.serialAnswer);
     }
 
@@ -1235,20 +1204,20 @@ public class ACS {
   public int CommandArray(String instruction, int element, int finalvalue){
     this.VALUECR = 0;
     byte[] Instruction = sbld(instruction);
-    int Count, Err, nBytes = 0;
+    int Count, Err;
     int[] Data = new int[4];
     int[] Val = new int[2];
     if (Instruction[2] == 'S'){
       Val[0] = element;
       Val[1] = finalvalue;
       SerialWrite(Instruction, Val, 2);
-      nBytes = SerialRead();
+      SerialRead();
       this.serialAnswer[0] = '\0';
     }
     else{
       SerialWrite(Instruction, element);
-      nBytes = SerialRead();
-      nBytes = RemoveDLE();
+      SerialRead();
+      RemoveDLE();
       Err = Error();
       if (Err != -1)
         return Err;
@@ -1262,20 +1231,20 @@ public class ACS {
 
   public int CommandArray(byte[] Instruction, int element, int finalvalue){
     this.VALUECR = 0;
-    int Count, Err, nBytes = 0;
+    int Count, Err;
     int[] Data = new int[4];
     int[] Val = new int[2];
     if (Instruction[2] == 'S'){
       Val[0] = element;
       Val[1] = finalvalue;
       SerialWrite(Instruction, Val, 2);
-      nBytes = SerialRead();
+      SerialRead();
       this.serialAnswer[0] = '\0';
     }
     else{
       SerialWrite(Instruction, element);
-      nBytes = SerialRead();
-      nBytes = RemoveDLE();
+      SerialRead();
+      RemoveDLE();
       Err = Error();
       if (Err != -1)
         return Err;
@@ -1435,38 +1404,11 @@ public class ACS {
     return new byte[0];
   }
 
-  public int SerialWriteOLD(byte[] c) { // VERIFICATO 
-    int i;
-    int CheckSum = 0;
-    String buffer = ""; //new String();
-    for (i = 0; i < c.length; i++) {
-      CheckSum = CheckSum + (int) c[i];
-      buffer += (char) c[i];
-    }
-
-    CheckSum = mod(CheckSum, 256);
-    if ((CheckSum == 13) || (CheckSum == 16))
-      CheckSum += 128;
-
-
-    buffer += (char) CheckSum;
-    buffer += '\r';
-
-    byte[] finalBuffer = String.valueOf(buffer).getBytes();
-    this.serialCommand = finalBuffer;
-    //System.out.println("Buffer: "+buffer);
-    //System.out.println("Final Buffer: ");
-    //PrintArray(finalBuffer);
-
-    communication.Write(finalBuffer);
-    return 0;
-  }
-  
 
   public int SerialWrite(byte[] c) { // ? 
     int i, CheckSum = 0;
     String buffer = "";
-    byte[] Dati = new byte[4];
+    //byte[] Dati = new byte[4];
         
     for (i = 0; i < c.length; i++) {
       CheckSum = CheckSum + (int) c[i];
@@ -1531,7 +1473,7 @@ public class ACS {
     }
 
     this.serialCommandCaratteri = bufferCaratteri;
-    PrintArray(bufferInteri);
+    //PrintArray(bufferInteri);
     //byte[] finalBuffer = String.valueOf(buffer).getBytes();
     //this.serialCommand = finalBuffer;
 
@@ -1586,6 +1528,12 @@ public class ACS {
   }
 
 
+
+
+
+
+  
+
   public int SerialWriteOLD(byte[] c, int[] Value, int numdata) { // VERIFICATO 
     int i, CheckSum = 0;
     String buffer = "";
@@ -1622,7 +1570,33 @@ public class ACS {
     return 0;
 
   }
+  public int SerialWriteOLD(byte[] c) { // VERIFICATO 
+    int i;
+    int CheckSum = 0;
+    String buffer = ""; //new String();
+    for (i = 0; i < c.length; i++) {
+      CheckSum = CheckSum + (int) c[i];
+      buffer += (char) c[i];
+    }
 
+    CheckSum = mod(CheckSum, 256);
+    if ((CheckSum == 13) || (CheckSum == 16))
+      CheckSum += 128;
+
+
+    buffer += (char) CheckSum;
+    buffer += '\r';
+
+    byte[] finalBuffer = String.valueOf(buffer).getBytes();
+    this.serialCommand = finalBuffer;
+    //System.out.println("Buffer: "+buffer);
+    //System.out.println("Final Buffer: ");
+    //PrintArray(finalBuffer);
+
+    communication.Write(finalBuffer);
+    return 0;
+  }
+  
 
 
 

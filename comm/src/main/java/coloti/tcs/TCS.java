@@ -1,6 +1,6 @@
 package coloti.tcs;
 
-import coloti.tcs.configuration.MotoreArAz;
+//import coloti.tcs.configuration.MotoreArAz;
 //import java.io.File;
 //import java.io.IOException;
 //import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,11 +8,11 @@ import coloti.tcs.configuration.MotoreArAz;
 import coloti.tcs.objclasses.*;
 //import coloti.tcs.ConfigurationClass;
 import java.util.concurrent.TimeUnit;
-import java.lang.Math.*;
+//import java.lang.Math.*;
 import org.jboss.util.state.DefaultStateMachineModel;
 import org.jboss.util.state.State;
 import org.jboss.util.state.StateMachine;
-import java.util.concurrent.CompletableFuture;
+//import java.util.concurrent.CompletableFuture;
 
 /*
 import java.io.UnsupportedEncodingException;
@@ -31,7 +31,8 @@ import javax.lang.model.util.ElementScanner6;
 public class TCS {
     
     public final ACS AsseX;
-    ACS AsseY, AsseZ;
+    public final ACS AsseY;
+    ACS AsseZ;
     ACS AsseCupola; //= new ACS("serial ID cupola");
 
     // Parametri   D = degrees, R = radians, AS = arcseconds, H = hours, S = seconds
@@ -47,19 +48,38 @@ public class TCS {
 
     double[] CostX = new double[6];
     double[] CostY = new double[6];
+    
+    double ConversionFactorX;
+    double ConversionFactorY;
+    static final int RAD = 0, GRAD = 1, HOUR = 2, ENC = 3, ARCSECS = 4;
+    int UnitMeasure = ARCSECS;
 
     private String IDSERIALE = "/dev/ttyUSB0";
+    private String IDSERIALE1 = "/dev/ttyUSB1";
+    
 
     public TCS(){
         Configure();
         AsseX = new ACS(IDSERIALE);
+        AsseY = new ACS(IDSERIALE1);
     }
 
     
     public final boolean connect(){
-        final boolean connesso = AsseX.SetSimpleStartCheck(0);
+        
+        final boolean connesso = AsseX.SetSimpleStart(0);
         Sleep(500);
-        return connesso;
+        AsseX.InitAxes();
+        double gearratioX = TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
+        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX);
+
+        final boolean connessoY = AsseY.SetSimpleStart(0);
+        Sleep(500);
+        AsseY.InitAxes();
+        double gearratioY = TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
+        this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
+
+        return connesso && connessoY;
     }
 
 
@@ -82,12 +102,14 @@ public class TCS {
     public TCS(final boolean START){
         Configure();
         AsseX = new ACS(IDSERIALE);
+        AsseY = new ACS(IDSERIALE1);
     }
 
     // FIRST THINGS TO DO
     String X = "X";
     String Y = "Y";
     String Z = "Z";
+    int NumAxes = 1;
 
     ConfigurationClass CFG;
 
@@ -100,8 +122,8 @@ public class TCS {
     SB129X SB;
     PADDLE PAD;
     POSZERO PZ;
-    private double DPX;
-    private double DPY;
+    double DPX;
+    double DPY;
 
     // opcua states
     private StateMachine mcsStateMachine;
@@ -149,7 +171,7 @@ public class TCS {
         return mcsStateMachine;
     }
 
-    private void initHwStateMachine(final State init) {
+    public void initHwStateMachine(final State init) {
 
         final StateMachine.Model model = new DefaultStateMachineModel();
         model.addState(OFF, new State[] { LOADED, MAINTENANCE, FAULT });
@@ -167,17 +189,9 @@ public class TCS {
 
 
 
-    
-
-
-
-
-
-
     // GETTERS
     
     public boolean GetAzLsOpCw(){
-        System.out.println(MotAZ.StatusLimitSwitchCW);
         return MotAZ.StatusLimitSwitchCW;
     }
 
@@ -209,10 +223,6 @@ public class TCS {
         AsseX.GetMotPos(X);
         this.MotAZ.TelPos = AsseX.PositionAx[0];
         return MotAZ.TelPos;
-    }
-    // quale dei due ci piace?
-    public double GetAzMotorTelPos(){
-        return MotAZ.MotorTelPos;
     }
 
     public double GetAzActVel(){
@@ -439,12 +449,8 @@ public class TCS {
     // SETTERS 
 
     public void SetAzTelPosition(final double value){
-        System.out.println("AAAAAAAAAAAAA");
-        System.out.println("-> " + value);
-        System.out.println(AsseX.SetAbsTargPos(X, value));
+        AsseX.SetAbsTargPos(X, value);
         AsseX.GetAbsTargPos(X);
-        System.out.println("vvvvvvvvvvvvvvvv");
-        System.out.println(AsseX.AbsTargPosAx[0]);
         this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
     }
 
@@ -491,17 +497,24 @@ public class TCS {
     public void SetMotionType(final int value){
         if (value == 0){
             AsseX.SetSlewMode(X);
-            AsseY.SetSlewMode(X);
+
+            if (this.NumAxes == 2)
+                AsseY.SetSlewMode(X);
 
             AsseX.SetMotVel(X, MotAZ.SlewVelocity);
-            AsseY.SetMotVel(X, MotEL.SlewVelocity);
+
+            if (this.NumAxes == 2)
+                AsseY.SetMotVel(X, MotEL.SlewVelocity);
         }
         else if (value == 1){
             AsseX.SetTrackMode(X);
-            AsseY.SetTrackMode(X);
+            
+            if (this.NumAxes == 2)
+                AsseY.SetTrackMode(X);
 
             AsseX.SetMotVel(X, MotAZ.JogVelocity);
-            AsseY.SetMotVel(X, MotEL.JogVelocity);
+            if (this.NumAxes == 2)
+                AsseY.SetMotVel(X, MotEL.JogVelocity);
         }
         this.TEL.MotionType = value;
     }
@@ -570,9 +583,8 @@ public class TCS {
     }
 
     public void SetAzMaxAcc(final double value){
-        System.out.println(">>>>" + value);
-        //AsseX.SetMaxMinAcc(X, value, MotAZ.MinAcc);
-        //this.MotAZ.MaxAcc = value; //AsseX.MaxAcc[0];
+        AsseX.SetMaxMinAcc(X, value, MotAZ.MinAcc);
+        this.MotAZ.MaxAcc = value; //AsseX.MaxAcc[0];
         
     }
 
@@ -590,9 +602,8 @@ public class TCS {
     }
 
     public void SetAzMaxVel(final double value){
-        System.out.println(">>>>>" + value);
-        //AsseX.SetMaxMinVel(X, value, MotAZ.MinVel);
-        //this.MotAZ.MaxVel = value;//AsseX.MaxVel[0];
+        AsseX.SetMaxMinVel(X, value, MotAZ.MinVel);
+        this.MotAZ.MaxVel = AsseX.MaxVel[0];//AsseX.MaxVel[0];
     }
 
     public void SetAzTelMinPos(final double value){
@@ -682,20 +693,54 @@ public class TCS {
 
     // COMANDI OPCUA        boolean dove va? è il result o è un parametro?
 
-    public void CmdGoLoaded(final boolean value){}
-    public void CmdGoStanby(final boolean value){}
-    public void CmdGoOnline(final boolean value){}
-    public void CmdGoMaintenance(final boolean value){}
+    public void CmdGoLoaded(final boolean value){
+        if (getMcsStateMachine().isAcceptable(LOADED))
+            getMcsStateMachine().transition(LOADED);
+        //initHwStateMachine(LOADED)
+    }
 
+    /*public void mcsGoLoadedSync() {
+        if (getMcsStateMachine().isAcceptable(LOADED) && !inLocalMode()) {
+            mcsCommand.executeSync(EMcsCommands.GoLoaded.name(), 90);
+            EHardwareState ehs = getCurrentHwState();
+            if (ehs == EHardwareState.LOADED)
+                getMcsStateMachine().transition(LOADED);
+        } else {
+            logger.warn("The transition is not allowd form current state:{}", getCurrentHwState().name());
+        }
+    }*/
+
+    public void CmdGoStandby(final boolean value){
+        if (getMcsStateMachine().isAcceptable(STANDBY))
+            getMcsStateMachine().transition(STANDBY);
+        //initHwStateMachine(STANDBY)
+    }
+
+    public void CmdGoOnline(final boolean value){
+        if (getMcsStateMachine().isAcceptable(ONLINE))
+            getMcsStateMachine().transition(ONLINE);
+            //initHwStateMachine(ONLINE)
+        }
+
+    public void CmdGoMaintenance(final boolean value){
+        if (getMcsStateMachine().isAcceptable(MAINTENANCE))
+            getMcsStateMachine().transition(MAINTENANCE);
+        //initHwStateMachine(MAINTENANCE)
+    }
+
+    
 
     public void CmdEnableAzMotors(final boolean value){
         int err;
-        long ValoX;
+        //long ValoX;
+        double posizioneX;
         if (!AsseX.CommStatus){
             AsseX.OpenCommunications();
             AsseX.SetMotorOn(X);
-            err = AsseX.GetMotEncPos(X);
-            ValoX = AsseX.VALUECR;
+            posizioneX = GetAzTelPos();
+
+            //err = AsseX.GetMotEncPos(X);
+            //ValoX = AsseX.VALUECR;
         }
     }
 
