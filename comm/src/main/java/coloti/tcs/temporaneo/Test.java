@@ -146,6 +146,17 @@ public class Test {
     public static void main(String[] argV) {
         System.out.println();
 
+
+        String vuota = "";
+
+
+
+        System.out.println(vuota.isEmpty());
+
+
+
+
+        /*
         int value = 42;
         System.out.println("valore inviato: "+value);
         SerialWrite(sbld("SXWT"), value);
@@ -154,7 +165,7 @@ public class Test {
         System.out.println("Checksum: ");
         int sommaComando = 83+88+87+84;
         System.out.println(mod((sommaComando + 42), 256));
-
+      */
 
 
     }

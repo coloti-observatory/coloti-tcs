@@ -8,6 +8,7 @@ public class CUPOLA {
 
     public double Pos; //arcsec
     public double AZ;
+    public double CommandedAZ;
     public int StatusApertura;
     public int StatusRotazione;
     public double Direzione;

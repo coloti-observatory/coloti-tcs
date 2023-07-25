@@ -71,8 +71,9 @@ public class CommClass{
         this.BYTESIZE = 8;
         this.STOP = this.ONESTOPBIT;
         this.PARITY = this.NOPARITY;
-        this.TIMEOUT = 2900; 
-        this.port = SerialPort.getCommPort(IdSeriale);
+        this.TIMEOUT = 2900;
+        if(!IdSeriale.isBlank())
+            this.port = SerialPort.getCommPort(IdSeriale);
     }
     
     

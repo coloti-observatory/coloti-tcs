@@ -160,7 +160,7 @@ public class ACS {
   // STARTING
 
   public boolean OpenCommunications(int baud, byte bytesize, byte stop, byte parity, int timeout) { // VERIFICATO 
-    boolean status = false;
+    boolean status = this.communication.GetStatus();
     if (!this.communication.GetStatus()) {
       status = this.communication.Open(baud, bytesize, stop, parity, timeout);
     }
@@ -169,7 +169,7 @@ public class ACS {
   }
 
   public boolean OpenCommunications() { // VERIFICATO 
-    boolean status = false;
+    boolean status = this.communication.GetStatus();
     if (!this.communication.GetStatus()) {
       status = this.communication.Open();
       this.communication.SetTimeouts(7000);
@@ -179,7 +179,7 @@ public class ACS {
   }
 
   public boolean CloseComm(){
-    boolean status = true;
+    boolean status = this.communication.GetStatus();
     if (this.communication.GetStatus())
       status = this.communication.Close();
     this.CommStatus = status;

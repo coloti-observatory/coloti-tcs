@@ -32,8 +32,9 @@ public class TCS {
     
     public final ACS AsseX;
     public final ACS AsseY;
+    
+    public final ACS AsseCupola; //= new ACS("serial ID cupola");
     ACS AsseZ;
-    ACS AsseCupola; //= new ACS("serial ID cupola");
 
     // Parametri   D = degrees, R = radians, AS = arcseconds, H = hours, S = seconds
     double pi = Math.PI;
@@ -54,56 +55,91 @@ public class TCS {
     static final int RAD = 0, GRAD = 1, HOUR = 2, ENC = 3, ARCSECS = 4;
     int UnitMeasure = ARCSECS;
 
-    private String IDSERIALE = "/dev/ttyUSB0";
-    private String IDSERIALE1 = "/dev/ttyUSB1";
-    
 
-    public TCS(){
+    private String IDSERIALE0 = ""; // /dev/ttyUSB0
+    private String IDSERIALE1 = "";
+    private String IDSERIALE2 = "";
+    
+    boolean xAxisConnection = false;
+    boolean yAxisConnection = false;
+    boolean domeAxisConnection = false;
+
+    public TCS(boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome){
         Configure();
-        AsseX = new ACS(IDSERIALE);
-        AsseY = new ACS(IDSERIALE1);
+        this.xAxisConnection = connectX;
+        this.yAxisConnection = connectY;
+        this.domeAxisConnection = connectDome;
+
+        AsseX = new ACS(IDserX);
+        AsseY = new ACS(IDserY);
+        AsseCupola = new ACS(IDserDome);
     }
 
     
     public final boolean connect(){
         
-        final boolean connesso = AsseX.SetSimpleStart(0);
-        Sleep(500);
-        AsseX.InitAxes();
+        if (xAxisConnection){
+            this.xAxisConnection= AsseX.SetSimpleStart(0);
+            Sleep(500);
+            AsseX.InitAxes();
+        }
         double gearratioX = TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
-        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX);
+        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
 
-        final boolean connessoY = AsseY.SetSimpleStart(0);
-        Sleep(500);
-        AsseY.InitAxes();
+        if (yAxisConnection){
+            this.yAxisConnection = AsseY.SetSimpleStart(0);
+            Sleep(500);
+            AsseY.InitAxes();
+        }
         double gearratioY = TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
         this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
 
-        return connesso && connessoY;
+        if(domeAxisConnection){
+            this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
+            Sleep(500);
+            AsseCupola.InitAxes();
+        }
+
+        return xAxisConnection || yAxisConnection || domeAxisConnection; 
     }
 
 
     private void disconnect() {
         AsseX.CloseComm();
+        AsseY.CloseComm();
+        AsseCupola.CloseComm();
     }
     
 
 
-    public String getIDSERIALE() {
-        return IDSERIALE;
+    public String getIDSERIALE(int asseID) {
+        if(asseID == 1)
+            return IDSERIALE0;
+        else if(asseID == 2)
+            return IDSERIALE1;
+        else if(asseID == 3)
+            return IDSERIALE2;
+        else
+            return "error";
     }
 
 
-    public void setIDSERIALE(final String iDSERIALE) {
-        IDSERIALE = iDSERIALE;
+    public void setIDSERIALE(int asseID, final String iDSERIALE) {
+        if(asseID == 1)
+            this.IDSERIALE0 = iDSERIALE;
+        else if(asseID == 2)
+            this.IDSERIALE1 = iDSERIALE;
+        else if(asseID == 3)
+            this.IDSERIALE2 = iDSERIALE;
     }
 
 
-    public TCS(final boolean START){
-        Configure();
-        AsseX = new ACS(IDSERIALE);
-        AsseY = new ACS(IDSERIALE1);
-    }
+    //public TCS(final boolean START){
+        //Configure();
+        //AsseX = new ACS(IDSERIALE);
+        //AsseY = new ACS(IDSERIALE1);
+        //AsseCupola = new ACS(IDSERIALE0);
+    //}
 
     // FIRST THINGS TO DO
     String X = "X";
@@ -251,6 +287,11 @@ public class TCS {
         AsseX.GetMotAcc(X);
         this.MotAZ.CommandedAcc = AsseX.AccAx[0];
         return MotAZ.CommandedAcc;
+    }
+
+    public double GetCupolaPosition(){
+        GetCupolaInfo();
+        return CUP.AZ;
     }
 
     public double GetElTelPos(){
@@ -447,6 +488,10 @@ public class TCS {
 
 
     // SETTERS 
+
+    public void SetCupolaTargetPosition(final double value){
+        this.CUP.CommandedAZ = value;
+    }
 
     public void SetAzTelPosition(final double value){
         AsseX.SetAbsTargPos(X, value);
@@ -694,9 +739,11 @@ public class TCS {
     // COMANDI OPCUA        boolean dove va? è il result o è un parametro?
 
     public void CmdGoLoaded(final boolean value){
-        if (getMcsStateMachine().isAcceptable(LOADED))
-            getMcsStateMachine().transition(LOADED);
-        //initHwStateMachine(LOADED)
+        if (value){
+            if (getMcsStateMachine().isAcceptable(LOADED))
+                getMcsStateMachine().transition(LOADED);
+            //initHwStateMachine(LOADED)
+        }
     }
 
     /*public void mcsGoLoadedSync() {
@@ -711,230 +758,273 @@ public class TCS {
     }*/
 
     public void CmdGoStandby(final boolean value){
-        if (getMcsStateMachine().isAcceptable(STANDBY))
-            getMcsStateMachine().transition(STANDBY);
-        //initHwStateMachine(STANDBY)
+        if (value){
+            if (getMcsStateMachine().isAcceptable(STANDBY))
+                getMcsStateMachine().transition(STANDBY);
+            //initHwStateMachine(STANDBY)
+        }
     }
 
     public void CmdGoOnline(final boolean value){
-        if (getMcsStateMachine().isAcceptable(ONLINE))
-            getMcsStateMachine().transition(ONLINE);
-            //initHwStateMachine(ONLINE)
+        if (value){
+            if (getMcsStateMachine().isAcceptable(ONLINE))
+                getMcsStateMachine().transition(ONLINE);
+                //initHwStateMachine(ONLINE)
         }
+    }
 
     public void CmdGoMaintenance(final boolean value){
-        if (getMcsStateMachine().isAcceptable(MAINTENANCE))
-            getMcsStateMachine().transition(MAINTENANCE);
-        //initHwStateMachine(MAINTENANCE)
+        if (value){
+            if (getMcsStateMachine().isAcceptable(MAINTENANCE))
+                getMcsStateMachine().transition(MAINTENANCE);
+            //initHwStateMachine(MAINTENANCE)
+        }
     }
 
     
 
     public void CmdEnableAzMotors(final boolean value){
-        int err;
-        //long ValoX;
-        double posizioneX;
-        if (!AsseX.CommStatus){
-            AsseX.OpenCommunications();
-            AsseX.SetMotorOn(X);
-            posizioneX = GetAzTelPos();
+        if (value){
+            int err;
+            //long ValoX;
+            double posizioneX;
+            if (!AsseX.CommStatus){
+                AsseX.OpenCommunications();
+                AsseX.SetMotorOn(X);
+                posizioneX = GetAzTelPos();
 
-            //err = AsseX.GetMotEncPos(X);
-            //ValoX = AsseX.VALUECR;
+                //err = AsseX.GetMotEncPos(X);
+                //ValoX = AsseX.VALUECR;
+            }
         }
     }
 
     public void CmdDisableAzMotors(final boolean value){
-        int err;
-        long ValoX;
-        if (AsseX.CommStatus){
-            if (AsseX.IsMoving(X) == 1){
-                AsseX.StopMove(X);
+        if (value){
+            int err;
+            long ValoX;
+            if (AsseX.CommStatus){
+                if (AsseX.IsMoving(X) == 1){
+                    AsseX.StopMove(X);
+                }
+                AsseX.SetMotorOff(X);
+                err = AsseX.GetMotEncPos(X);
+                ValoX = AsseX.VALUECR;
+                AsseX.CloseComm();
             }
-            AsseX.SetMotorOff(X);
-            err = AsseX.GetMotEncPos(X);
-            ValoX = AsseX.VALUECR;
-            AsseX.CloseComm();
         }
     }
 
     public void CmdEnableElMotors(final boolean value){
-        int err;
-        long ValoY;
-        if (!AsseY.CommStatus){
-            AsseY.OpenCommunications();
-            AsseY.SetMotorOn(X);
-            err = AsseY.GetMotEncPos(X);
-            ValoY = AsseY.VALUECR;
+        if (value){
+            int err;
+            long ValoY;
+            if (!AsseY.CommStatus){
+                AsseY.OpenCommunications();
+                AsseY.SetMotorOn(X);
+                err = AsseY.GetMotEncPos(X);
+                ValoY = AsseY.VALUECR;
+            }
         }
     }
 
     public void CmdDisableElMotors(final boolean value){
-        int err;
-        long ValoY;
-        if (AsseY.CommStatus){
-            if (AsseY.IsMoving(X) == 1){
-                AsseY.StopMove(X);
+        if (value){
+            int err;
+            long ValoY;
+            if (AsseY.CommStatus){
+                if (AsseY.IsMoving(X) == 1){
+                    AsseY.StopMove(X);
+                }
+                AsseY.SetMotorOff(X);
+                err = AsseY.GetMotEncPos(X);
+                ValoY = AsseY.VALUECR;
+                AsseY.CloseComm();
             }
-            AsseY.SetMotorOff(X);
-            err = AsseY.GetMotEncPos(X);
-            ValoY = AsseY.VALUECR;
-            AsseY.CloseComm();
         }
     }
 
     public void CmdStartMotion(final boolean value){
-        if (AsseX.CommStatus && AsseY.CommStatus){
+        if (value){
+            if (AsseX.CommStatus && AsseY.CommStatus){
 
-            AsseX.StopMove(X);
-            if(AsseX.IsMoving(X) == 1)
-                Sleep(200);
-            AsseY.StopMove(X);
-            if(AsseY.IsMoving(X) == 1)
-                Sleep(200);
+                AsseX.StopMove(X);
+                if(AsseX.IsMoving(X) == 1)
+                    Sleep(200);
+                AsseY.StopMove(X);
+                if(AsseY.IsMoving(X) == 1)
+                    Sleep(200);
 
-            if(TEL.MotionType == 0){
-                //SetMotionType(0);
-                AsseX.SetMotAcc(X, MotAZ.MaxAcc);
-                AsseX.SetMotDec(X, MotAZ.MaxAcc);
-                AsseY.SetMotAcc(X, MotEL.MaxAcc);
-                AsseY.SetMotDec(X, MotEL.MaxAcc);
+                if(TEL.MotionType == 0){
+                    //SetMotionType(0);
+                    AsseX.SetMotAcc(X, MotAZ.MaxAcc);
+                    AsseX.SetMotDec(X, MotAZ.MaxAcc);
+                    AsseY.SetMotAcc(X, MotEL.MaxAcc);
+                    AsseY.SetMotDec(X, MotEL.MaxAcc);
 
-                AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity); // TEL.SlewVelX
-                AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity); // TEL.SlewVelY
+                    AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity); // TEL.SlewVelX
+                    AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity); // TEL.SlewVelY
+                }
+
+                if(TEL.MotionType == 1){
+                    AsseX.SetMotAcc(X, MotAZ.JogVelocity);
+                    //AsseX.SetMotDec(X, MotAZ.JogVelocity);
+                    AsseY.SetMotAcc(X, MotEL.JogVelocity);
+                    //AsseY.SetMotDec(X, MotEL.JogVelocity);
+
+                    AsseX.Move(X, MotAZ.TelPosition, MotAZ.JogVelocity); // TEL.SlewVelX
+                    AsseY.Move(X, MotEL.TelPosition, MotEL.JogVelocity); // TEL.SlewVelY
+                }
+
+                Sleep(300);
             }
-
-            if(TEL.MotionType == 1){
-                AsseX.SetMotAcc(X, MotAZ.JogVelocity);
-                //AsseX.SetMotDec(X, MotAZ.JogVelocity);
-                AsseY.SetMotAcc(X, MotEL.JogVelocity);
-                //AsseY.SetMotDec(X, MotEL.JogVelocity);
-
-                AsseX.Move(X, MotAZ.TelPosition, MotAZ.JogVelocity); // TEL.SlewVelX
-                AsseY.Move(X, MotEL.TelPosition, MotEL.JogVelocity); // TEL.SlewVelY
-            }
-
-            Sleep(300);
         }
     }
 
     public void CmdStopMotion(final boolean value){
-        if (AsseX.IsMoving(X) == 1)
-            AsseX.StopMove(X);
-        if (AsseY.IsMoving(X) == 1)
-            AsseY.StopMove(X);
-        FermaCupola();
+        if (value){
+            if (AsseX.IsMoving(X) == 1)
+                AsseX.StopMove(X);
+            if (AsseY.IsMoving(X) == 1)
+                AsseY.StopMove(X);
+            FermaCupola();
+        }
     }
 
     public void CmdStartAzMotion(final boolean value){
-        if (AsseX.CommStatus){
-            AsseX.StopMove(X);
-            if(AsseX.IsMoving(X) == 1)
-                Sleep(200);
+        if (value){
+            if (AsseX.CommStatus){
+                AsseX.StopMove(X);
+                if(AsseX.IsMoving(X) == 1)
+                    Sleep(200);
 
-            AsseX.SetSlewMode(X);
-            AsseX.SetMotAcc(X, MotAZ.MaxAcc);
-            AsseX.SetMotDec(X, MotAZ.MaxAcc);
+                AsseX.SetSlewMode(X);
+                AsseX.SetMotAcc(X, MotAZ.MaxAcc);
+                AsseX.SetMotDec(X, MotAZ.MaxAcc);
 
-            AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity);
+                AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity);
 
-            Sleep(300);
+                Sleep(300);
 
-            PuntaCupola(MotAZ.TelPosition);
+                PuntaCupola(MotAZ.TelPosition);
+            }
         }
     }
     
     public void CmdStopAzMotion(final boolean value){
-        if (AsseX.IsMoving(X) == 1)
-            AsseX.StopMove(X);
-        FermaCupola();
+        if (value){
+            if (AsseX.IsMoving(X) == 1)
+                AsseX.StopMove(X);
+            FermaCupola();
+        }
     }
 
     public void CmdStartElMotion(final boolean value){
-        if (AsseY.CommStatus){
-            AsseY.StopMove(X);
-            if(AsseY.IsMoving(X) == 1)
-                Sleep(200);
+        if (value){
+            if (AsseY.CommStatus){
+                AsseY.StopMove(X);
+                if(AsseY.IsMoving(X) == 1)
+                    Sleep(200);
 
-            AsseY.SetSlewMode(X);
-            AsseY.SetMotAcc(X, MotEL.MaxAcc);
-            AsseY.SetMotDec(X, MotEL.MaxAcc);
+                AsseY.SetSlewMode(X);
+                AsseY.SetMotAcc(X, MotEL.MaxAcc);
+                AsseY.SetMotDec(X, MotEL.MaxAcc);
 
-            AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity);
+                AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity);
 
-            Sleep(300);
+                Sleep(300);
+            }
         }
     }
     
     public void CmdStopElMotion(final boolean value){
-        if (AsseY.IsMoving(X) == 1)
-            AsseY.StopMove(X);
+        if (value){
+            if (AsseY.IsMoving(X) == 1)
+                AsseY.StopMove(X);
+        }
     }
 
     public void CmdEmergencyStop(final boolean value){
-        AsseX.StopMove(X);
-        AsseY.StopMove(X);
-        FermaCupola();
+        if (value){
+            AsseX.StopMove(X);
+            AsseY.StopMove(X);
+            FermaCupola();
 
-        Sleep(300);
+            Sleep(300);
 
-        AsseX.StopMove(X);
-        AsseY.StopMove(X);
-        FermaCupola();
+            AsseX.StopMove(X);
+            AsseY.StopMove(X);
+            FermaCupola();
 
-        Sleep(300);
+            Sleep(300);
 
-        AsseX.StopMove(X);
-        AsseY.StopMove(X);
-        FermaCupola();
+            AsseX.StopMove(X);
+            AsseY.StopMove(X);
+            FermaCupola();
+        }
     }
 
     public void CmdStartParking(final boolean value){
-        CmdStartAzParking(value);
-        CmdStartElParking(value);
-        CmdCupolaParking(value);
+        if (value){
+            CmdStartAzParking(value);
+            CmdStartElParking(value);
+            CmdCupolaParking(value);
+        }
     }
 
     public void CmdStopParking(final boolean value){
-        CmdStopMotion(value);
+        if (value)
+            CmdStopMotion(value);
     }
 
     public void CmdStartAzParking(final boolean value){
-        SetAzTelPosition(MotAZ.ParkPos);
-        CmdStartAzMotion(true);
+        if (value){
+            SetAzTelPosition(MotAZ.ParkPos);
+            CmdStartAzMotion(true);
+        }
     }
 
     public void CmdStopAzParking(final boolean value){
-        CmdStopMotion(value);
+        if (value)
+            CmdStopMotion(value);
     }
 
     public void CmdStartElParking(final boolean value){
-        SetElTelPosition(MotEL.ParkPos);
-        CmdStartElMotion(true);
+        if (value){
+            SetElTelPosition(MotEL.ParkPos);
+            CmdStartElMotion(true);
+        }
     }
 
     public void CmdStopElParking(final boolean value){
-        CmdStopMotion(value);
+        if (value)
+            CmdStopMotion(value);
     }
 
     public void CmdStartTracking(final boolean value){
-        SetMotionType(0);
-        CmdStartMotion(value);
-        SetMotionType(1);
-        CmdStartMotion(value);
+        if (value){
+            SetMotionType(0);
+            CmdStartMotion(value);
+            SetMotionType(1);
+            CmdStartMotion(value);
+        }
     }
 
     public void CmdStopTracking(final boolean value){
-        CmdStopMotion(value);
+        if (value)
+            CmdStopMotion(value);
     }
 
     public void CmdStartPointing(final boolean value){
-        SetMotionType(0);
-        CmdStartMotion(value);
+        if (value){
+            SetMotionType(0);
+            CmdStartMotion(value);
+        }
     }
 
     public void CmdStopPointing(final boolean value){
-        CmdStopMotion(value);
+        if (value)
+            CmdStopMotion(value);
     }
 
 
@@ -955,36 +1045,56 @@ public class TCS {
     
 
     public void CmdOpenCupola(final boolean value){
-        CupolaApertura();
+        if (value)
+            CupolaApertura();
     }
 
     public void CmdCloseCupola(final boolean value){
-        CupolaChiusura();
+        if (value)
+            CupolaChiusura();
     }
 
     public void CmdStartCupolaPointing(final boolean value) {
-        PuntaCupola(MotAZ.TelPosition);
+        if (value)
+            PuntaCupola(MotAZ.TelPosition);
     }
 
     public void CmdCupolaParking(final boolean value) {
-        PuntaCupola(CUP.ParkPos);
+        if (value)
+            PuntaCupola(CUP.ParkPos);
     }
 
     public void CmdStopCupola(final boolean value){
-        FermaCupola();
+        if (value)
+            FermaCupola();
     }
 
     public void CmdSetZeroCupola(final boolean value){
-        CupolaSetZero();
+        if (value)
+            CupolaSetZero();
     }
 
     public void CmdSetHomePos(final boolean value){
-        SettaPosHome();
+        if (value)
+            SettaPosHome();
     }
 
     public void CmdStopPointMotion(final boolean value){
-        FermaMoto();
+        if (value)
+            FermaMoto();
     }
+
+    public void CmdCupolaOvest(final boolean value){
+        if (value)
+            CupolaOvest();
+    }
+
+    public void CmdCupolaEst(final boolean value){
+        if (value)
+            CupolaEst();
+    }
+
+
 
 
 
@@ -1520,7 +1630,7 @@ public class TCS {
 
     public int PuntaCupola(){
         if (AsseCupola.CommStatus){
-            final int az = (int) (3600*MotAZ.TelPos*AsseCupola.CONVFACTOR[0]);
+            final int az = (int) (3600*CUP.CommandedAZ*AsseCupola.CONVFACTOR[0]);
             int Err;
             final byte[] command = AsseCupola.sbld("AVSE");
             AsseCupola.CommandArray(command, 10, az);
@@ -1568,11 +1678,30 @@ public class TCS {
 
     public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
         System.out.println("\nHello World\n");
-        final TCS tcs = new TCS();
+        final TCS tcs = new TCS(false,false,true,"","","");
         tcs.connect();
+        //tcs.SetAzTelPosition(36000);
 
-        tcs.SetAzTelPosition(36000);
+        //tcs.CupolaApertura();
+        ///*
+        //tcs.CmdCloseCupola(true);
+        tcs.Sleep(3000);
+        double angolo = tcs.GetCupolaPosition();
+        System.out.println("Posizione cupola: "+angolo);
+        tcs.SetCupolaTargetPosition(angolo-20.5);
 
+        tcs.Sleep(3000);
+        tcs.PuntaCupola();
+        
+        //tcs.CmdCupolaEst(true);
+        tcs.Sleep(30000);
+        tcs.FermaCupola();
+        tcs.Sleep(3000);
+        angolo = tcs.GetCupolaPosition();
+        System.out.println("Posizione cupola: "+angolo);
+        //tcs.Sleep(5000);
+        //*/
+        tcs.Sleep(5000);
         tcs.disconnect();
 
 
