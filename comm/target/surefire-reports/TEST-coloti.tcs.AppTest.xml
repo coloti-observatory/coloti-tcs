@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="coloti.tcs.AppTest" time="0.038" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="coloti.tcs.AppTest" time="0.119" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="sun.desktop" value="gnome"/>
     <property name="awt.toolkit" value="sun.awt.X11.XToolkit"/>
@@ -16,7 +16,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-11-openjdk-amd64/lib"/>
-    <property name="sun.java.command" value="/home/coloti/coloti-tcs/comm/target/surefire/surefirebooter14046639565119227816.jar /home/coloti/coloti-tcs/comm/target/surefire 2023-07-24T14-54-39_668-jvmRun1 surefire1227812632945425257tmp surefire_06843412034250096406tmp"/>
+    <property name="sun.java.command" value="/home/coloti/coloti-tcs/comm/target/surefire/surefirebooter12952118859880530382.jar /home/coloti/coloti-tcs/comm/target/surefire 2023-07-25T11-48-59_336-jvmRun1 surefire10484443419370767972tmp surefire_05547638109946625351tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/coloti/coloti-tcs/comm/target/test-classes:/home/coloti/coloti-tcs/comm/target/classes:/home/coloti/.m2/repository/junit/junit/4.11/junit-4.11.jar:/home/coloti/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/home/coloti/.m2/repository/com/fazecast/jSerialComm/2.10.2/jSerialComm-2.10.2.jar:/home/coloti/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.5.0/jackson-core-2.5.0.jar:/home/coloti/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.5.0/jackson-databind-2.5.0.jar:/home/coloti/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.5.0/jackson-annotations-2.5.0.jar:/home/coloti/.m2/repository/jboss/jboss-common/3.2.3/jboss-common-3.2.3.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -32,7 +32,7 @@
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
-    <property name="surefire.real.class.path" value="/home/coloti/coloti-tcs/comm/target/surefire/surefirebooter14046639565119227816.jar"/>
+    <property name="surefire.real.class.path" value="/home/coloti/coloti-tcs/comm/target/surefire/surefirebooter12952118859880530382.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="11.0.19+7-post-Ubuntu-0ubuntu122.04.1"/>
     <property name="user.name" value="coloti"/>
@@ -57,5 +57,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="55.0"/>
   </properties>
-  <testcase name="shouldAnswerWithTrue" classname="coloti.tcs.AppTest" time="0.001"/>
+  <testcase name="shouldAnswerWithTrue" classname="coloti.tcs.AppTest" time="0.005"/>
 </testsuite>

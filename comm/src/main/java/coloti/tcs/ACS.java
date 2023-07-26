@@ -1268,7 +1268,7 @@ public class ACS {
       DirectCommand(tellstring+"\r");
     }
 
-    boolean PRINT = false;
+    
     if (PRINT & this.HostStatus) {
       System.out.println("Comando tell inviato: ");
       System.out.println(tellstring);

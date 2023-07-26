@@ -6,6 +6,8 @@ package coloti.tcs;
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import coloti.tcs.configuration.*;
 import coloti.tcs.objclasses.*;
+
+import java.util.BitSet;
 //import coloti.tcs.ConfigurationClass;
 import java.util.concurrent.TimeUnit;
 //import java.lang.Math.*;
@@ -413,6 +415,19 @@ public class TCS {
     }
     // da fare, ma come?
     public String GetAzEnableMotorsInfo(){
+        AsseX.IsMoving(X);
+        
+        BitSet bitsMState = BitSet.valueOf(new byte[]{AsseX.Tell0.T0MotorStateX});
+        String controlInfo = "";
+        if (bitsMState.get(3))
+                controlInfo = "FALSE";
+        else
+            controlInfo = "";
+
+        this.MotAZ.EnableMotorsInfo = controlInfo;
+        
+        String INFO = "commandname: CommandEnableDriveAzimuth; busy: FALSE; tstart: 1970-01-01-00:00:00.000; tstop: 1970-01-01-00:00:00.000; error: ";
+
         return MotAZ.EnableMotorsInfo;
     }
     // da fare, ma come?
