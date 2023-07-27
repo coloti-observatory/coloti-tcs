@@ -6,6 +6,7 @@
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/configuration/MotoreDecAl.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/ACS.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/weather/WeatherData.java
+/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/EHardwareStatePhase.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/configuration/Paddle.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/objclasses/CUPOLA.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/objclasses/SB129X.java
