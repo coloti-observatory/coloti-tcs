@@ -14,6 +14,9 @@ import java.util.concurrent.TimeUnit;
 import org.jboss.util.state.DefaultStateMachineModel;
 import org.jboss.util.state.State;
 import org.jboss.util.state.StateMachine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 //import java.util.concurrent.CompletableFuture;
 
 /*
@@ -56,11 +59,6 @@ public class TCS {
     double ConversionFactorY;
     static final int RAD = 0, GRAD = 1, HOUR = 2, ENC = 3, ARCSECS = 4;
     int UnitMeasure = ARCSECS;
-
-
-    private String IDSERIALE0 = ""; // /dev/ttyUSB0
-    private String IDSERIALE1 = "";
-    private String IDSERIALE2 = "";
     
     boolean xAxisConnection = false;
     boolean yAxisConnection = false;
@@ -68,89 +66,8 @@ public class TCS {
 
     private EHardwareStatePhase statePhase;
 
-    public TCS(boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome){
-        Configure();
-        this.xAxisConnection = connectX;
-        this.yAxisConnection = connectY;
-        this.domeAxisConnection = connectDome;
+    private static final Logger logger = LoggerFactory.getLogger(App.class);
 
-        AsseX = new ACS(IDserX);
-        AsseY = new ACS(IDserY);
-        AsseCupola = new ACS(IDserDome);
-    }
-
-    
-    public final boolean connect(){
-        
-        if (xAxisConnection){
-            this.xAxisConnection= AsseX.SetSimpleStart(0);
-            Sleep(500);
-            AsseX.InitAxes();
-        }
-        double gearratioX = TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
-        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
-
-        if (yAxisConnection){
-            this.yAxisConnection = AsseY.SetSimpleStart(0);
-            Sleep(500);
-            AsseY.InitAxes();
-        }
-        double gearratioY = TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
-        this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
-
-        if(domeAxisConnection){
-            this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
-            Sleep(500);
-            AsseCupola.InitAxes();
-        }
-
-        if (xAxisConnection || yAxisConnection || domeAxisConnection){
-            initHwStateMachine(LOADED);
-            TEL.MachineState = mcsStateMachine.getCurrentState().value;
-            TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
-            return true;
-        }
-        else
-            return false;
-    }
-
-
-    private void disconnect() {
-        AsseX.CloseComm();
-        AsseY.CloseComm();
-        AsseCupola.CloseComm();
-    }
-    
-
-
-    public String getIDSERIALE(int asseID) {
-        if(asseID == 1)
-            return IDSERIALE0;
-        else if(asseID == 2)
-            return IDSERIALE1;
-        else if(asseID == 3)
-            return IDSERIALE2;
-        else
-            return "error";
-    }
-
-
-    public void setIDSERIALE(int asseID, final String iDSERIALE) {
-        if(asseID == 1)
-            this.IDSERIALE0 = iDSERIALE;
-        else if(asseID == 2)
-            this.IDSERIALE1 = iDSERIALE;
-        else if(asseID == 3)
-            this.IDSERIALE2 = iDSERIALE;
-    }
-
-
-    //public TCS(final boolean START){
-        //Configure();
-        //AsseX = new ACS(IDSERIALE);
-        //AsseY = new ACS(IDSERIALE1);
-        //AsseCupola = new ACS(IDSERIALE0);
-    //}
 
     // FIRST THINGS TO DO
     String X = "X";
@@ -183,6 +100,65 @@ public class TCS {
 
     
 
+
+
+    public TCS(boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome){
+        Configure();
+        this.xAxisConnection = connectX;
+        this.yAxisConnection = connectY;
+        this.domeAxisConnection = connectDome;
+
+        AsseX = new ACS(IDserX);
+        AsseY = new ACS(IDserY);
+        AsseCupola = new ACS(IDserDome);
+    }
+
+    
+    public final boolean connect(){
+        // AZIMUTH
+        if (xAxisConnection){
+            this.xAxisConnection= AsseX.SetSimpleStart(0);
+            Sleep(500);
+            AsseX.InitAxes();}
+        double gearratioX = TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
+        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
+
+
+        // ELEVATION
+        if (yAxisConnection){
+            this.yAxisConnection = AsseY.SetSimpleStart(0);
+            Sleep(500);
+            AsseY.InitAxes();}
+        double gearratioY = TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
+        this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
+
+
+
+        // DOME
+        if(domeAxisConnection){
+            this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
+            Sleep(500);
+            AsseCupola.InitAxes();}
+
+
+
+        // machine state
+        if (xAxisConnection || yAxisConnection || domeAxisConnection){
+            initHwStateMachine(LOADED);
+            TEL.MachineState = mcsStateMachine.getCurrentState().value;
+            TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
+            return true;
+        }
+        else
+            return false;
+    }
+
+    private void disconnect() {
+        AsseX.CloseComm();
+        AsseY.CloseComm();
+        AsseCupola.CloseComm();
+    }
+    
     public void Configure(){ // CambiaConfig SalvaConfig ReadConfig
         this.CFG = new ConfigurationClass();
         this.GEN = new GENERALE(CFG);
@@ -207,20 +183,11 @@ public class TCS {
         }
     }
 
-
-
-
-    // ---------------------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------------------
-
-    // OPCUA
     public StateMachine getMcsStateMachine() {
         return mcsStateMachine;
     }
 
     public void initHwStateMachine(final State init) {
-
         final StateMachine.Model model = new DefaultStateMachineModel();
         model.addState(OFF, new State[] { LOADED, MAINTENANCE, FAULT });
         model.addState(LOADED, new State[] { STANDBY, MAINTENANCE, FAULT });
@@ -228,13 +195,24 @@ public class TCS {
         model.addState(ONLINE, new State[] { STANDBY, MAINTENANCE, FAULT });
         model.addState(MAINTENANCE, new State[] { STANDBY });
         model.addState(FAULT, new State[] { MAINTENANCE });
-
         // Set the initial state
         model.setInitialState(init);
         mcsStateMachine = new StateMachine(model);
     }
     
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
+
+    //      00000000000     00000000000     000000000000000
+    //      00000000000     00000000000     000000000000000
+    //      000             000                   000      
+    //      000  000000     00000000000           000      
+    //      000  000000     00000000000           000      
+    //      000     000     000                   000      
+    //      00000000000     00000000000           000      
+    //      00000000000     00000000000           000      
 
 
     // GETTERS
@@ -426,11 +404,11 @@ public class TCS {
     }
     // da fare
     public int GetMachineState(){
-        return TEL.MachineState;
+        return TEL.MachineState;  // 0 off, 1 loaded, 2 standby, 3 online, 4 maintenance, 5 fault
     }
     // da fare
     public int GetMachineStatePhase(){
-        return TEL.MachineStatePhase;
+        return TEL.MachineStatePhase;  // 0 entering, 1 active, 2 existing, 3 inactive, 4 unknown 
     }
     // da fare, in futuro
     public int GetTCUMode(){
@@ -532,14 +510,19 @@ public class TCS {
     }
     
 
-
-
-
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
 
 
+    //      00000000000     00000000000     000000000000000
+    //      00000000000     00000000000     000000000000000
+    //      000             000                   000      
+    //      00000000000     00000000000           000      
+    //      00000000000     00000000000           000      
+    //              000     000                   000      
+    //      00000000000     00000000000           000      
+    //      00000000000     00000000000           000      
 
 
     // SETTERS 
@@ -821,12 +804,34 @@ public class TCS {
     }
 
 
+    public void SetAzParkingPosition(final double value){
+        this.MotAZ.ParkPos = value;
+    }
+
+    public void SetElParkingPosition(final double value){
+        this.MotEL.ParkPos = value;
+    }
+
+    public void SetCupolaParkingPosition(final double value){
+        this.CUP.ParkPos = value;
+    }
+    
+
+
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
 
 
 
+    //      00000000000     00000      00000     00000000        
+    //      00000000000     000000    000000     0000000000         
+    //      000             000 000  000 000     000    0000         
+    //      000             000  000000  000     000     0000 
+    //      000             000   0000   000     000      0000
+    //      000             000    00    000     000      0000
+    //      00000000000     000          000     000000000000       
+    //      00000000000     000          000     00000000000      
 
 
     // COMANDI OPCUA        boolean dove va? è il result o è un parametro?
@@ -1140,22 +1145,6 @@ public class TCS {
     }
 
 
-
-    // ALTRI COMANDI
-
-    public void SetAzParkingPosition(final double value){
-        this.MotAZ.ParkPos = value;
-    }
-
-    public void SetElParkingPosition(final double value){
-        this.MotEL.ParkPos = value;
-    }
-
-    public void SetCupolaParkingPosition(final double value){
-        this.CUP.ParkPos = value;
-    }
-    
-
     public void CmdOpenCupola(final boolean value){
         if (value && domeAxisConnection)
             CupolaApertura();
@@ -1205,6 +1194,37 @@ public class TCS {
         if (value && domeAxisConnection)
             CupolaEst();
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
