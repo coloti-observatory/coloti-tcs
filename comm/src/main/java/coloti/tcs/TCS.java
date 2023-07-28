@@ -67,6 +67,9 @@ public class TCS {
     private EHardwareStatePhase statePhase;
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
+    public int error;
+    public int nErrors;
+    public String errorBuffer = "";
 
 
     // FIRST THINGS TO DO
@@ -102,15 +105,24 @@ public class TCS {
 
 
 
-    public TCS(boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome){
+    public TCS(){//boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome){
         Configure();
+        this.xAxisConnection = GEN.ConnessioneAz;
+        this.yAxisConnection = GEN.ConnessioneEl;
+        this.domeAxisConnection = GEN.ConnessioneDome;
+
+        AsseX = new ACS(GEN.IdSerialAz);
+        AsseY = new ACS(GEN.IdSerialEl);
+        AsseCupola = new ACS(GEN.IdSerialDome);
+        
+        /*
         this.xAxisConnection = connectX;
         this.yAxisConnection = connectY;
         this.domeAxisConnection = connectDome;
 
         AsseX = new ACS(IDserX);
         AsseY = new ACS(IDserY);
-        AsseCupola = new ACS(IDserDome);
+        AsseCupola = new ACS(IDserDome);*/
     }
 
     
@@ -154,9 +166,12 @@ public class TCS {
     }
 
     private void disconnect() {
-        AsseX.CloseComm();
-        AsseY.CloseComm();
-        AsseCupola.CloseComm();
+        if (xAxisConnection)
+            AsseX.CloseComm();
+        if (yAxisConnection)
+            AsseY.CloseComm();
+        if (domeAxisConnection)
+            AsseCupola.CloseComm();
     }
     
     public void Configure(){ // CambiaConfig SalvaConfig ReadConfig
@@ -490,10 +505,12 @@ public class TCS {
     }
     
     public int GetErrorNumber(){
+        this.GEN.ErrorNumber = nErrors;
         return GEN.ErrorNumber;
     }
     
     public String GetErrorBuffer(){
+        this.GEN.ErrorBuffer = "{"+errorBuffer+"}";
         return GEN.ErrorBuffer;
     }
     
@@ -823,7 +840,6 @@ public class TCS {
     // ---------------------------------------------------------------------------------------------
 
 
-
     //      00000000000     00000      00000     00000000        
     //      00000000000     000000    000000     0000000000         
     //      000             000 000  000 000     000    0000         
@@ -834,7 +850,7 @@ public class TCS {
     //      00000000000     000          000     00000000000      
 
 
-    // COMANDI OPCUA        boolean dove va? è il result o è un parametro?
+    // COMANDI OPCUA     
 
     public void CmdGoLoaded(final boolean value){
         if (value){
@@ -844,7 +860,10 @@ public class TCS {
                 TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
                 Sleep(5000);
                 TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                }
+            }
+            else{
+                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
+            }
             //initHwStateMachine(LOADED)
         }
     }
@@ -868,7 +887,10 @@ public class TCS {
                 TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
                 Sleep(5000);
                 TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                }
+            }
+            else{
+                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
+            }
             //initHwStateMachine(STANDBY)
         }
     }
@@ -881,7 +903,10 @@ public class TCS {
                 TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
                 Sleep(5000);
                 TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                }
+            }
+            else{
+                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
+            }
                 //initHwStateMachine(ONLINE)
         }
     }
@@ -894,7 +919,10 @@ public class TCS {
                 TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
                 Sleep(5000);
                 TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                }
+            }
+            else{
+                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
+            }
             //initHwStateMachine(MAINTENANCE)
         }
     }
@@ -1326,6 +1354,34 @@ public class TCS {
 
 
     // FUNZIONI COMPLESSE DA FARE
+
+    
+    public void Error(int err){
+        if (err != -1){
+            this.nErrors += 1;
+            this.error = err;
+
+
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+    }
+
+
+
+
+
+
 
     public void InitStar(){}
 
@@ -1818,12 +1874,12 @@ public class TCS {
 
     public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
         System.out.println("\nHello World\n");
-        final TCS tcs = new TCS(false,false,true,"","","");
+        final TCS tcs = new TCS();
         tcs.connect();
         //tcs.SetAzTelPosition(36000);
 
         //tcs.CupolaApertura();
-        ///*
+        /*
         //tcs.CmdCloseCupola(true);
         tcs.Sleep(3000);
         double angolo = tcs.GetCupolaPosition();
@@ -1841,6 +1897,7 @@ public class TCS {
         System.out.println("Posizione cupola: "+angolo);
         //tcs.Sleep(5000);
         //*/
+        System.out.println("tutto okay");
         tcs.Sleep(5000);
         tcs.disconnect();
 

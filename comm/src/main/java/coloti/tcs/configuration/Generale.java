@@ -12,7 +12,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "Montatura",
     "TipoControlloreAssi",
     "NumeroAssi",
-    "NumeroControllori"
+    "NumeroControllori",
+    "ConnessioneAz",
+    "ConnessioneEl",
+    "ConnessioneDome",
+    "IdSerialAz",
+    "IdSerialEl",
+    "IdSerialDome"
 })
 public class Generale {
 
@@ -28,7 +34,18 @@ public class Generale {
     private Integer numeroAssi;
     @JsonProperty("NumeroControllori")
     private Integer numeroControllori;
-
+    @JsonProperty("ConnessioneAz")
+    private Boolean connessioneAz;
+    @JsonProperty("ConnessioneEl")
+    private Boolean connessioneEl;
+    @JsonProperty("ConnessioneDome")
+    private Boolean connessioneDome;
+    @JsonProperty("IdSerialAz")
+    private String idSerialAz;
+    @JsonProperty("IdSerialEl")
+    private String idSerialEl;
+    @JsonProperty("IdSerialDome")
+    private String idSerialDome;
     /**
      * No args constructor for use in serialization
      * 
@@ -44,8 +61,14 @@ public class Generale {
      * @param numeroControllori
      * @param numeroAssi
      * @param montatura
+     * @param connessioneAz
+     * @param connessioneEl
+     * @param connessioneDome
+     * @param idSerialAz
+     * @param idSerialEl
+     * @param idSerialDome
      */
-    public Generale(Integer tipoCupola, Integer tipoTelescopio, Integer montatura, Integer tipoControlloreAssi, Integer numeroAssi, Integer numeroControllori) {
+    public Generale(Integer tipoCupola, Integer tipoTelescopio, Integer montatura, Integer tipoControlloreAssi, Integer numeroAssi, Integer numeroControllori, Boolean connessioneAz, Boolean connessioneEl, Boolean connessioneDome ,String idSerialAz, String idSerialEl, String idSerialDome) {
         super();
         this.tipoCupola = tipoCupola;
         this.tipoTelescopio = tipoTelescopio;
@@ -53,6 +76,12 @@ public class Generale {
         this.tipoControlloreAssi = tipoControlloreAssi;
         this.numeroAssi = numeroAssi;
         this.numeroControllori = numeroControllori;
+        this.connessioneAz = connessioneAz;
+        this.connessioneEl = connessioneEl;
+        this.connessioneDome = connessioneDome;
+        this.idSerialAz = idSerialAz;
+        this.idSerialEl = idSerialEl;
+        this.idSerialDome = idSerialDome;
     }
 
     @JsonProperty("TipoCupola")
@@ -145,6 +174,105 @@ public class Generale {
         return this;
     }
 
+    @JsonProperty("ConnessioneAz")
+    public Boolean getConnessioneAz() {
+        return connessioneAz;
+    }
+
+    @JsonProperty("ConnessioneAz")
+    public void setConnessioneAz(Boolean connessioneAz) {
+        this.connessioneAz = connessioneAz;
+    }
+
+    public Generale withConnessioneAz(Boolean connessioneAz) {
+        this.connessioneAz = connessioneAz;
+        return this;
+    }
+
+    @JsonProperty("ConnessioneEl")
+    public Boolean getConnessioneEl() {
+        return connessioneEl;
+    }
+
+    @JsonProperty("ConnessioneEl")
+    public void setConnessioneEl(Boolean connessioneEl) {
+        this.connessioneEl = connessioneEl;
+    }
+
+    public Generale withConnessioneEl(Boolean connessioneEl) {
+        this.connessioneEl = connessioneEl;
+        return this;
+    }
+
+    @JsonProperty("ConnessioneDome")
+    public Boolean getConnessioneDome() {
+        return connessioneDome;
+    }
+
+    @JsonProperty("ConnessioneDome")
+    public void setConnessioneDome(Boolean connessioneDome) {
+        this.connessioneDome = connessioneDome;
+    }
+
+    public Generale withConnessioneDome(Boolean connessioneDome) {
+        this.connessioneDome = connessioneDome;
+        return this;
+    }
+
+    @JsonProperty("IdSerialAz")
+    public String getIdSerialAz() {
+        return idSerialAz;
+    }
+
+    @JsonProperty("IdSerialAz")
+    public void setIdSerialAz(String idSerialAz) {
+        this.idSerialAz = idSerialAz;
+    }
+
+    public Generale withIdSerialAz(String idSerialAz) {
+        this.idSerialAz = idSerialAz;
+        return this;
+    }
+    
+    @JsonProperty("IdSerialEl")
+    public String getIdSerialEl() {
+        return idSerialEl;
+    }
+
+    @JsonProperty("IdSerialEl")
+    public void setIdSerialEl(String idSerialEl) {
+        this.idSerialEl = idSerialEl;
+    }
+
+    public Generale withIdSerialEl(String idSerialEl) {
+        this.idSerialEl = idSerialEl;
+        return this;
+    }
+    
+    @JsonProperty("IdSerialDome")
+    public String getIdSerialDome() {
+        return idSerialDome;
+    }
+
+    @JsonProperty("IdSerialDome")
+    public void setIdSerialDome(String idSerialDome) {
+        this.idSerialDome = idSerialDome;
+    }
+
+    public Generale withIdSerialDome(String idSerialDome) {
+        this.idSerialDome = idSerialDome;
+        return this;
+    }
+
+
+
+
+
+
+
+
+
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -172,6 +300,30 @@ public class Generale {
         sb.append("numeroControllori");
         sb.append('=');
         sb.append(((this.numeroControllori == null)?"<null>":this.numeroControllori));
+        sb.append(',');
+        sb.append("connessioneAz");
+        sb.append('=');
+        sb.append(((this.connessioneAz == null)?"<null>":this.connessioneAz));
+        sb.append(',');
+        sb.append("connessioneEl");
+        sb.append('=');
+        sb.append(((this.connessioneEl == null)?"<null>":this.connessioneEl));
+        sb.append(',');
+        sb.append("connessioneDome");
+        sb.append('=');
+        sb.append(((this.connessioneDome == null)?"<null>":this.connessioneDome));
+        sb.append(',');
+        sb.append("idSerialAz");
+        sb.append('=');
+        sb.append(((this.idSerialAz == null)?"<null>":this.idSerialAz));
+        sb.append(',');
+        sb.append("idSerialEl");
+        sb.append('=');
+        sb.append(((this.idSerialEl == null)?"<null>":this.idSerialEl));
+        sb.append(',');
+        sb.append("idSerialDome");
+        sb.append('=');
+        sb.append(((this.idSerialDome == null)?"<null>":this.idSerialDome));
         sb.append(',');
         if (sb.charAt((sb.length()- 1)) == ',') {
             sb.setCharAt((sb.length()- 1), ']');

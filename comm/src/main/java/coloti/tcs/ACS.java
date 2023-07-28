@@ -16,6 +16,7 @@ import coloti.tcs.CommClass;
 public class ACS {
 
   private CommClass communication;
+  public int ERROR;
   boolean PRINT = false;
   int ACSOK = -1;
   int ACSposoverflow = -2;
@@ -224,7 +225,7 @@ public class ACS {
       }
       return Err;
     }
-    return 1;
+    return -7;
   }
 
   // UTILITY
@@ -380,70 +381,73 @@ public class ACS {
     System.out.println();
   }
 
+
+  // -------------
+
   public int Move(String ax, double pos) {
     if (this.MOTORSTATUS[AxesNumber(ax)] == 0) {
       if (SetMotorOn(ax) != this.ACSOK)
-        return this.ACSmotorerror;
+        return this.ERROR = ACSmotorerror;
     }
 
     if (SetAbsTargPos(ax, pos) != ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
     if (StartMove(ax) != ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
-    return this.ACSOK;
+    return this.ERROR = ACSOK;
   }
 
   public int Move(String ax, double pos, double vel) {
 
     if (SetMotVel(ax, vel) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
     if (Move(ax, pos) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
-    return this.ACSOK;
+    return this.ERROR = ACSOK;
   }
 
   public int Move(String ax, double pos, double vel, double acc) {
 
     if (SetMotAcc(ax, acc) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
     if (Move(ax, pos, vel) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
-    return ACSOK;
+    return this.ERROR = ACSOK;
   }
 
   public int Move(String ax, double pos, double vel, double acc, double dec) {
 
     if (SetMotDec(ax, dec) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
     if (Move(ax, pos, vel, acc) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
-    return this.ACSOK;
+    return this.ERROR = ACSOK;
   }
 
   public int MoveTrack(String ax, double pos, double trackvel) {
     if (SetSlewMode(ax) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
     if (Move(ax, pos) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
     if (SetTrackMode(ax) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
     // while GetEndMotionStatus
 
     if (SetMotVel(ax, trackvel) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
     if (StartMove(ax) != this.ACSOK)
-      return this.ACSmotorerror;
+      return this.ERROR = ACSmotorerror;
 
-    return this.ACSOK;
+    return this.ERROR = ACSOK;
   }
 
   public void Sleep(int millisecondsTime) { // VERIFICATO 
@@ -513,7 +517,7 @@ public class ACS {
   public int SetRelTargPos(String ax, double pos) { // VERIFICATO 
     int Value = 0;
     if (pos > MaxPos[AxesNumber(ax)] || pos < MinPos[AxesNumber(ax)])
-      return ACSposoverflow;
+      return this.ERROR = ACSposoverflow;
     Value = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * pos);
     byte[] command = sbld("S%sRP", ax);
     int Err = CommandSet(command, Value);
@@ -805,7 +809,7 @@ public class ACS {
       this.MOTIONMODE[axI] = 1;
     else
       this.MOTIONMODE[axI] = (int) this.VALUECR;
-    System.out.println(MOTIONMODE[axI]);
+    //System.out.println(MOTIONMODE[axI]);
     return ErrorCode;
   }
 
@@ -1100,11 +1104,13 @@ public class ACS {
     if (this.HostStatus){
       nBytes = RemoveDLE();
       //System.out.println("After DLE:" + nBytes);
+      /*
       if (nBytes == -2)
         return -2;
       Err = Error();
       if (Err != -1)
         return Err;
+        */
       for (Count = 4; Count < 8; Count++){
         Data[Count - 4] = this.answerInt[Count];
       }
@@ -1116,7 +1122,7 @@ public class ACS {
       //System.out.println(this.VALUECR);
     }
     //System.out.println();
-    return -1;
+    return Error();
   }
 
   public int CommandReportParams(int iopo, byte[] instruction) { // VERIFICATO 
@@ -1129,11 +1135,15 @@ public class ACS {
 
     if (this.HostStatus){
       nBytes = RemoveDLE();
+
+      /* 
       if (nBytes == -2)
         return -2;
       Err = Error();
       if (Err != -1)
         return Err;
+      */
+
       for (Count = 5; Count < 7; Count++){
         Data[Count - 3] = this.answerInt[Count];
       }
@@ -1218,15 +1228,12 @@ public class ACS {
       SerialWrite(Instruction, element);
       SerialRead();
       RemoveDLE();
-      Err = Error();
-      if (Err != -1)
-        return Err;
       for (Count = 1; Count < 5; Count++){
         Data[Count - 1] = this.answerInt[Count];
       }
       this.VALUECR = DataConversionRX(Data);
     }
-    return -1;
+    return Error();
   }
 
   public int CommandArray(byte[] Instruction, int element, int finalvalue){
@@ -1245,15 +1252,12 @@ public class ACS {
       SerialWrite(Instruction, element);
       SerialRead();
       RemoveDLE();
-      Err = Error();
-      if (Err != -1)
-        return Err;
       for (Count = 1; Count < 5; Count++){
         Data[Count - 1] = this.answerInt[Count];
       }
       this.VALUECR = DataConversionRX(Data);
     }
-    return -1;
+    return Error();
   }
 
   public int TellCommand(String tellstring) { // VERIFICATO 
@@ -1288,7 +1292,7 @@ public class ACS {
       TellScan(commandBytes[1], this.serialAnswer);
     }
   
-    return -1;
+    return Error();
   }
   
   public int TellScan(byte subCommand, byte[] serialAnswer) { // VERIFICATO 
@@ -1405,7 +1409,7 @@ public class ACS {
   }
 
 
-  public int SerialWrite(byte[] c) { // ? 
+  public int SerialWrite(byte[] c) { //  
     int i, CheckSum = 0;
     String buffer = "";
     //byte[] Dati = new byte[4];
@@ -1438,7 +1442,7 @@ public class ACS {
   }
 
 
-  public int SerialWrite(byte[] c, int Value) { // ? 
+  public int SerialWrite(byte[] c, int Value) { //  
     int i, CheckSum = 0;
     String buffer = "";
     byte[] Dati = new byte[4];
@@ -1483,7 +1487,7 @@ public class ACS {
   }
 
 
-  public int SerialWrite(byte[] c, int[] Value, int numdata) { // ? 
+  public int SerialWrite(byte[] c, int[] Value, int numdata) { //  
     int i, CheckSum = 0;
     String buffer = "";
     byte[] Dati = new byte[4];
@@ -1532,74 +1536,6 @@ public class ACS {
 
 
 
-  
-
-  public int SerialWriteOLD(byte[] c, int[] Value, int numdata) { // VERIFICATO 
-    int i, CheckSum = 0;
-    String buffer = "";
-    byte[] Dati = new byte[4];
-        
-    for (i = 0; i < c.length; i++) {
-      CheckSum = CheckSum + (int) c[i];
-      buffer += (char) c[i];
-    }
-
-    for (int j = 0; j < numdata; j++){
-      for (i = 0; i < 4; i++) {
-        Dati[3 - i] = (byte) (Value[j] >> 8 * i);
-      }
-
-      for (i = 0; i < 4; i++) {
-        if ((Dati[i] == 16) || (Dati[i] == 13))
-          buffer += 0x10; //sedici
-        CheckSum += (int) Dati[i];
-        buffer += (char) Dati[i];
-      }
-    }
-
-    CheckSum = mod(CheckSum, 256);
-    if ((CheckSum == 13) || (CheckSum == 16))
-      CheckSum += 128;
-
-    buffer += (char) CheckSum;
-    buffer += '\r';
-    byte[] finalBuffer = String.valueOf(buffer).getBytes();
-    this.serialCommand = finalBuffer;
-
-    communication.Write(finalBuffer);
-    return 0;
-
-  }
-  public int SerialWriteOLD(byte[] c) { // VERIFICATO 
-    int i;
-    int CheckSum = 0;
-    String buffer = ""; //new String();
-    for (i = 0; i < c.length; i++) {
-      CheckSum = CheckSum + (int) c[i];
-      buffer += (char) c[i];
-    }
-
-    CheckSum = mod(CheckSum, 256);
-    if ((CheckSum == 13) || (CheckSum == 16))
-      CheckSum += 128;
-
-
-    buffer += (char) CheckSum;
-    buffer += '\r';
-
-    byte[] finalBuffer = String.valueOf(buffer).getBytes();
-    this.serialCommand = finalBuffer;
-    //System.out.println("Buffer: "+buffer);
-    //System.out.println("Final Buffer: ");
-    //PrintArray(finalBuffer);
-
-    communication.Write(finalBuffer);
-    return 0;
-  }
-  
-
-
-
 
   public int SerialRead() { // VERIFICATO 
     int nBytes;
@@ -1636,17 +1572,22 @@ public class ACS {
       byte qmark = '?';
       if (serialAnswer[0] == qmark)
         indexQuestionMark = 1;
+      if (serialAnswer[1] == qmark)
+        indexQuestionMark = 2;
+      if (indexQuestionMark != 0)
+        return this.ERROR = serialAnswer[indexQuestionMark];
+      else
+        return this.ERROR = ACSOK;
+    } 
+    else
+      return this.ERROR = -6;
+  }
+
+
 
       // if (serialAnswer[1] == qmark)
       // indexQuestionMark = 2;
 
-      if (indexQuestionMark != 0)
-        return serialAnswer[indexQuestionMark];
-      else
-        return -1;
-    } else
-      return -6;
-  }
 
   public byte[] GetAnswer() { // VERIFICATO 
     return this.serialAnswer;

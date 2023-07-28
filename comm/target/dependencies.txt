@@ -1,8 +1,8 @@
 digraph "coloti.tcs:comm:jar:0.1" { 
 	"coloti.tcs:comm:jar:0.1" -> "junit:junit:jar:4.11:test" ; 
 	"coloti.tcs:comm:jar:0.1" -> "com.fazecast:jSerialComm:jar:2.10.2:compile" ; 
-	"coloti.tcs:comm:jar:0.1" -> "com.fasterxml.jackson.core:jackson-core:jar:2.5.0:compile" ; 
-	"coloti.tcs:comm:jar:0.1" -> "com.fasterxml.jackson.core:jackson-databind:jar:2.5.0:compile" ; 
+	"coloti.tcs:comm:jar:0.1" -> "com.fasterxml.jackson.core:jackson-core:jar:2.15.2:compile" ; 
+	"coloti.tcs:comm:jar:0.1" -> "com.fasterxml.jackson.core:jackson-databind:jar:2.15.2:compile" ; 
 	"coloti.tcs:comm:jar:0.1" -> "com.fasterxml.jackson.core:jackson-annotations:jar:2.5.0:compile" ; 
 	"coloti.tcs:comm:jar:0.1" -> "jboss:jboss-common:jar:3.2.3:compile" ; 
 	"coloti.tcs:comm:jar:0.1" -> "ch.qos.logback:logback-core:jar:1.4.8:compile" ; 

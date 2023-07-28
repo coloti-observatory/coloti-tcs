@@ -43,6 +43,27 @@ public class ConfigurationClass {
     public int getNumeroControllori(){
         return this.global.getGenerale().getNumeroControllori();
     }
+
+    public boolean getConnessioneAz(){
+        return this.global.getGenerale().getConnessioneAz();
+    }
+    public boolean getConnessioneEl(){
+        return this.global.getGenerale().getConnessioneEl();
+    }
+    public boolean getConnessioneDome(){
+        return this.global.getGenerale().getConnessioneDome();
+    }
+
+    public String getIdSerialAz(){
+        return this.global.getGenerale().getIdSerialAz();
+    }
+    public String getIdSerialEl(){
+        return this.global.getGenerale().getIdSerialEl();
+    }
+    public String getIdSerialDome(){
+        return this.global.getGenerale().getIdSerialDome();
+    }
+
         // set
     /*
     public void setTipoCupola(int value){

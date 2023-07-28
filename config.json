@@ -5,7 +5,13 @@
 "Montatura":0,
 "TipoControlloreAssi":1,
 "NumeroAssi":3,
-"NumeroControllori":3
+"NumeroControllori":3,
+"ConnessioneAz":false,
+"ConnessioneEl":false,
+"ConnessioneDome":false,
+"IdSerialAz":"",
+"IdSerialEl":"",
+"IdSerialDome":""
 },
 "OSSERVATORIO":{
 "Nome":"Osservatorio Astronomico di Coloti",

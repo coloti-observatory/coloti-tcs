@@ -69,6 +69,13 @@ public class GENERALE {
     public double IersXpp;
     public double IersYpp;
 
+    public boolean ConnessioneAz;
+    public boolean ConnessioneEl;
+    public boolean ConnessioneDome;
+    public String IdSerialAz;
+    public String IdSerialEl;
+    public String IdSerialDome;
+
 
     public GENERALE(ConfigurationClass cfg){
         this.TipoCupola = cfg.getTipoCupola();
@@ -77,6 +84,13 @@ public class GENERALE {
         this.TipoControlloreAssi = cfg.getTipoControlloreAssi();
         this.NumeroAssi = cfg.getNumeroAssi();
         this.NumeroControllori = cfg.getNumeroControllori();
+        this.ConnessioneAz = cfg.getConnessioneAz();
+        this.ConnessioneEl = cfg.getConnessioneEl();
+        this.ConnessioneDome = cfg.getConnessioneDome();
+        this.IdSerialAz = cfg.getIdSerialAz();
+        this.IdSerialEl = cfg.getIdSerialEl();
+        this.IdSerialDome = cfg.getIdSerialDome();
+
     }
 
 
