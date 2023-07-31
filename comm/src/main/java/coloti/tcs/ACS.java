@@ -20,7 +20,6 @@ public class ACS {
   boolean PRINT = false;
   int ACSOK = -1;
   int ACSposoverflow = -2;
-  int ACSmotorerror = -3;
   int[] MOTORSTATUS = { 0, 0, 0 };
   long VALUE1 = 0L;
   long VALUE2 = 0L;
@@ -210,7 +209,7 @@ public class ACS {
   }
 
   public int InitAxes() { // VERIFICATO 
-    int Err = 0;
+    int Err = ACSOK;
     if (this.CommStatus) {
       for (int i = 0; i < this.NAXES; i++) {
         Err = GetEncoderRes(this.axes[i]);
@@ -386,68 +385,75 @@ public class ACS {
 
   public int Move(String ax, double pos) {
     if (this.MOTORSTATUS[AxesNumber(ax)] == 0) {
-      if (SetMotorOn(ax) != this.ACSOK)
-        return this.ERROR = ACSmotorerror;
+      this.ERROR = SetMotorOn(ax);
+      if (ERROR != ACSOK)
+        return ERROR;
     }
+    
+    this.ERROR = SetAbsTargPos(ax, pos);
+    if (ERROR != ACSOK)
+        return ERROR;
 
-    if (SetAbsTargPos(ax, pos) != ACSOK)
-      return this.ERROR = ACSmotorerror;
+    this.ERROR = StartMove(ax);
+    if (ERROR != ACSOK)
+      return ERROR;
 
-    if (StartMove(ax) != ACSOK)
-      return this.ERROR = ACSmotorerror;
-
-    return this.ERROR = ACSOK;
+    return ACSOK;
   }
 
   public int Move(String ax, double pos, double vel) {
 
-    if (SetMotVel(ax, vel) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
+    this.ERROR = SetMotVel(ax, vel);
+    if (ERROR != this.ACSOK)
+      return ERROR;
 
-    if (Move(ax, pos) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
-
-    return this.ERROR = ACSOK;
+    this.ERROR = Move(ax, pos);
+    return ERROR;
   }
 
   public int Move(String ax, double pos, double vel, double acc) {
 
-    if (SetMotAcc(ax, acc) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
+    this.ERROR = SetMotAcc(ax, acc);
+    if (ERROR != this.ACSOK)
+      return ERROR;
 
-    if (Move(ax, pos, vel) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
-
-    return this.ERROR = ACSOK;
+    this.ERROR = Move(ax, pos, vel);
+    return ERROR;
   }
 
   public int Move(String ax, double pos, double vel, double acc, double dec) {
 
-    if (SetMotDec(ax, dec) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
+    this.ERROR = SetMotDec(ax, dec);
+    if (ERROR != this.ACSOK)
+      return ERROR;
 
-    if (Move(ax, pos, vel, acc) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
-
-    return this.ERROR = ACSOK;
+    this.ERROR = Move(ax, pos, vel, acc);
+    return ERROR;
   }
 
   public int MoveTrack(String ax, double pos, double trackvel) {
-    if (SetSlewMode(ax) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
-    if (Move(ax, pos) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
-    if (SetTrackMode(ax) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
+    this.ERROR = SetSlewMode(ax); 
+    if (ERROR != this.ACSOK)
+      return ERROR;
+
+    this.ERROR = Move(ax, pos);
+    if (ERROR != this.ACSOK)
+      return ERROR;
+
+    this.ERROR = SetTrackMode(ax);
+    if (ERROR != this.ACSOK)
+      return ERROR;
 
     // while GetEndMotionStatus
+    this.ERROR = SetMotVel(ax, trackvel);
+    if (ERROR != this.ACSOK)
+      return ERROR;
 
-    if (SetMotVel(ax, trackvel) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
-    if (StartMove(ax) != this.ACSOK)
-      return this.ERROR = ACSmotorerror;
+    this.ERROR = StartMove(ax);
+    if (ERROR != this.ACSOK)
+      return ERROR;
 
-    return this.ERROR = ACSOK;
+    return ACSOK;
   }
 
   public void Sleep(int millisecondsTime) { // VERIFICATO 

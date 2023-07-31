@@ -7,7 +7,11 @@ package coloti.tcs;
 //import coloti.tcs.configuration.*;
 import coloti.tcs.objclasses.*;
 
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 //import coloti.tcs.ConfigurationClass;
 import java.util.concurrent.TimeUnit;
 //import java.lang.Math.*;
@@ -67,9 +71,54 @@ public class TCS {
     private EHardwareStatePhase statePhase;
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
+
     public int error;
-    public int nErrors;
-    public String errorBuffer = "";
+    public int nErrors = 0;
+    public String errorBuffer;
+    public String errorText = "";
+
+    public Map <Integer, String> errorMap = new HashMap <>(){
+        {
+            put(100, "InitAxes");
+            put(110, "GetAzAbsTargPos");
+            put(120, "...");
+        }
+    };
+
+    private int[] nEncErr = new int[]{-2,-6,-7,0,1,3,10,12,15,16,17,19,20,21,22,41,44,90,91};
+
+    private static boolean check(int[] arr, int toCheckValue)
+    {
+        for (int element : arr) {
+            if (element == toCheckValue) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public Map <Integer, String> errEncMap = new HashMap <>(){
+        {
+            put(-2, ", relative position overflow;");
+            put(-6, ", serial answer length is zero;");
+            put(-7, ", communication status is false during axes initialization;");
+            put(0, ", checksum error detected in the received command or empty command;");
+            put(1, ", command, or subcommand, was not executed, unrecognized;");
+            put(3, ", SAVE operation has failed);");
+            put(10, ", command was not executed, requires special hardware;");
+            put(12, ", servo process does not communicate with the main processor;");
+            put(15, ", operation failed, many possible explanations, see the software guide for more informations;");
+            put(16, ", command was not executed, many possible explanations, see the software guide for more informations;");
+            put(17, ", command was not executed, command not supported in the current version;");
+            put(19, ", array set command was not executed, invalid data;");
+            put(20, ", command was not executed, missing data field;");
+            put(21, ", non fatal, data field out of valid range, parameter set with the nearest valid value;");
+            put(22, ", non fatal, unrecognized subcommand was found within data field;");
+            put(41, ", non fatal, operation cannot be executed while a program is running;");
+            put(44, ", non fatal, delete or overwrite operation are not allowed;");
+            put(90, ", non fatal, memory checksum error;");
+            put(91, ", non fatal, firmware checksum error;");
+        }
+    };
 
 
     // FIRST THINGS TO DO
@@ -131,7 +180,8 @@ public class TCS {
         if (xAxisConnection){
             this.xAxisConnection= AsseX.SetSimpleStart(0);
             Sleep(500);
-            AsseX.InitAxes();}
+            Error(AsseX.InitAxes(), 100);
+        }
         double gearratioX = TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
         this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
 
@@ -140,7 +190,8 @@ public class TCS {
         if (yAxisConnection){
             this.yAxisConnection = AsseY.SetSimpleStart(0);
             Sleep(500);
-            AsseY.InitAxes();}
+            Error(AsseY.InitAxes(), 100);
+        }
         double gearratioY = TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
         this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
 
@@ -150,13 +201,14 @@ public class TCS {
         if(domeAxisConnection){
             this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
             Sleep(500);
-            AsseCupola.InitAxes();}
+            Error(AsseCupola.InitAxes(), 100);
+        }
 
 
 
         // machine state
         if (xAxisConnection || yAxisConnection || domeAxisConnection){
-            initHwStateMachine(LOADED);
+            initHwStateMachine(OFF);
             TEL.MachineState = mcsStateMachine.getCurrentState().value;
             TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
             return true;
@@ -215,6 +267,28 @@ public class TCS {
         mcsStateMachine = new StateMachine(model);
     }
     
+
+    public void Error(int err, int IdErr){
+        if(err != -1){
+            this.nErrors += 1;
+            this.error = IdErr;
+            this.errorBuffer = errorMap.get(IdErr);
+            //logger.warn(errorBuffer);
+            this.errorText += "Error "+IdErr+": "+errorBuffer;
+            if (check(nEncErr, err))
+                this.errorText += errEncMap.get(err);
+            else
+                this.errorText += ";";
+        }
+    }
+
+
+
+
+
+
+
+
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
@@ -286,7 +360,7 @@ public class TCS {
 
     public double GetAzCommandedPos(){
         if (xAxisConnection){
-            AsseX.GetAbsTargPos(X);
+            Error(AsseX.GetAbsTargPos(X), 110);
             this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
         }
         return MotAZ.TelPosition;
@@ -431,6 +505,7 @@ public class TCS {
     }
     // da fare
     public String GetGoLoadedInfo(){
+
         return TEL.GoLoadedInfo;
     }
     // da fare
@@ -854,19 +929,28 @@ public class TCS {
 
     public void CmdGoLoaded(final boolean value){
         if (value){
+            long tStart = System.currentTimeMillis();
+            //this.TEL.GoLoadedInfo = "TEST"; //"commandname: CommandGoLoaded; busy: TRUE; tstart: "+tStart+"; tstop: 0; error:";
+            this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded; busy: TRUE; tstart: "+tStart+"; tstop: 0; error:";
             if (getMcsStateMachine().isAcceptable(LOADED)){
                 getMcsStateMachine().transition(LOADED);
                 TEL.MachineState = mcsStateMachine.getCurrentState().value;
                 TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
                 Sleep(5000);
                 TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
+                this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error:";
             }
             else{
+                this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: ERROR";
                 logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
+                //this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: ERROR";
             }
-            //initHwStateMachine(LOADED)
+            //initHwStateMachine(LOADED)  */
         }
     }
+
+    // commandname: CommandGoLoaded; busy: FALSE; tstart: 1970-01-01-00:00:00.000; tstop: 1970-01-01-00:00:00.000; error: 
+
 
     /*public void mcsGoLoadedSync() {
         if (getMcsStateMachine().isAcceptable(LOADED) && !inLocalMode()) {
@@ -879,17 +963,23 @@ public class TCS {
         }
     }*/
 
+
+
     public void CmdGoStandby(final boolean value){
         if (value){
+            long tStart = System.currentTimeMillis();
+            this.TEL.GoStandbyInfo = "commandname: CommandGoStandby; busy: TRUE; tstart: "+tStart+"; tstop: 0; error:";
             if (getMcsStateMachine().isAcceptable(STANDBY)){
                 getMcsStateMachine().transition(STANDBY);
                 TEL.MachineState = mcsStateMachine.getCurrentState().value;
                 TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
                 Sleep(5000);
                 TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
+                this.TEL.GoStandbyInfo = "commandname: CommandGoStandby busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error:";
             }
             else{
                 logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
+                this.TEL.GoStandbyInfo = "commandname: CommandGoStandby; busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: "+error;
             }
             //initHwStateMachine(STANDBY)
         }
