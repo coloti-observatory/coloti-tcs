@@ -7,11 +7,11 @@
 "NumeroAssi":3,
 "NumeroControllori":3,
 "ConnessioneAz":true,
-"ConnessioneEl":false,
-"ConnessioneDome":false,
-"IdSerialAz":"/dev/ttyUSB0",
-"IdSerialEl":"",
-"IdSerialDome":""
+"ConnessioneEl":true,
+"ConnessioneDome":true,
+"IdSerialAz":"/dev/ttyUSB1",
+"IdSerialEl":"/dev/ttyUSB2",
+"IdSerialDome":"/dev/ttyUSB0"
 },
 "OSSERVATORIO":{
 "Nome":"Osservatorio Astronomico di Coloti",

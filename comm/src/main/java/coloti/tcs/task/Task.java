@@ -1,4 +1,4 @@
-package coloti.tcs.temporaneo;
+package coloti.tcs.task;
 
 import java.util.concurrent.Callable;
 

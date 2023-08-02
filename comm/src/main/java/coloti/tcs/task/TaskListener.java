@@ -1,4 +1,4 @@
-package coloti.tcs.temporaneo;
+package coloti.tcs.task;
 
 public interface TaskListener {
     public void onStart(Object input);

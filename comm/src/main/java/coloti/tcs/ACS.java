@@ -19,7 +19,7 @@ public class ACS {
   public int ERROR;
   boolean PRINT = false;
   int ACSOK = -1;
-  int ACSposoverflow = -2;
+  int ACSposoverflow = 999;
   int[] MOTORSTATUS = { 0, 0, 0 };
   long VALUE1 = 0L;
   long VALUE2 = 0L;
@@ -482,7 +482,7 @@ public class ACS {
   }
 
   public int SetMode(int Value) { // VERIFICATO 
-    int Err = -6;
+    int Err = 100;
     if (Value == 0)
       Err = SetHostMode();
     else if (Value == 1)
@@ -1053,7 +1053,7 @@ public class ACS {
     this.answerString = this.communication.ReadMessage();
     this.serialAnswer = String.valueOf(answerString).getBytes();
 
-    boolean PRINT = false;
+    boolean PRINT = true;
     if (PRINT) {
       System.out.println("Comando inviato: ");
       System.out.println(Instruction);
@@ -1586,7 +1586,7 @@ public class ACS {
         return this.ERROR = ACSOK;
     } 
     else
-      return this.ERROR = -6;
+      return this.ERROR = 600;
   }
 
 
@@ -1671,25 +1671,32 @@ public class ACS {
 
     ///* 
     ACS acs = new ACS("/dev/ttyUSB0",1);
-    acs.SetSimpleStart(0);
+    acs.SetSimpleStart(1);
 
+    boolean acceptInput = true;
+        // boolean connected = false;
+        // textIO = TextIoFactory.getTextIO();
+        // TextTerminal<?> terminal = textIO.getTextTerminal();
+        String cmd = "";
+        Scanner myObj = new Scanner(System.in);  // Create a Scanner object
+  
+        while (acceptInput) {
+          System.out.print("cmd>");
+          cmd=myObj.nextLine();
+          
+          
+          if (cmd.toUpperCase().equals("QUIT"))
+            acceptInput = false;
+          else
+            acs.DirectCommand(cmd+"\r");
+        
+        }
     
     //acs.GetEncoderRes("X");
 
 
     //acs.SetSlewMode("X");
 
-    acs.Sleep(1000);
-
-    acs.GetMotionMode("X");
-
-    System.out.println("\n--------\n");
-
-    acs.SetMotVel("X", 4000);
-
-    acs.Sleep(5000);
-
-    acs.GetMotVel("X");
 
 
 

@@ -1,4 +1,4 @@
-package coloti.tcs.temporaneo;
+package coloti.tcs.task;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -136,8 +136,9 @@ public class TaskLibrary {
             
             listener.onStart(null);
             while (isInterrupted) {
-                // System.out.println("I'm a double callable");
-                listener.onWorking(null);
+                //System.out.println("I'm a double callable");
+                System.out.println("mioTask2 is running");
+                //listener.onWorking(null);
                 TimeUnit.SECONDS.sleep(1);
             }
             curVal=100;
@@ -179,10 +180,8 @@ public class TaskLibrary {
     public int numerino = 10;
 
     public int MisuraProva(){
-        while(numerino < 1000){
-            this.numerino += 1;
-            Sleep(200);
-        }
+        this.numerino += 1;
+        Sleep(500);
         return numerino;
     }
 
@@ -200,9 +199,13 @@ public class TaskLibrary {
             
             listener.onStart(null);
             while (isInterrupted) {
-                MisuraProva();
+                numerino = MisuraProva();
+                System.out.println("taskPaolo is running, updating n: "+numerino);
+                //this.curVal = numerino;
+                //System.out.println("a:" +getCurrentVal());
             }
-            curVal = numerino;
+            //this.curVal = numerino;
+            //System.out.println("A:" +getCurrentVal());
             return v;
         }
 

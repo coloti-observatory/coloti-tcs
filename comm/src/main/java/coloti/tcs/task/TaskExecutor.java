@@ -1,4 +1,4 @@
-package coloti.tcs.temporaneo;
+package coloti.tcs.task;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -34,9 +34,9 @@ public class TaskExecutor<T> {
         try {
             return future.get(timeout, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            throw new ExecutionException("You task has been interrupted", e);
+            throw new ExecutionException("Your task has been interrupted", e);
         } catch (ExecutionException e) {
-            throw new ExecutionException("You task has been completed exceptionally", e);
+            throw new ExecutionException("Your task has been completed exceptionally", e);
         } catch (TimeoutException e) {
             throw new TimeoutException("timeout reached");
         }

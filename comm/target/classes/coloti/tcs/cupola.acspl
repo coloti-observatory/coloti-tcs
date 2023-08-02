@@ -1,0 +1,69 @@
+1: AUTOEXEC: 
+2: V10 = 605000
+3: V15 = 0
+4: stop
+5: APRICUP: 
+6: let HI = 7
+7: wait  3000
+8: let LO = 7
+9: stop
+10: CHIUDCUP: 
+11: let HI = 3
+12: wait  3000
+13: let LO = 3
+14: stop
+15: DXCUP: 
+16: let HI = 5
+17: ret
+18: SXCUP: 
+19: let HI = 6
+20: ret
+21: FERMACUP: 
+22: let LO = 5
+23: let LO = 6
+24: wait  1000
+25: ret
+26: HOMECUP: 
+27: V15 = 0
+28: let HI = 6
+29: till IN4
+30: let LO = 6
+31: wait  2000
+32: let HI = 5
+33: wait  1500
+34: let LO = 5
+35: wait  1000
+36: let XZP = 630500
+37: V15 = 0
+38: stop
+39: PUNTA: 
+40: V0 = 1
+41: V9 = XCP
+42: if V10 >= V9 do
+43:     V10 = V10 - 5750
+44:     call SXCUP
+45:     till XCP >  V10
+46:     call FERMACUP
+47: end
+48: if V10 <  V9 do
+49:     call DXCUP
+50:     V10 = V10 + 5750
+51:     till XCP <= V10
+52:     call FERMACUP
+53: end
+54: V0 = 0
+55: stop
+56: APRIMIR: 
+57: V0 = 1
+58: let HI = 1
+59: wait  6000
+60: let LO = 1
+61: V0 = 0
+62: stop
+63: CHIUDMIR: 
+64: V0 = 1
+65: let HI = 2
+66: wait  8000
+67: let LO = 2
+68: V0 = 0
+69: stop
