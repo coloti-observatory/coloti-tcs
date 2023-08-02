@@ -2,12 +2,12 @@
 2: V10 = 605000
 3: V15 = 0
 4: stop
-5: APRICUP: 
+5: APRICUP: (17 SECONDI)
 6: let HI = 7
 7: wait  3000
 8: let LO = 7
 9: stop
-10: CHIUDCUP: 
+10: CHIUDCUP: (14 SECONDI)
 11: let HI = 3
 12: wait  3000
 13: let LO = 3

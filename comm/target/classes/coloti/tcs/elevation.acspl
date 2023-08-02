@@ -1,0 +1,116 @@
+1: AUTOEXEC: 
+2: V0 = 1
+3: V18 = 0
+4: V20 = 0
+5: V21 = 0
+6: V9 = 5000
+7: V11 = 30000
+8: V12 = 100000
+9: stop
+10: HOMEX: 
+11: V0 = 3
+12: if ^ X_ENABLE do
+13:     let XMO = 1
+14:     till X_ENABLE
+15: end
+16: let XMM = 10
+17: let XLV = 70000
+18: let XLA = 150000
+19: let YLD = 150000
+20: exec BX
+21: till X_RL
+22: exec KX
+23: let XLV = -50000
+24: exec BX
+25: till IN2
+26: exec KX
+27: let XLV = 30000
+28: exec BX
+29: till ^ IN2
+30: V1 = XIX
+31: till X_INDEX
+32: V2 = XIX
+33: exec EX
+34: let XMM = 0
+35: let XAP = V2
+36: exec BX
+37: till ^ X_MOVE
+38: wait   200
+39: let XZP = V8
+40: let XMM = 10
+41: V0 = 0
+42: stop
+43: MUOVIDX: 
+44: let XLV = V15
+45: till X_MOTION =  3
+46: ret
+47: MUOVISX: 
+48: let XLV = -V15
+49: till X_MOTION =  3
+50: ret
+51: AUTO_IN1: 
+52: V15 = V12
+53: wait   200
+54: V20 = 0
+55: V21 = 0
+56: if V0 >  0 do
+57:     if ^ X_ENABLE do
+58:         let XMO = 1
+59:         wait   300
+60:     end
+61:     if V18 =  0 do
+62:         V0 = 10
+63:     end
+64:     exec KX
+65:     till X_END =  2
+66:     let XLA = 200000
+67:     let XLD = 200000
+68:     let XMM = 10
+69:     let XLV = V18
+70:     exec BX
+71:     RIPETI: 
+72:     if IN5 & IN3 do
+73:         let XLV = V9
+74:         till X_MOTION =  3
+75:         till ^ IN3 & ^ IN5
+76:         V20 = 0
+77:         V21 = 0
+78:     end
+79:     else do
+80:         if IN3 do
+81:             V20 = V20 + 1
+82:             if V20 =  1 do
+83:                 call MUOVISX
+84:             end
+85:             V20 = V20 - 1
+86:         end
+87:         if IN5 do
+88:             V21 = V21 + 1
+89:             if V21 =  1 do
+90:                 call MUOVIDX
+91:             end
+92:             V21 = V21 - 1
+93:         end
+94:         if ^ IN3 & ^ IN5 do
+95:             let XLV = V18
+96:             till X_MOTION =  3
+97:             V20 = 0
+98:             V21 = 0
+99:         end
+100:     end
+101:     if IN1 do
+102:         V20 = 0
+103:         V21 = 0
+104:         goto RIPETI
+105:     end
+106:     if V0 =  10 do
+107:         exec KX
+108:         till X_END =  2
+109:         let XLA = 100000
+110:         let XMO = 0
+111:         V0 = 1
+112:     end
+113: end
+114: V20 = 0
+115: V21 = 0
+116: stop

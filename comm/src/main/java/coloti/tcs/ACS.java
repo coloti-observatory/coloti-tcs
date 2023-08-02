@@ -17,7 +17,7 @@ public class ACS {
 
   private CommClass communication;
   public int ERROR;
-  boolean PRINT = false;
+  boolean PRINT = true;
   int ACSOK = -1;
   int ACSposoverflow = 999;
   int[] MOTORSTATUS = { 0, 0, 0 };
@@ -316,6 +316,8 @@ public class ACS {
   }
 
   Tell2 Tell2 = new Tell2();
+  
+  public boolean isRunning;
   
 
   public int AxesNumber(String ax) { // VERIFICATO 
@@ -1049,11 +1051,11 @@ public class ACS {
   public int DirectCommand(String Instruction) { // VERIFICATO 
     byte[] instruction = String.valueOf(Instruction).getBytes();
     this.communication.Write(instruction);
-    Sleep(200);
+    //Sleep(200);
     this.answerString = this.communication.ReadMessage();
     this.serialAnswer = String.valueOf(answerString).getBytes();
 
-    boolean PRINT = true;
+    
     if (PRINT) {
       System.out.println("Comando inviato: ");
       System.out.println(Instruction);
@@ -1130,6 +1132,39 @@ public class ACS {
     //System.out.println();
     return Error();
   }
+
+  public int IsProgramRunning() { // VERIFICATO
+    this.VALUECR = 0;
+    int Count, Err, nBytes = 0;
+    int[] Data = new int[4];
+    SerialWrite(sbld("T3"));
+    Sleep(200);
+
+    nBytes = SerialRead();
+    //this.serialAnswer[nBytes] = '\0';
+    //System.out.println("Before DLE:" + nBytes);
+    
+    if (PRINT) {
+      System.out.println("Comando inviato: ");
+      PrintCharln(this.serialCommandCaratteri);
+      System.out.println("Risposta al comando: ");
+      PrintBytesln(this.serialAnswer);
+    }
+
+    if (this.HostStatus){
+      nBytes = RemoveDLE();
+      
+      //PrintArray(this.serialAnswer);
+
+      if (answerInt[3] == 0 && answerInt[4] == 0)
+        this.isRunning = false;
+      else
+        this.isRunning = true;
+
+    }
+    return Error();
+  }
+
 
   public int CommandReportParams(int iopo, byte[] instruction) { // VERIFICATO 
     this.VALUECR = 0;
@@ -1670,27 +1705,45 @@ public class ACS {
     
 
     ///* 
-    ACS acs = new ACS("/dev/ttyUSB0",1);
+    ACS acs = new ACS("/dev/ttyUSB2",1);
     acs.SetSimpleStart(1);
+    //acs.IsProgramRunning();
+    //System.out.println(acs.isRunning);
 
-    boolean acceptInput = true;
-        // boolean connected = false;
-        // textIO = TextIoFactory.getTextIO();
-        // TextTerminal<?> terminal = textIO.getTextTerminal();
-        String cmd = "";
-        Scanner myObj = new Scanner(System.in);  // Create a Scanner object
   
-        while (acceptInput) {
-          System.out.print("cmd>");
-          cmd=myObj.nextLine();
-          
-          
-          if (cmd.toUpperCase().equals("QUIT"))
-            acceptInput = false;
-          else
-            acs.DirectCommand(cmd+"\r");
+
+
+    //if (!acs.HostStatus){
+    boolean acceptInput = true;
+    // boolean connected = false;
+    // textIO = TextIoFactory.getTextIO();
+    // TextTerminal<?> terminal = textIO.getTextTerminal();
+    String cmd = "";
+    Scanner myObj = new Scanner(System.in);  // Create a Scanner object
+
+    while (acceptInput) {
+      System.out.print("cmd>");
+      cmd=myObj.nextLine();
+      
+      
+      if (cmd.toUpperCase().equals("QUIT"))
+        acceptInput = false;
+      else
+        acs.DirectCommand(cmd+"\r");
+      
+      
+      /*if (acs.HostStatus){
+        acs.CommandReport(acs.sbld(cmd), true);
+        acs.PrintArray(acs.serialAnswer);
+        System.out.println(acs.VALUECR);
+      }*/
         
-        }
+          
+
+        
+        
+      
+      }
     
     //acs.GetEncoderRes("X");
 

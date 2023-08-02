@@ -189,7 +189,7 @@ public class TCS {
         // AZIMUTH
         if (xAxisConnection){
             this.xAxisConnection= AsseX.SetSimpleStart(0);
-            Sleep(1000);
+            Sleep(500);
             Error(AsseX.InitAxes(), 100);
         }
         final double gearratioX = TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
@@ -199,7 +199,7 @@ public class TCS {
         // ELEVATION
         if (yAxisConnection){
             this.yAxisConnection = AsseY.SetSimpleStart(0);
-            Sleep(1000);
+            Sleep(500);
             Error(AsseY.InitAxes(), 100);
         }
         final double gearratioY = TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
@@ -210,7 +210,7 @@ public class TCS {
         // DOME
         if(domeAxisConnection){
             this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
-            Sleep(1000);
+            Sleep(500);
             Error(AsseCupola.InitAxes(), 100);
         }
 
@@ -234,6 +234,8 @@ public class TCS {
             AsseY.CloseComm();
         if (domeAxisConnection)
             AsseCupola.CloseComm();
+
+        taskExecutor.shutdown();
     }
     
     public void Configure(){ // CambiaConfig SalvaConfig ReadConfig
@@ -587,6 +589,10 @@ public class TCS {
     // da fare, ma come?
     public String GetEmergencyStopInfo(){
         return TEL.EmergencyStopInfo;
+    }
+
+    public String GetZeroDomeInfo(){
+        return CUP.ZeroDomeInfo;
     }
     
     public int GetErrorNumber(){
@@ -1043,6 +1049,16 @@ public class TCS {
 
     public void CmdGoMaintenance(final boolean value){
         if (value){
+            
+            try {
+                taskExecutor.runTask(gomaintenance, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            this.TEL.GoOnlineInfo = "commandname: CommandGoMaintenance; busy: FALSE; tstart: 0; tstop: 0; error:";
+
+            
+            /*
             if (getMcsStateMachine().isAcceptable(MAINTENANCE)){
                 getMcsStateMachine().transition(MAINTENANCE);
                 TEL.MachineState = mcsStateMachine.getCurrentState().value;
@@ -1053,7 +1069,7 @@ public class TCS {
             else{
                 logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
             }
-            //initHwStateMachine(MAINTENANCE)
+            //initHwStateMachine(MAINTENANCE)*/
         }
     }
 
@@ -1314,6 +1330,12 @@ public class TCS {
     }
 
 
+    //  task apertura e chiusura cupola. aggiungere status cupola come boolean nei get dell'icd. anche per l'inizializzazione, true o false sul set a zero della cupola. aggiungere info relativi ai command della cupola. Usare il T3 per controllare lo stato della cupola nel set degli zeri.
+
+    // Ricorda di sistemare la lettura seriale nella comm class: while non c'è niente aspetta, poi leggi e poi continua a leggere finché ci sono bit a disposiziones
+
+    // spostare tutti i command info  nella classe TEL ?
+
     public void CmdOpenCupola(final boolean value){
         if (value && domeAxisConnection)
             CupolaApertura();
@@ -1341,7 +1363,14 @@ public class TCS {
 
     public void CmdSetZeroCupola(final boolean value){
         if (value && domeAxisConnection)
-            CupolaSetZero();
+            try {
+                taskExecutor.runTask(zerodome, ListenerCUP);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            this.CUP.ZeroDomeInfo = "commandname: ZeroDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
+
+            //CupolaSetZero();
     }
 
     public void CmdCupolaOvest(final boolean value){
@@ -1560,6 +1589,184 @@ public class TCS {
 
         
     };
+
+
+
+    private final Task<Void> gomaintenance = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("GoMaintenanceInfo");
+                
+            if (getMcsStateMachine().isAcceptable(MAINTENANCE)){
+                getMcsStateMachine().transition(MAINTENANCE);
+                TEL.MachineState = mcsStateMachine.getCurrentState().value;
+                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+
+                // Funzioni da eseguire in questa transizione
+                int k=0;
+                while (isInterrupted && k<30) {
+                    //System.out.println("I'm a double callable");
+                    System.out.println("Entering Maintenance functions are running");
+                    //listener.onWorking(null);
+                    if(listener!=null)
+                        listener.onWorking(null);
+                    TimeUnit.SECONDS.sleep(1);
+                    k++;
+                }
+
+                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
+                if(listener!=null)
+                    listener.onDone(null);
+                isInterrupted = false;
+            }
+            else{
+                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
+                if(listener!=null)
+                    listener.onError(String.format("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name));
+            }
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+    private final TaskListener ListenerCUP = new TaskListener() {
+        long tStart = 0L;
+        long tStop = 0L;
+        String commandName = "";
+        Field field;
+        public void setField(String name, String state, long start, long stop, String err){
+            try {
+
+                field = CUP.getClass().getDeclaredField(name);
+            } catch (NoSuchFieldException | SecurityException e) {
+                e.printStackTrace();
+            }
+            
+            try {
+                String val = "commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err;
+                System.out.println(val);
+                field.set(CUP,val);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onStart(final Object in) {
+            commandName = String.valueOf(in);
+            System.out.println("Task Started");
+            tStart = System.currentTimeMillis();
+            setField(commandName, "TRUE", tStart, 0L, "");
+        }
+
+        @Override
+        public void onWorking(final Object... v) {
+            System.out.println("Task Working");
+            tStop = System.currentTimeMillis();
+            setField(commandName, "TRUE", tStart, tStop, "none");
+
+        }
+
+        @Override
+        public void onDone(final Object out) {
+            System.out.println("Task Done");
+            tStop = System.currentTimeMillis();
+            setField(commandName, "FALSE", tStart, tStop, "none");
+        }
+
+        @Override
+        public void onError(final Object output) {
+            tStop = System.currentTimeMillis();
+            setField(commandName, "FALSE", tStart, tStop, String.valueOf(output));
+        }
+
+    };
+
+    
+
+    private final Task<Void> zerodome = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = ListenerCUP;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("ZeroDomeInfo");
+                
+            CupolaSetZero();
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(5000);
+                AsseCupola.IsProgramRunning();
+                System.out.println("The dome is running ... "+AsseCupola.isRunning);
+                if (!AsseCupola.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
 
 
 
@@ -1817,10 +2024,10 @@ public class TCS {
             ValoX = AsseX.VALUECR;
             AsseX.ExecProg("HOMEX");
 
-            ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
-            AsseY.CommandArray("AVSE", 8, (int) ValoY);
-            ValoY = AsseY.VALUECR;
-            AsseY.ExecProg("HOMEX");
+            //ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
+            //AsseY.CommandArray("AVSE", 8, (int) ValoY);
+            //ValoY = AsseY.VALUECR;
+            //AsseY.ExecProg("HOMEX");
         }
         else{
             AsseX.CommandArray("AVSE", 8, (int) ValoX);
@@ -2216,11 +2423,12 @@ public class TCS {
         tcs.connect();
         //tcs.SetAzTelPosition(36000);
 
-
-        tcs.Sleep(1000);
-        System.out.println("...");
         double angoloC = tcs.GetCupolaPosition();
         System.out.println("Posizione cupola: "+angoloC);
+
+        //tcs.CmdSetZeroCupola(true);
+
+        //tcs.CmdGoStandby(true);
 
 
         if (tcs.xAxisConnection){
@@ -2239,6 +2447,7 @@ public class TCS {
         }
 
 
+        tcs.CmdSetHomePos(true);
 
 
         tcs.Sleep(1000);
@@ -2263,6 +2472,7 @@ public class TCS {
         //*/
         System.out.println("tutto okay");
         tcs.Sleep(5000);
+        
         tcs.disconnect();
 
 
