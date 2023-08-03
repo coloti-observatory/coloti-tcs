@@ -92,7 +92,8 @@ public class TCS {
             put(120, "...");
         }
     };
-
+    // 800 e qualcosa per i Begin Errors, 700 per program, 900 per general
+    // 101 settato un modo sbagliato
     private final int[] nEncErr = new int[]{999,100,600,700,0,1,3,10,12,15,16,17,19,20,21,22,41,44,90,91};
 
     private static boolean check(final int[] arr, final int toCheckValue)
@@ -1212,10 +1213,10 @@ public class TCS {
 
                 AsseX.StopMove(X);
                 if(AsseX.IsMoving(X) == 1)
-                    Sleep(200);
+                    Sleep(100);
                 AsseY.StopMove(X);
                 if(AsseY.IsMoving(X) == 1)
-                    Sleep(200);
+                    Sleep(100);
 
                 if(TEL.MotionType == 0){
                     //SetMotionType(0);
@@ -1238,7 +1239,7 @@ public class TCS {
                     AsseY.Move(X, MotEL.TelPosition, MotEL.JogVelocity); // TEL.SlewVelY
                 }
 
-                Sleep(300);
+                Sleep(100);
             }
         }
     }

@@ -494,9 +494,13 @@ public class ACS {
 
     if (this.HostStatus){
       System.out.println("You are in Host Mode (0)");
+      if (Value == 1)
+        Err = 101;
     }
     else{
       System.out.println("You are in Terminal Mode (1)");
+      if (Value == 0)
+        Err = 101;
     }
 
     return Err;
