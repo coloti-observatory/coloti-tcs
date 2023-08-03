@@ -139,6 +139,91 @@ public class Test {
   }
 
 
+    // NON SERVONO
+    /* 
+    public double[] AzEl2HaDec(double az, double el, double phi) {
+      double sa, ca, se, ce, sp, cp, x, y, z, r;
+      final double[] hadec = new double[2];
+      double ha, dec;
+      // Useful trig functions 
+      az = az*D2R;
+      el = el*D2R;
+      phi = phi*D2R;
+      sa = Math.sin(az);
+      ca = Math.cos(az);
+      se = Math.sin(el);
+      ce = Math.cos(el);
+      sp = Math.sin(phi);
+      cp = Math.cos(phi);
+
+      // HA,Dec as x,y,z 
+      x = - ca * ce * sp + se * cp;
+      y = - sa * ce;
+      z = ca * ce * cp + se * sp;
+
+      // To spherical 
+      r = Math.sqrt(x*x + y*y);
+      if (r == 0.0){
+          ha = 0.0;
+      }
+      else{
+          ha = Math.atan(y/x);
+      }
+      dec = Math.atan(z/r);
+      ha = ha*R2H;
+      if (ha < 0)
+          ha = ha + 24.;
+      dec = dec*R2D;
+
+      hadec[0] = ha;
+      hadec[1] = dec;
+
+      return hadec;
+  }
+  
+  public double[] HaDec2AzEl(double ha, double dec, double phi){
+      double sh, ch, sd, cd, sp, cp, x, y, z, r, a;
+      final double[] azel = new double[2];
+      double az, el;
+      ha = ha*H2R;
+      dec = dec*D2R;
+      phi = phi*D2R;
+      //Useful trig functions 
+      sh = Math.sin(ha);
+      ch = Math.cos(ha);
+      sd = Math.sin(dec);
+      cd = Math.cos(dec);
+      sp = Math.sin(phi);
+      cp = Math.cos(phi);
+
+      // Az,El as x,y,z 
+      x = - ch * cd * sp + sd * cp;
+      y = - sh * cd;
+      z = ch * cd * cp + sd * sp;
+
+      // To spherical 
+      r = Math.sqrt(x*x + y*y);
+      if (r == 0.0)
+          a = 0.0;
+      else
+          a = Math.atan(y/x);
+
+      if (a < 0.0)
+          az = a + 2*pi;
+      else
+          az = a;
+      az = az * R2D;
+      el = Math.atan(y/x);
+      el = el * R2D;
+
+      azel[0] = az;
+      azel[1] = el;
+
+      return azel;
+  }
+  */
+
+
 
   public static void main(String[] argV) {
     

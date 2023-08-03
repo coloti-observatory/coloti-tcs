@@ -216,13 +216,15 @@ public class CommClass{
         int i = 0;
         int[] value = new int[4];
         //System.out.println("Read String results from CommClass: ");
-        try {       
-            try {
-                    TimeUnit.MILLISECONDS.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    Thread.currentThread().interrupt();
-                }    
+        try {
+            while((inputStream.available())<1){
+                try {
+                        TimeUnit.MILLISECONDS.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
+                    }    
+            }
             while((inputStream.available())>=1){
                 try {
                     TimeUnit.MILLISECONDS.sleep(10);

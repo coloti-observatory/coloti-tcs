@@ -1,5 +1,6 @@
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/objclasses/MOTOREARAZ.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/objclasses/OSSERVATORIO.java
+/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/task/TaskLibraryStructure.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/configuration/GLOBAL.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/App.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/objclasses/POSZERO.java
@@ -14,7 +15,6 @@
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/configuration/Telescopio.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/objclasses/GENERALE.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/CommClass.java
-/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/task/TaskLibrary.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/configuration/Poszero.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/objclasses/PADDLE.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/task/Background.java

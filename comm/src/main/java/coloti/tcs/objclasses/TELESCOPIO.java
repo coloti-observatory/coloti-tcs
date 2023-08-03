@@ -46,6 +46,8 @@ public class TELESCOPIO {
     public int MachineState;
     public int MachineStatePhase;
     public int TCUMode;
+
+
     public String GoLoadedInfo;
     public String GoStandbyInfo;
     public String GoOnlineInfo;
@@ -60,6 +62,38 @@ public class TELESCOPIO {
     public String UpdateTrajectoryInfo;
     public String StartPointingInfo;
     public String StopPointingInfo;
+
+    public String ZeroDomeInfo;
+    public String OpenDomeInfo;
+    public String CloseDomeInfo;
+    public String StartPointingDomeInfo;
+    public String StopPointingDomeInfo;
+    public String StopDomeInfo;
+    public String DomeWestInfo;
+    public String DomeEastInfo;
+
+    public String HomePosInfo;
+
+
+    public String EnableAzMotorsInfo;
+    public String DisableAzMotorsInfo;
+    public String StartAzMotionInfo;
+    public String StopAzMotionInfo;
+    public String StartAzEncInitInfo; //AZ
+    public String StopAzEncInitInfo; //AZ
+    public String StartAzParkingInfo; 
+    public String StopAzParkingInfo; 
+    public String ResetAzAxisInfo;
+
+    public String EnableElMotorsInfo;
+    public String DisableElMotorsInfo;
+    public String StartElMotionInfo;
+    public String StopElMotionInfo;
+    public String StartElParkingInfo; 
+    public String StopElParkingInfo; 
+    public String ResetElAxisInfo;
+
+
     public int MotionType;
     public int TrajectoryGenerationMode;
     public boolean PointingModelOnOff;

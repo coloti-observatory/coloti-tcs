@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public class TaskLibrary {
+public class TaskLibraryStructure {
 
     private TaskListener defaultListener = new TaskListener() {
 
@@ -36,7 +36,7 @@ public class TaskLibrary {
 
     private Map<String, Task<?>> taskList = new ConcurrentHashMap<String, Task<?>>();
 
-    public TaskLibrary() {
+    public TaskLibraryStructure() {
     }
 
     public void addTask(String name, Task<?> task) {

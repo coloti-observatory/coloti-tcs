@@ -14,7 +14,7 @@ public class CUPOLA {
     public double Direzione;
     public double ParkPos;
 
-    public String ZeroDomeInfo = "";
+    public String ZeroDomeInfo;
 
     public CUPOLA(ConfigurationClass cfg){
         this.ControlloreCupola = cfg.getControlloreCupola();

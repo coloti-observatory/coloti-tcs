@@ -107,26 +107,26 @@ public class TCS {
 
     public Map <Integer, String> errEncMap = new HashMap <>(){
         {
-            put(999, "relative position overflow;");
-            put(100, "initialization issue, mode not setted;");
-            put(600, "serial answer length is zero;");
-            put(700, "communication status is false during axes initialization;");
-            put(0, "checksum error detected in the received command or empty command;");
-            put(1, "command, or subcommand, was not executed, unrecognized;");
-            put(3, "SAVE operation has failed);");
-            put(10, "command was not executed, requires special hardware;");
-            put(12, "servo process does not communicate with the main processor;");
-            put(15, "operation failed, many possible explanations, see the software guide for more informations;");
-            put(16, "command was not executed, many possible explanations, see the software guide for more informations;");
-            put(17, "command was not executed, command not supported in the current version;");
-            put(19, "array set command was not executed, invalid data;");
-            put(20, "command was not executed, missing data field;");
-            put(21, "non fatal, data field out of valid range, parameter set with the nearest valid value;");
-            put(22, "non fatal, unrecognized subcommand was found within data field;");
-            put(41, "non fatal, operation cannot be executed while a program is running;");
-            put(44, "non fatal, delete or overwrite operation are not allowed;");
-            put(90, "non fatal, memory checksum error;");
-            put(91, "non fatal, firmware checksum error;");
+            put(999, "relative position overflow");
+            put(100, "initialization issue, mode not setted");
+            put(600, "serial answer length is zero");
+            put(700, "communication status is false during axes initialization");
+            put(0, "checksum error detected in the received command or empty command");
+            put(1, "command, or subcommand, was not executed, unrecognized");
+            put(3, "SAVE operation has failed)");
+            put(10, "command was not executed, requires special hardware");
+            put(12, "servo process does not communicate with the main processor");
+            put(15, "operation failed, many possible explanations, see the software guide for more informations");
+            put(16, "command was not executed, many possible explanations, see the software guide for more informations");
+            put(17, "command was not executed, command not supported in the current version");
+            put(19, "array set command was not executed, invalid data");
+            put(20, "command was not executed, missing data field");
+            put(21, "non fatal, data field out of valid range, parameter set with the nearest valid value");
+            put(22, "non fatal, unrecognized subcommand was found within data field");
+            put(41, "non fatal, operation cannot be executed while a program is running");
+            put(44, "non fatal, delete or overwrite operation are not allowed");
+            put(90, "non fatal, memory checksum error");
+            put(91, "non fatal, firmware checksum error");
         }
     };
 
@@ -161,6 +161,59 @@ public class TCS {
     public State FAULT = new State(5, "FAULT");
 
     
+
+
+    private final TaskExecutor<Void> taskExecutor = new TaskExecutor<>();
+
+    
+    private final TaskListener defaultListener = new TaskListener() {
+        long tStart = 0L;
+        long tStop = 0L;
+        String commandName = "";
+        Field field;
+        public void setField(String name, String state, long start, long stop, String err){
+            try {
+                field = TEL.getClass().getDeclaredField(name);
+            } catch (NoSuchFieldException | SecurityException e) {
+                e.printStackTrace();
+            }
+            
+            try {
+                field.set(TEL.getClass(),"commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onStart(final Object in) {
+            commandName = String.valueOf(in);
+            System.out.println("Task Started");
+            tStart = System.currentTimeMillis();
+            setField(commandName, "TRUE", tStart, 0L, "");
+        }
+
+        @Override
+        public void onWorking(final Object... v) {
+            System.out.println("Task Working");
+            tStop = System.currentTimeMillis();
+            setField(commandName, "TRUE", tStart, tStop, "none");
+        }
+
+        @Override
+        public void onDone(final Object out) {
+            System.out.println("Task Done");
+            tStop = System.currentTimeMillis();
+            setField(commandName, "FALSE", tStart, tStop, "none");
+        }
+
+        @Override
+        public void onError(final Object output) {
+            tStop = System.currentTimeMillis();
+            setField(commandName, "FALSE", tStart, tStop, String.valueOf(output));
+        }
+
+    };
 
 
 
@@ -279,7 +332,6 @@ public class TCS {
         mcsStateMachine = new StateMachine(model);
     }
     
-
     public void Error(final int err, final int IdErr){
         if(err != -1){
             this.nErrors += 1;
@@ -288,7 +340,7 @@ public class TCS {
             //logger.warn(errorBuffer);
             this.errorText += "Error "+IdErr+": "+errorBuffer;
             if (check(nEncErr, err))
-                this.errorText += ", "+errEncMap.get(err);
+                this.errorText += ", "+errEncMap.get(err)+";";
             else
                 this.errorText += ";";
         }
@@ -503,38 +555,40 @@ public class TCS {
     public double GetElEncOffset(){
         return MotEL.EncOffset;
     }
-    // da fare
+
     public int GetMachineState(){
         return TEL.MachineState;  // 0 off, 1 loaded, 2 standby, 3 online, 4 maintenance, 5 fault
     }
-    // da fare
+
     public int GetMachineStatePhase(){
         return TEL.MachineStatePhase;  // 0 entering, 1 active, 2 existing, 3 inactive, 4 unknown 
     }
-    // da fare, in futuro
+
     public int GetTCUMode(){
         return TEL.TCUMode;
     }
-    // da fare
-    public String GetGoLoadedInfo(){
 
+    public String GetGoLoadedInfo(){
         return TEL.GoLoadedInfo;
     }
-    // da fare
+
     public String GetGoStandbyInfo(){
         return TEL.GoStandbyInfo;
     }
-    // da fare
+
     public String GetGoOnlineInfo(){
         return TEL.GoOnlineInfo;
     }
-    // da fare
+
     public String GetGoMaintenanceInfo(){
         return TEL.GoMaintenanceInfo;
     }
-    // da fare, ma come?
+
     public String GetAzEnableMotorsInfo(){
-        if (xAxisConnection){
+        return TEL.EnableAzMotorsInfo;
+    }
+    /*
+     * if (xAxisConnection){
             AsseX.IsMoving(X);
             
             final BitSet bitsMState = BitSet.valueOf(new byte[]{AsseX.Tell0.T0MotorStateX});
@@ -548,52 +602,84 @@ public class TCS {
             
             final String INFO = "commandname: CommandEnableDriveAzimuth; busy: FALSE; tstart: 1970-01-01-00:00:00.000; tstop: 1970-01-01-00:00:00.000; error: ";
         }
-        return MotAZ.EnableMotorsInfo;
-    }
-    // da fare, ma come?
+     */
+
     public String GetAzDisableMotorsInfo(){
-        return MotAZ.DisableMotorsInfo;
+        return TEL.DisableAzMotorsInfo;
     }
-    // da fare, ma come?
+
     public String GetElEnableMotorsInfo(){
-        return MotEL.EnableMotorsInfo;
+        return TEL.EnableElMotorsInfo;
     }
-    // da fare, ma come?
+
     public String GetElDisableMotorsInfo(){
-        return MotEL.DisableMotorsInfo;
+        return TEL.DisableElMotorsInfo;
     }
-    // da fare, ma come?
+
     public String GetStartMotionInfo(){
         return TEL.StartMotionInfo;
     }
-    // da fare, ma come?
+
     public String GetStopMotionInfo(){
         return TEL.StopMotionInfo;
     }
-    // da fare, ma come?
+
     public String GetAzStartMotionInfo(){
-        return MotAZ.StartMotionInfo;
-    }// da fare, ma come?
+        return TEL.StartAzMotionInfo;
+    }
     
     public String GetAzStopMotionInfo(){
-        return MotAZ.StopMotionInfo;
+        return TEL.StopAzMotionInfo;
     }
-    // da fare, ma come?
+
     public String GetElStartMotionInfo(){
-        return MotEL.StartMotionInfo;
+        return TEL.StartElMotionInfo;
     }
-    // da fare, ma come?
+
     public String GetElStopMotionInfo(){
-        return MotEL.StopMotionInfo;
+        return TEL.StopElMotionInfo;
     }
-    // da fare, ma come?
+
     public String GetEmergencyStopInfo(){
         return TEL.EmergencyStopInfo;
     }
 
     public String GetZeroDomeInfo(){
-        return CUP.ZeroDomeInfo;
+        return TEL.ZeroDomeInfo;
     }
+
+    public String GetOpenDomeInfo(){
+        return TEL.OpenDomeInfo;
+    }
+
+    public String GetCloseDomeInfo(){
+        return TEL.CloseDomeInfo;
+    }
+
+    public String GetStartPointingDomeInfo(){
+        return TEL.StartPointingInfo;
+    }
+
+    public String GetStopPointingDomeInfo(){
+        return TEL.StopPointingInfo;
+    }
+    
+    public String GetStopDomeInfo(){
+        return TEL.StopDomeInfo;
+    }
+    
+    public String GetDomeWestInfo(){
+        return TEL.DomeWestInfo;
+    }
+    
+    public String GetDomeEastInfo(){
+        return TEL.DomeEastInfo;
+    }
+    
+    public String GetHomePosInfo(){
+        return TEL.HomePosInfo;
+    }
+
     
     public int GetErrorNumber(){
         this.GEN.ErrorNumber = nErrors;
@@ -941,36 +1027,28 @@ public class TCS {
     //      00000000000     000          000     00000000000      
 
 
-    // COMANDI OPCUA     
+    // COMANDI OPCUA  
+    
+    // commandname: CommandGoLoaded; busy: FALSE; tstart: 1970-01-01-00:00:00.000; tstop: 1970-01-01-00:00:00.000; error:
+
 
     public void CmdGoLoaded(final boolean value){
         if (value){
-            final long tStart = System.currentTimeMillis();
-            //this.TEL.GoLoadedInfo = "TEST"; //"commandname: CommandGoLoaded; busy: TRUE; tstart: "+tStart+"; tstop: 0; error:";
-            this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded; busy: TRUE; tstart: "+tStart+"; tstop: 0; error:";
-            if (getMcsStateMachine().isAcceptable(LOADED)){
-                getMcsStateMachine().transition(LOADED);
-                TEL.MachineState = mcsStateMachine.getCurrentState().value;
-                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
-                Sleep(5000);
-                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error:";
+            try {
+                taskExecutor.runTask(goloadedTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
             }
-            else{
-                this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: ERROR";
-                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
-                //this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: ERROR";
-            }
+            this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded; busy: FALSE; tstart: 0; tstop: 0; error:";
+
             //initHwStateMachine(LOADED)  */
         }
     }
 
-    // commandname: CommandGoLoaded; busy: FALSE; tstart: 1970-01-01-00:00:00.000; tstop: 1970-01-01-00:00:00.000; error:
-
     public void CmdGoStandby(final boolean value){
         if (value){
             try {
-                taskExecutor.runTask(gostandby, defaultListener);
+                taskExecutor.runTask(gostandbyTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
@@ -999,12 +1077,11 @@ public class TCS {
         if (value){
 
             try {
-                taskExecutor.runTask(goonline, defaultListener);
+                taskExecutor.runTask(goonlineTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
             this.TEL.GoOnlineInfo = "commandname: CommandGoOnline; busy: FALSE; tstart: 0; tstop: 0; error:";
-
 
             /*
             long tStart = System.currentTimeMillis();
@@ -1026,12 +1103,6 @@ public class TCS {
             }
             //initHwStateMachine(ONLINE)*/
 
-
-
-
-
-
-
             /* 
             if (getMcsStateMachine().isAcceptable(ONLINE)){
                 getMcsStateMachine().transition(ONLINE);
@@ -1051,11 +1122,11 @@ public class TCS {
         if (value){
             
             try {
-                taskExecutor.runTask(gomaintenance, defaultListener);
+                taskExecutor.runTask(gomaintenanceTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.TEL.GoOnlineInfo = "commandname: CommandGoMaintenance; busy: FALSE; tstart: 0; tstop: 0; error:";
+            this.TEL.GoMaintenanceInfo = "commandname: CommandGoMaintenance; busy: FALSE; tstart: 0; tstop: 0; error:";
 
             
             /*
@@ -1074,7 +1145,6 @@ public class TCS {
     }
 
     
-
     public void CmdEnableAzMotors(final boolean value){
         if (value && xAxisConnection){
             final int err;
@@ -1318,10 +1388,14 @@ public class TCS {
             CmdStopMotion(value);
     }
 
-
-    public void CmdSetHomePos(final boolean value){
+    public void CmdHomePos(final boolean value){
         if (value && xAxisConnection && yAxisConnection)
-            SettaPosHome();
+            try {
+                taskExecutor.runTask(homeposTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            this.TEL.HomePosInfo = "commandname: CommandGoLoaded; busy: FALSE; tstart: 0; tstop: 0; error:";
     }
 
     public void CmdStopPointMotion(final boolean value){
@@ -1329,12 +1403,11 @@ public class TCS {
             FermaMoto();
     }
 
+    //  task apertura e chiusura cupola. aggiungere status movimento cupola come boolean nei get dell'icd. anche per l'inizializzazione, true o false sul set a zero della cupola. aggiungere info relativi ai command della cupola. Usare il T3 per controllare lo stato della cupola nel set degli zeri.
 
-    //  task apertura e chiusura cupola. aggiungere status cupola come boolean nei get dell'icd. anche per l'inizializzazione, true o false sul set a zero della cupola. aggiungere info relativi ai command della cupola. Usare il T3 per controllare lo stato della cupola nel set degli zeri.
+    // Ricorda di sistemare la lettura seriale nella comm class: while non c'è niente aspetta, poi leggi e poi continua a leggere finché ci sono bit a disposizione
 
-    // Ricorda di sistemare la lettura seriale nella comm class: while non c'è niente aspetta, poi leggi e poi continua a leggere finché ci sono bit a disposiziones
-
-    // spostare tutti i command info  nella classe TEL ?
+    // spostare tutti i command info  nella classe TEL ? 
 
     public void CmdOpenCupola(final boolean value){
         if (value && domeAxisConnection)
@@ -1364,11 +1437,11 @@ public class TCS {
     public void CmdSetZeroCupola(final boolean value){
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(zerodome, ListenerCUP);
+                taskExecutor.runTask(zerodomeTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.CUP.ZeroDomeInfo = "commandname: ZeroDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
+            this.TEL.ZeroDomeInfo = "commandname: ZeroDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
 
             //CupolaSetZero();
     }
@@ -1384,82 +1457,89 @@ public class TCS {
     }
 
 
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+
+
+    //  000000000000000     00000000      00000000000     000     000
+    //  000000000000000    0000  0000     00000000000     000     000
+    //        000          000    000     000             000    000
+    //        000          0000000000     00000000000     000000000
+    //        000          0000000000     00000000000     000000000
+    //        000          000    000             000     000    000
+    //        000          000    000     00000000000     000     000
+    //        000          000    000     00000000000     000     000
 
 
 
+    private final Task<Void> goloadedTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("GoLoadedInfo");
+                
+            if (getMcsStateMachine().isAcceptable(LOADED)){
+                getMcsStateMachine().transition(LOADED);
+                TEL.MachineState = mcsStateMachine.getCurrentState().value;
+                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
 
+                // Funzioni da eseguire in questa transizione
+                int k=0;
+                while (isInterrupted && k<30) {
+                    //System.out.println("I'm a double callable");
+                    System.out.println("Entering Loaded functions are running");
+                    //listener.onWorking(null);
+                    if(listener!=null)
+                        listener.onWorking(null);
+                    TimeUnit.SECONDS.sleep(1);
+                    k++;
+                }
 
-
-    private final TaskExecutor<Void> taskExecutor = new TaskExecutor<>();
-
-    
-    private final TaskListener defaultListener = new TaskListener() {
-        long tStart = 0L;
-        long tStop = 0L;
-        String commandName = "";
-        Field field;
-        public void setField(String name, String state, long start, long stop, String err){
-            try {
-                field = TEL.getClass().getDeclaredField(name);
-            } catch (NoSuchFieldException | SecurityException e) {
-                e.printStackTrace();
+                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
+                if(listener!=null)
+                    listener.onDone(null);
+                isInterrupted = false;
+            }
+            else{
+                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
+                if(listener!=null)
+                    listener.onError(String.format("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name));
             }
             
-            try {
-                field.set(TEL.getClass(),"commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            return v;
         }
 
         @Override
-        public void onStart(final Object in) {
-            commandName = String.valueOf(in);
-            System.out.println("Task Started");
-            tStart = System.currentTimeMillis();
-            setField(commandName, "TRUE", tStart, 0L, "");
-            /*try {
-                field = TEL.getClass().getDeclaredField(commandName);
-            } catch (NoSuchFieldException | SecurityException e) {
-                e.printStackTrace();
-            }
-            
-            try {
-                field.set(TEL.getClass(),"commandname: "+commandName+"; busy: TRUE; tstart: "+tStart+"; tstop: 0; error:");
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-            }*/
+        public void setVal(final Void v) {
         }
 
         @Override
-        public void onWorking(final Object... v) {
-            System.out.println("Task Working");
-            tStop = System.currentTimeMillis();
-            setField(commandName, "TRUE", tStart, tStop, "none");
-            //TEL.GoStandbyInfo = "commandname: "+commandName+"; busy: TRUE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: none";
-
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
         }
 
         @Override
-        public void onDone(final Object out) {
-            System.out.println("Task Done");
-            tStop = System.currentTimeMillis();
-            setField(commandName, "FALSE", tStart, tStop, "none");
-            //sTEL.GoStandbyInfo = "commandname: "+commandName+"; busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: none";
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
         }
 
         @Override
-        public void onError(final Object output) {
-            tStop = System.currentTimeMillis();
-            setField(commandName, "FALSE", tStart, tStop, String.valueOf(output));
-            //TEL.GoStandbyInfo = "commandname: "+commandName+"; busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: "+String.valueOf(output);
-            
+        public String getCurrentVal() {
+           return null;
         }
 
+        
     };
 
 
-    private final Task<Void> gostandby = new Task<Void>() {
+    private final Task<Void> gostandbyTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
         
@@ -1525,7 +1605,7 @@ public class TCS {
     };
 
 
-    private final Task<Void> goonline = new Task<Void>() {
+    private final Task<Void> goonlineTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
         
@@ -1592,7 +1672,7 @@ public class TCS {
 
 
 
-    private final Task<Void> gomaintenance = new Task<Void>() {
+    private final Task<Void> gomaintenanceTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
         
@@ -1656,66 +1736,11 @@ public class TCS {
 
         
     };
-
-
-    private final TaskListener ListenerCUP = new TaskListener() {
-        long tStart = 0L;
-        long tStop = 0L;
-        String commandName = "";
-        Field field;
-        public void setField(String name, String state, long start, long stop, String err){
-            try {
-
-                field = CUP.getClass().getDeclaredField(name);
-            } catch (NoSuchFieldException | SecurityException e) {
-                e.printStackTrace();
-            }
-            
-            try {
-                String val = "commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err;
-                System.out.println(val);
-                field.set(CUP,val);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onStart(final Object in) {
-            commandName = String.valueOf(in);
-            System.out.println("Task Started");
-            tStart = System.currentTimeMillis();
-            setField(commandName, "TRUE", tStart, 0L, "");
-        }
-
-        @Override
-        public void onWorking(final Object... v) {
-            System.out.println("Task Working");
-            tStop = System.currentTimeMillis();
-            setField(commandName, "TRUE", tStart, tStop, "none");
-
-        }
-
-        @Override
-        public void onDone(final Object out) {
-            System.out.println("Task Done");
-            tStop = System.currentTimeMillis();
-            setField(commandName, "FALSE", tStart, tStop, "none");
-        }
-
-        @Override
-        public void onError(final Object output) {
-            tStop = System.currentTimeMillis();
-            setField(commandName, "FALSE", tStart, tStop, String.valueOf(output));
-        }
-
-    };
-
     
 
-    private final Task<Void> zerodome = new Task<Void>() {
+    private final Task<Void> zerodomeTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = ListenerCUP;
+        private TaskListener listener = defaultListener;
         
         private Void v;
         @Override
@@ -1732,6 +1757,62 @@ public class TCS {
                 AsseCupola.IsProgramRunning();
                 System.out.println("The dome is running ... "+AsseCupola.isRunning);
                 if (!AsseCupola.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+    private final Task<Void> homeposTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("HomePosInfo");
+                
+            SettaPosHome();
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(5000);
+                AsseX.IsProgramRunning();
+                AsseY.IsProgramRunning();
+                System.out.println("Az and El are running ... "+AsseX.isRunning+", "+AsseY.isRunning);
+                if (!AsseX.isRunning && !AsseY.isRunning)
                     isInterrupted = false;
             }
 
@@ -1812,124 +1893,50 @@ public class TCS {
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
-
-
-    // NON SERVONO
-    
-    public double[] AzEl2HaDec(double az, double el, double phi) {
-        double sa, ca, se, ce, sp, cp, x, y, z, r;
-        final double[] hadec = new double[2];
-        double ha, dec;
-        // Useful trig functions 
-        az = az*D2R;
-        el = el*D2R;
-        phi = phi*D2R;
-        sa = Math.sin(az);
-        ca = Math.cos(az);
-        se = Math.sin(el);
-        ce = Math.cos(el);
-        sp = Math.sin(phi);
-        cp = Math.cos(phi);
-
-        // HA,Dec as x,y,z 
-        x = - ca * ce * sp + se * cp;
-        y = - sa * ce;
-        z = ca * ce * cp + se * sp;
-
-        // To spherical 
-        r = Math.sqrt(x*x + y*y);
-        if (r == 0.0){
-            ha = 0.0;
-        }
-        else{
-            ha = Math.atan(y/x);
-        }
-        dec = Math.atan(z/r);
-        ha = ha*R2H;
-        if (ha < 0)
-            ha = ha + 24.;
-        dec = dec*R2D;
-
-        hadec[0] = ha;
-        hadec[1] = dec;
-
-        return hadec;
-    }
-    
-    public double[] HaDec2AzEl(double ha, double dec, double phi){
-        double sh, ch, sd, cd, sp, cp, x, y, z, r, a;
-        final double[] azel = new double[2];
-        double az, el;
-        ha = ha*H2R;
-        dec = dec*D2R;
-        phi = phi*D2R;
-        /* Useful trig functions */
-        sh = Math.sin(ha);
-        ch = Math.cos(ha);
-        sd = Math.sin(dec);
-        cd = Math.cos(dec);
-        sp = Math.sin(phi);
-        cp = Math.cos(phi);
-
-        /* Az,El as x,y,z */
-        x = - ch * cd * sp + sd * cp;
-        y = - sh * cd;
-        z = ch * cd * cp + sd * sp;
-
-        /* To spherical */
-        r = Math.sqrt(x*x + y*y);
-        if (r == 0.0)
-            a = 0.0;
-        else
-            a = Math.atan(y/x);
-
-        if (a < 0.0)
-            az = a + 2*pi;
-        else
-            az = a;
-        az = az * R2D;
-        el = Math.atan(y/x);
-        el = el * R2D;
-
-        azel[0] = az;
-        azel[1] = el;
-
-        return azel;
-    }
 
 
     // FUNZIONI COMPLESSE DA FARE
-
-    
-    public void Error(final int err){
-        if (err != -1){
-            this.nErrors += 1;
-            this.error = err;
-
-
-
-
-
-
-
-
-
-        }
-
-
-
-
-
-    }
-
-
-
-
-
-
-
     public void InitStar(){}
+    public void Puntamento(){}
+    public void ComandiTastierino(){}
+    public void TraiettoriaX(){}
+    public void TraiettoriaY(){}
+    public void Controllore(){} // vari, utilizza funzione consolle
+    public void PuntamentoCoordinate(){}
+    public void PuntamentoMinimo(){}
+    public void UpdateTime(){}
+    public void UpdatePos(){}
+    public void Inizializzazione(){}
+    public void SettaTempo(){}
+    public void SettaMeteo(){}
+    public void FormatCoord(){}
+    public void VerificaVisibilitaAstro(){}
+    public void PuntamentoCatalogo(){}
+    public void TelescopioJoystic(){}
+    public void TelescopioSettaZeroStar(){}
+
+    // INCOMPLETO
+    public void TelescopioSetHome(){
+        double valAZ, valEL;
+        //calcolo astronomico
+        //if (TEL.MonType == 0){}
+        valAZ = (180 - TEL.TargetAZ)*3600;
+        valEL = TEL.TargetEL*3600;
+        this.DPX = TEL.PosX - valAZ; //desired position x
+        this.DPY = TEL.PosY - valEL;
+
+        AsseX.SetAxisZeroPos(X, valAZ);
+        AsseY.SetAxisZeroPos(X, valEL);
+
+        //modifica zeri dat file
+    }
 
     public void EseguiPuntamento(){
         final int setTrackCup = 0;
@@ -1960,57 +1967,6 @@ public class TCS {
         }
     }
 
-    public void Puntamento(){}
-
-    public void ComandiTastierino(){}
-
-    public void TraiettoriaX(){}
-
-    public void TraiettoriaY(){}
-
-    public void Controllore(){} // vari, utilizza funzione consolle
-
-    public void PuntamentoCoordinate(){}
-
-    public void PuntamentoMinimo(){}
-
-    public void UpdateTime(){}
-
-    public void UpdatePos(){}
-
-    public void Inizializzazione(){}
-
-    public void SettaTempo(){}
-
-    public void SettaMeteo(){}
-
-    public void FormatCoord(){}
-
-    public void VerificaVisibilitaAstro(){}
-
-    public void PuntamentoCatalogo(){}
-
-
-    public void TelescopioJoystic(){}
-
-    // INCOMPLETO
-    public void TelescopioSetHome(){
-        double valAZ, valEL;
-        //calcolo astronomico
-        //if (TEL.MonType == 0){}
-        valAZ = (180 - TEL.TargetAZ)*3600;
-        valEL = TEL.TargetEL*3600;
-        this.DPX = TEL.PosX - valAZ; //desired position x
-        this.DPY = TEL.PosY - valEL;
-
-        AsseX.SetAxisZeroPos(X, valAZ);
-        AsseY.SetAxisZeroPos(X, valEL);
-
-        //modifica zeri dat file
-    }
-
-    public void TelescopioSettaZeroStar(){}
-
     // INCOMPLETO
     public void SettaPosHome(){
         long ValoX = 0, ValoY = 0;
@@ -2024,10 +1980,10 @@ public class TCS {
             ValoX = AsseX.VALUECR;
             AsseX.ExecProg("HOMEX");
 
-            //ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
-            //AsseY.CommandArray("AVSE", 8, (int) ValoY);
-            //ValoY = AsseY.VALUECR;
-            //AsseY.ExecProg("HOMEX");
+            ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
+            AsseY.CommandArray("AVSE", 8, (int) ValoY);
+            ValoY = AsseY.VALUECR;
+            AsseY.ExecProg("HOMEX");
         }
         else{
             AsseX.CommandArray("AVSE", 8, (int) ValoX);
@@ -2048,7 +2004,7 @@ public class TCS {
         AsseY.StopMove(X);
     }
     
-    public void Timer(){}
+    //public void Timer(){}
 
     // INCOMPLETO
     public void SetZeroFromFile(){
@@ -2065,7 +2021,7 @@ public class TCS {
 
 
 
-
+    /* 
 
     // TELESCOPIO
     public void SetTelTrackVel(){}
@@ -2091,7 +2047,7 @@ public class TCS {
     public void CorreggiAZ(){}
     public void CorreggiEL(){}
 
-
+    */
 
     // FUNZIONI come apm
 
@@ -2421,13 +2377,13 @@ public class TCS {
         System.out.println("\nHello World\n");
         final TCS tcs = new TCS();
         tcs.connect();
-        //tcs.SetAzTelPosition(36000);
-
-        double angoloC = tcs.GetCupolaPosition();
-        System.out.println("Posizione cupola: "+angoloC);
+        
+        if (tcs.domeAxisConnection){
+            double angoloC = tcs.GetCupolaPosition();
+            System.out.println("Posizione cupola: "+angoloC);
 
         //tcs.CmdSetZeroCupola(true);
-
+        }
         //tcs.CmdGoStandby(true);
 
 
@@ -2447,10 +2403,9 @@ public class TCS {
         }
 
 
-        tcs.CmdSetHomePos(true);
+        //tcs.CmdSetHomePos(true);
 
 
-        tcs.Sleep(1000);
         //tcs.CupolaApertura();
         /*
         //tcs.CmdCloseCupola(true);

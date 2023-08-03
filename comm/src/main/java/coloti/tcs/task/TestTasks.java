@@ -63,7 +63,7 @@ public class TestTasks{
         ted.shutdown();*/
 
         TestTasks app = new TestTasks();
-        TaskLibrary libr = new TaskLibrary();
+        TaskLibraryStructure libr = new TaskLibraryStructure();
         
         TaskExecutor<Void> tea = new TaskExecutor<>();
         try {

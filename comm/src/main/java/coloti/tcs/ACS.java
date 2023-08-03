@@ -638,7 +638,6 @@ public class ACS {
   public int SetOutPortOn(int ipno) { // VERIFICATO 
     if (ipno > MAXINP)
       return -2;
-    
     byte[] command = sbld("SHI");
     int Err = CommandSet(command, ipno);
     return Err;
@@ -1112,13 +1111,6 @@ public class ACS {
     if (this.HostStatus){
       nBytes = RemoveDLE();
       //System.out.println("After DLE:" + nBytes);
-      /*
-      if (nBytes == -2)
-        return -2;
-      Err = Error();
-      if (Err != -1)
-        return Err;
-        */
       for (Count = 4; Count < 8; Count++){
         Data[Count - 4] = this.answerInt[Count];
       }
@@ -1176,14 +1168,6 @@ public class ACS {
 
     if (this.HostStatus){
       nBytes = RemoveDLE();
-
-      /* 
-      if (nBytes == -2)
-        return -2;
-      Err = Error();
-      if (Err != -1)
-        return Err;
-      */
 
       for (Count = 5; Count < 7; Count++){
         Data[Count - 3] = this.answerInt[Count];
