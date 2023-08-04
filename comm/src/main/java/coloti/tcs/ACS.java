@@ -68,6 +68,9 @@ public class ACS {
   int[] answerInt = new int[50];
   char[] serialCommandCaratteri;
 
+  public boolean isRunning;
+  public boolean isMoving;
+
 
 
   //public ACS(){}
@@ -320,7 +323,7 @@ public class ACS {
 
   Tell2 Tell2 = new Tell2();
   
-  public boolean isRunning;
+  
   
 
   public int AxesNumber(String ax) { // VERIFICATO 
@@ -1007,10 +1010,14 @@ public class ACS {
     TellCommand("T0");
 
     if (ax.equals("X")) {
-      if (((this.Tell0.T0MotorStateX) & (1)) == 0)
+      if (((this.Tell0.T0MotorStateX) & (1)) == 0){
         res = 0;
-      else
+        this.isMoving = false;
+      }
+      else{
         res = 1;
+        this.isMoving = true;
+      }
     }
 
     else if (ax.equals("Y")) {
@@ -1367,6 +1374,7 @@ public class ACS {
         this.Tell0.T0GeneralInfo = serialAnswer[5];
         this.Tell0.T0CheckSum = serialAnswer[6];
         
+        // questi non ci servono
         this.Tell0.T0MotorStateY = serialAnswer[5];
         this.Tell0.T0MotionModeY = serialAnswer[6];
         this.Tell0.T0SecMotionModeY = serialAnswer[7];

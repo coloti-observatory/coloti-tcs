@@ -91,7 +91,7 @@ public class TCS {
             put(100, "InitAxes");
             put(110, "GetAzAbsTargPos");
             put(120, "...");
-            put(1001, "AzMotorOn");
+            put(1000, "ERRORE");
         }
     };
     // 800 e qualcosa per i Begin Errors, 700 per program, 900 per general
@@ -1056,7 +1056,8 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded; busy: FALSE; tstart: 0; tstop: 0; error:";
+            setFieldCmd(this.TEL, "GoLoadedInfo", "FALSE", 0L, 0L, "");
+            //this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded; busy: FALSE; tstart: 0; tstop: 0; error:";
 
             //initHwStateMachine(LOADED)  */
         }
@@ -1069,7 +1070,8 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.TEL.GoStandbyInfo = "commandname: CommandGoStandby; busy: FALSE; tstart: 0; tstop: 0; error:";
+            setFieldCmd(this.TEL, "GoStandbyInfo", "FALSE", 0L, 0L, "");
+            //this.TEL.GoStandbyInfo = "commandname: CommandGoStandby; busy: FALSE; tstart: 0; tstop: 0; error:";
 
 
             /*long tStart = System.currentTimeMillis();
@@ -1098,7 +1100,8 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.TEL.GoOnlineInfo = "commandname: CommandGoOnline; busy: FALSE; tstart: 0; tstop: 0; error:";
+            setFieldCmd(this.TEL, "GoOnlineInfo", "FALSE", 0L, 0L, "");
+            //this.TEL.GoOnlineInfo = "commandname: CommandGoOnline; busy: FALSE; tstart: 0; tstop: 0; error:";
 
             /*
             long tStart = System.currentTimeMillis();
@@ -1143,7 +1146,8 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.TEL.GoMaintenanceInfo = "commandname: CommandGoMaintenance; busy: FALSE; tstart: 0; tstop: 0; error:";
+            setFieldCmd(this.TEL, "GoMaintenanceInfo", "FALSE", 0L, 0L, "");
+            //this.TEL.GoMaintenanceInfo = "commandname: CommandGoMaintenance; busy: FALSE; tstart: 0; tstop: 0; error:";
 
             
             /*
@@ -1165,103 +1169,95 @@ public class TCS {
     public void CmdEnableAzMotors(final boolean value){ // OK 
         if (value && xAxisConnection){
             long tStart = System.currentTimeMillis();
-            setFieldCmd(this.TEL, "EnableAzMotors", "TRUE", tStart, 0L, "");
-            Error(AsseX.SetMotorOn(X),1001);
-            setFieldCmd(this.TEL, "EnableAzMotors", "FALSE", tStart, System.currentTimeMillis(), errorBuffer);
+            setFieldCmd(this.TEL, "EnableAzMotorsInfo", "TRUE", tStart, 0L, "");
+            Error(AsseX.SetMotorOn(X),1000);
+            setFieldCmd(this.TEL, "EnableAzMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), errorBuffer);
             if (TemporaryErr == -1)
-                setFieldCmd(this.TEL, "EnableAzMotors", "FALSE", 0L, 0L, "");
+                setFieldCmd(this.TEL, "EnableAzMotorsInfo", "FALSE", 0L, 0L, "");
         }
     }
 
     public void CmdDisableAzMotors(final boolean value){ // OK 
         if (value && xAxisConnection){
             long tStart = System.currentTimeMillis();
-            setFieldCmd(this.TEL, "DisableAzMotors", "TRUE", tStart, 0L, "");
+            setFieldCmd(this.TEL, "DisableAzMotorsInfo", "TRUE", tStart, 0L, "");
             if (AsseX.IsMoving(X) == 1){
-                Error(AsseX.StopMove(X),1002);
+                Error(AsseX.StopMove(X),1000);
             }
-            Error(AsseX.SetMotorOff(X),1003);
-            setFieldCmd(this.TEL, "DisableAzMotors", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
+            Error(AsseX.SetMotorOff(X),1000);
+            setFieldCmd(this.TEL, "DisableAzMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
             if (TemporaryErr == -1)
-                setFieldCmd(this.TEL, "DisableAzMotors", "FALSE", 0L, 0L, "");
+                setFieldCmd(this.TEL, "DisableAzMotorsInfo", "FALSE", 0L, 0L, "");
         }
     }
 
     public void CmdEnableElMotors(final boolean value){ // OK 
         if (value && yAxisConnection){
             long tStart = System.currentTimeMillis();
-            setFieldCmd(this.TEL, "EnableElMotors", "TRUE", tStart, 0L, "");
-            Error(AsseY.SetMotorOn(X),1004);
-            setFieldCmd(this.TEL, "EnableElMotors", "FALSE", tStart, System.currentTimeMillis(), errorBuffer);
+            setFieldCmd(this.TEL, "EnableElMotorsInfo", "TRUE", tStart, 0L, "");
+            Error(AsseY.SetMotorOn(X),1000);
+            setFieldCmd(this.TEL, "EnableElMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), errorBuffer);
             if (TemporaryErr == -1)
-                setFieldCmd(this.TEL, "EnableElMotors", "FALSE", 0L, 0L, "");
+                setFieldCmd(this.TEL, "EnableElMotorsInfo", "FALSE", 0L, 0L, "");
         }
     }
 
     public void CmdDisableElMotors(final boolean value){ // OK 
         if (value && yAxisConnection){
             long tStart = System.currentTimeMillis();
-            setFieldCmd(this.TEL, "DisableElMotors", "TRUE", tStart, 0L, "");
+            setFieldCmd(this.TEL, "DisableElMotorsInfo", "TRUE", tStart, 0L, "");
             if (AsseY.IsMoving(X) == 1){
-                Error(AsseY.StopMove(X),1005);
+                Error(AsseY.StopMove(X),1000);
             }
-            Error(AsseY.SetMotorOff(X),1006);
-            setFieldCmd(this.TEL, "DisableElMotors", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
+            Error(AsseY.SetMotorOff(X),1000);
+            setFieldCmd(this.TEL, "DisableElMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
             if (TemporaryErr == -1)
-                setFieldCmd(this.TEL, "DisableElMotors", "FALSE", 0L, 0L, "");
+                setFieldCmd(this.TEL, "DisableElMotorsInfo", "FALSE", 0L, 0L, "");
         }
     }
 
 
     public void CmdStartMotion(final boolean value){
         if (value && xAxisConnection && yAxisConnection){
-            if (AsseX.CommStatus && AsseY.CommStatus){
-
-                AsseX.StopMove(X);
-                if(AsseX.IsMoving(X) == 1)
-                    Sleep(100);
-                AsseY.StopMove(X);
-                if(AsseY.IsMoving(X) == 1)
-                    Sleep(100);
-
-                if(TEL.MotionType == 0){
-                    //SetMotionType(0);
-                    AsseX.SetMotAcc(X, MotAZ.MaxAcc);
-                    AsseX.SetMotDec(X, MotAZ.MaxAcc);
-                    AsseY.SetMotAcc(X, MotEL.MaxAcc);
-                    AsseY.SetMotDec(X, MotEL.MaxAcc);
-
-                    AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity); // TEL.SlewVelX
-                    AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity); // TEL.SlewVelY
-                }
-
-                if(TEL.MotionType == 1){
-                    AsseX.SetMotAcc(X, MotAZ.JogVelocity);
-                    //AsseX.SetMotDec(X, MotAZ.JogVelocity);
-                    AsseY.SetMotAcc(X, MotEL.JogVelocity);
-                    //AsseY.SetMotDec(X, MotEL.JogVelocity);
-
-                    AsseX.Move(X, MotAZ.TelPosition, MotAZ.JogVelocity); // TEL.SlewVelX
-                    AsseY.Move(X, MotEL.TelPosition, MotEL.JogVelocity); // TEL.SlewVelY
-                }
-
-                Sleep(100);
+            try {
+                taskExecutor.runTask(startmotionTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
             }
+            setFieldCmd(this.TEL, "StartMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
-
+    // questa da sistemare, fare prima az e el e poi usare quei comandi qui dentro
     public void CmdStopMotion(final boolean value){
         if (value){
+
+            long tStart = System.currentTimeMillis();
+            setFieldCmd(this.TEL, "StopMotionInfo", "TRUE", tStart, 0L, "");
+
             if (xAxisConnection){
                 if (AsseX.IsMoving(X) == 1)
-                    AsseX.StopMove(X);}
+                    Error(AsseX.StopMove(X),1000);
+            }
 
             if (yAxisConnection){
                 if (AsseY.IsMoving(X) == 1)
-                    AsseY.StopMove(X);}
+                    Error(AsseY.StopMove(X),1000);
+            }
 
-            if (domeAxisConnection)
-                FermaCupola();
+            //if (domeAxisConnection)
+                //FermaCupola();
+
+            boolean waiting = true;
+            while(waiting){
+                Sleep(1000);
+                AsseX.IsMoving(X);
+                waiting = AsseX.isMoving;
+            }
+
+
+            setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
+            if (TemporaryErr == -1)
+                setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
 
@@ -1411,10 +1407,6 @@ public class TCS {
     }
 
     //  task apertura e chiusura cupola. aggiungere status movimento cupola come boolean nei get dell'icd. anche per l'inizializzazione, true o false sul set a zero della cupola. aggiungere info relativi ai command della cupola. Usare il T3 per controllare lo stato della cupola nel set degli zeri.
-
-    // Ricorda di sistemare la lettura seriale nella comm class: while non c'è niente aspetta, poi leggi e poi continua a leggere finché ci sono bit a disposizione
-
-    // spostare tutti i command info  nella classe TEL ? 
 
     public void CmdOpenCupola(final boolean value){
         if (value && domeAxisConnection)
@@ -1818,8 +1810,64 @@ public class TCS {
                 Sleep(10000);
                 AsseX.IsProgramRunning();
                 AsseY.IsProgramRunning();
-                System.out.println("Az and El are going in home position ... "+AsseX.isRunning+", "+AsseY.isRunning);
+                System.out.println("Az and El are going in home position ... Az: "+AsseX.isRunning+", El: "+AsseY.isRunning);
                 if (!AsseX.isRunning && !AsseY.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+    private final Task<Void> startmotionTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StartMotionInfo");
+                
+            StartMotion();
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(10000);
+                AsseX.IsMoving(X);
+                AsseY.IsMoving(X);
+                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+                if (!AsseX.isMoving && !AsseY.isMoving)
                     isInterrupted = false;
             }
 
@@ -2011,6 +2059,36 @@ public class TCS {
         AsseY.StopMove(X);
     }
     
+    public void StartMotion(){
+        if(AsseX.IsMoving(X) == 1)
+            Error(AsseX.StopMove(X),1000);
+            Sleep(100);
+        if(AsseY.IsMoving(X) == 1)
+            Error(AsseY.StopMove(X),1000);
+            Sleep(100);
+
+        if(TEL.MotionType == 0){
+
+            Error(AsseX.SetMotAcc(X, MotAZ.MaxAcc),1000);
+            Error(AsseX.SetMotDec(X, MotAZ.MaxAcc),1000);
+            Error(AsseY.SetMotAcc(X, MotEL.MaxAcc),1000);
+            Error(AsseY.SetMotDec(X, MotEL.MaxAcc),1000);
+
+            Error(AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity),1000); // TEL.SlewVelX
+            Error(AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity),1000); // TEL.SlewVelY
+        }
+        
+        /*if(TEL.MotionType == 1){
+            AsseX.SetMotAcc(X, MotAZ.JogVelocity);
+            //AsseX.SetMotDec(X, MotAZ.JogVelocity);
+            AsseY.SetMotAcc(X, MotEL.JogVelocity);
+            //AsseY.SetMotDec(X, MotEL.JogVelocity);
+
+            AsseX.Move(X, MotAZ.TelPosition, MotAZ.JogVelocity); // TEL.SlewVelX
+            AsseY.Move(X, MotEL.TelPosition, MotEL.JogVelocity); // TEL.SlewVelY
+        }*/
+    }
+
     //public void Timer(){}
 
     // INCOMPLETO
