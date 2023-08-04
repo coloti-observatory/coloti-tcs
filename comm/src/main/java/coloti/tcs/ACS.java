@@ -55,6 +55,7 @@ public class ACS {
 
   double[] AbsTargPosAx;
   double[] PositionAx;
+  double[] EncoderPos;
   double[] VelAx;
   double[] AccAx;
   double[] DecAx;
@@ -90,6 +91,7 @@ public class ACS {
     this.CommStatus = false;
 
     this.PositionAx = new double[1];
+    this.EncoderPos = new double[1];
     this.AbsTargPosAx = new double[1];
     this.VelAx = new double[1];
     this.ActualVelAx = new double[1];
@@ -136,6 +138,7 @@ public class ACS {
     this.CommStatus = false;
 
     this.PositionAx = new double[nax];
+    this.EncoderPos = new double[nax];
     this.AbsTargPosAx = new double[nax];
     this.VelAx = new double[nax];
     this.ActualVelAx = new double[nax];
@@ -908,6 +911,7 @@ public class ACS {
   public int GetMotEncPos(String ax) { // VERIFICATO 
     byte[] command = sbld("R%sCP", ax);
     int Err = CommandReport(command, false);
+    this.EncoderPos[AxesNumber(ax)] = this.VALUECR;
     return Err;
   }
 
