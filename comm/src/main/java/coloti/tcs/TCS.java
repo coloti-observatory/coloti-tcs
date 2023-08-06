@@ -96,7 +96,7 @@ public class TCS {
     };
     // 800 e qualcosa per i Begin Errors, 700 per program, 900 per general
     // 101 settato un modo sbagliato
-    private final int[] nEncErr = new int[]{999,100,600,700,0,1,3,10,12,15,16,17,19,20,21,22,41,44,90,91};
+    private final int[] nEncErr = new int[]{999,100,101,600,700,0,1,3,10,12,15,16,17,19,20,21,22,41,44,90,91};
 
     private static boolean check(final int[] arr, final int toCheckValue)
     {
@@ -112,6 +112,7 @@ public class TCS {
         {
             put(999, "relative position overflow");
             put(100, "initialization issue, mode not setted");
+            put(101, "initialization issue, wrong mode setted");
             put(600, "serial answer length is zero");
             put(700, "communication status is false during axes initialization");
             put(0, "checksum error detected in the received command or empty command");
@@ -677,8 +678,8 @@ public class TCS {
         return TEL.StartPointingInfo;
     }
 
-    public String GetStopPointingDomeInfo(){
-        return TEL.StopPointingInfo;
+    public String GetStartParkingDomeInfo(){
+        return TEL.StartParkingInfo;
     }
     
     public String GetStopDomeInfo(){
@@ -697,21 +698,21 @@ public class TCS {
         return TEL.HomePosInfo;
     }
 
-    
+    // ultimo errore o numero totale di errori? Se lo metto come stringa posso avere entrambi
     public int GetErrorNumber(){
         this.GEN.ErrorNumber = nErrors;
         return GEN.ErrorNumber;
     }
     
     public String GetErrorBuffer(){
-        this.GEN.ErrorBuffer = "{"+errorBuffer+"}";
+        this.GEN.ErrorBuffer = "{"+errorText+"}";
         return GEN.ErrorBuffer;
     }
-    
+    // serve? Qual è il massimo?
     public boolean GetErrorBufferOutOfRange(){
         return GEN.ErrorBufferOutOfRange;
     }
-    
+    // serve saperlo?
     public int GetErrorBufferSize(){
         return GEN.ErrorBufferSize;
     }
@@ -1217,7 +1218,7 @@ public class TCS {
     }
 
 
-    public void CmdStartMotion(final boolean value){
+    public void CmdStartMotion(final boolean value){ // OK
         if (value && xAxisConnection && yAxisConnection){
             try {
                 taskExecutor.runTask(startmotionTask, defaultListener);
@@ -1228,88 +1229,58 @@ public class TCS {
         }
     }
     // questa da sistemare, fare prima az e el e poi usare quei comandi qui dentro
-    public void CmdStopMotion(final boolean value){
-        if (value){
-
-            long tStart = System.currentTimeMillis();
-            setFieldCmd(this.TEL, "StopMotionInfo", "TRUE", tStart, 0L, "");
-
-            if (xAxisConnection){
-                if (AsseX.IsMoving(X) == 1)
-                    Error(AsseX.StopMove(X),1000);
+    public void CmdStopMotion(final boolean value){ // OK 
+        if (value && xAxisConnection && yAxisConnection){
+            try {
+                taskExecutor.runTask(stopmotionTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
             }
-
-            if (yAxisConnection){
-                if (AsseY.IsMoving(X) == 1)
-                    Error(AsseY.StopMove(X),1000);
-            }
-
-            //if (domeAxisConnection)
-                //FermaCupola();
-
-            boolean waiting = true;
-            while(waiting){
-                Sleep(1000);
-                AsseX.IsMoving(X);
-                waiting = AsseX.isMoving;
-            }
-
-
-            setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
-            if (TemporaryErr == -1)
-                setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "");
+            setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
 
-    public void CmdStartAzMotion(final boolean value){
+    public void CmdStartAzMotion(final boolean value){ // OK 
         if (value && xAxisConnection){
-            if (AsseX.CommStatus){
-                AsseX.StopMove(X);
-                if(AsseX.IsMoving(X) == 1)
-                    Sleep(200);
-
-                AsseX.SetSlewMode(X);
-                AsseX.SetMotAcc(X, MotAZ.MaxAcc);
-                AsseX.SetMotDec(X, MotAZ.MaxAcc);
-
-                AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity);
-
-                Sleep(300);
-
-                //PuntaCupola(MotAZ.TelPosition);
+            try {
+                taskExecutor.runTask(startAZmotionTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
             }
+            setFieldCmd(this.TEL, "StartAzMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
     
-    public void CmdStopAzMotion(final boolean value){
+    public void CmdStopAzMotion(final boolean value){ // OK 
         if (value && xAxisConnection){
-            if (AsseX.IsMoving(X) == 1)
-                AsseX.StopMove(X);
+            try {
+                taskExecutor.runTask(stopAZmotionTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "StopAzMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
 
-    public void CmdStartElMotion(final boolean value){
+    public void CmdStartElMotion(final boolean value){ // OK 
         if (value && yAxisConnection){
-            if (AsseY.CommStatus){
-                AsseY.StopMove(X);
-                if(AsseY.IsMoving(X) == 1)
-                    Sleep(200);
-
-                AsseY.SetSlewMode(X);
-                AsseY.SetMotAcc(X, MotEL.MaxAcc);
-                AsseY.SetMotDec(X, MotEL.MaxAcc);
-
-                AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity);
-
-                Sleep(300);
+            try {
+                taskExecutor.runTask(startELmotionTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
             }
+            setFieldCmd(this.TEL, "StartElMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
     
-    public void CmdStopElMotion(final boolean value){
+    public void CmdStopElMotion(final boolean value){ // OK 
         if (value && yAxisConnection){
-            if (AsseY.IsMoving(X) == 1)
-                AsseY.StopMove(X);
+            try {
+                taskExecutor.runTask(stopELmotionTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "StopElMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
 
@@ -1332,7 +1303,7 @@ public class TCS {
         if (value){
             CmdStartAzParking(value);
             CmdStartElParking(value);
-            CmdCupolaParking(value);
+            CmdStartCupolaParking(value);
         }
     }
 
@@ -1410,22 +1381,42 @@ public class TCS {
 
     public void CmdOpenCupola(final boolean value){
         if (value && domeAxisConnection)
-            CupolaApertura();
+            try {
+                taskExecutor.runTask(opendomeTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "OpenDomeInfo", "FALSE", 0L, 0L, "");
     }
 
     public void CmdCloseCupola(final boolean value){
         if (value && domeAxisConnection)
-            CupolaChiusura();
+            try {
+                taskExecutor.runTask(closedomeTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "CloseDomeInfo", "FALSE", 0L, 0L, "");
     }
 
     public void CmdStartCupolaPointing(final boolean value) {
         if (value && domeAxisConnection)
-            PuntaCupola(MotAZ.TelPosition);
+            try {
+                taskExecutor.runTask(startcupolapointingTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "StartPointingDomeInfo", "FALSE", 0L, 0L, "");
     }
 
-    public void CmdCupolaParking(final boolean value) {
+    public void CmdStartCupolaParking(final boolean value) {
         if (value && domeAxisConnection)
-            PuntaCupola(CUP.ParkPos);
+            try {
+                taskExecutor.runTask(startcupolaparkingTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "StartParkingDomeInfo", "FALSE", 0L, 0L, "");
     }
 
     public void CmdStopCupola(final boolean value){
@@ -1858,7 +1849,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("StartMotionInfo");
                 
-            StartMotion();
+            StartMotion(true,true);
             
             while(isInterrupted){
                 if(listener!=null)
@@ -1904,12 +1895,501 @@ public class TCS {
     };
 
 
+    private final Task<Void> startAZmotionTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StartAzMotionInfo");
+                
+            StartMotion(true, false);
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(10000);
+                AsseX.IsMoving(X);
+                System.out.println("Az is moving ... Az: "+AsseX.isMoving);
+                if (!AsseX.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    private final Task<Void> startELmotionTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StartElMotionInfo");
+                
+            StartMotion(false, true);
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(10000);
+                AsseY.IsMoving(X);
+                System.out.println("El is moving ... El: "+AsseY.isMoving);
+                if (!AsseY.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+    private final Task<Void> stopmotionTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StopMotionInfo");
+                
+            if (AsseX.IsMoving(X) == 1)
+                Error(AsseX.StopMove(X),1000);
+            if (AsseY.IsMoving(X) == 1)
+                Error(AsseY.StopMove(X),1000);
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(1000);
+                AsseX.IsMoving(X);
+                AsseY.IsMoving(X);
+                System.out.println("Az and El are stopping ... ");
+                if (AsseX.isMoving && AsseY.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    private final Task<Void> stopAZmotionTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StopAzMotionInfo");
+                
+            if (AsseX.IsMoving(X) == 1)
+                Error(AsseX.StopMove(X),1000);
+                
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(1000);
+                AsseX.IsMoving(X);
+                System.out.println("Az is stopping ... ");
+                if (AsseX.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    private final Task<Void> stopELmotionTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StopElMotionInfo");
+                
+            if (AsseY.IsMoving(X) == 1)
+                Error(AsseY.StopMove(X),1000);
+                
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(1000);
+                AsseY.IsMoving(X);
+                System.out.println("El is stopping ... ");
+                if (AsseY.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
 
 
 
+    private final Task<Void> opendomeTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("OpenDomeInfo");
+                
+            Error(AsseCupola.ExecProg("APRICUP"),1000);
+                
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(3000);
+                AsseCupola.IsProgramRunning();
+                System.out.println("Dome is opening ... ");
+                if (AsseCupola.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    private final Task<Void> closedomeTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("CloseDomeInfo");
+                
+            Error(AsseCupola.ExecProg("CHIUDCUP"),1000);
+                
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(3000);
+                AsseCupola.IsProgramRunning();
+                System.out.println("Dome is closing ... ");
+                if (AsseCupola.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
 
 
+    private final Task<Void> startcupolapointingTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StartPointingDomeInfo");
+                
+            Error(PuntaCupola(MotAZ.TelPosition), 1000);
+                
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(5000);
+                AsseCupola.IsProgramRunning();
+                System.out.println("Dome is pointing ... ");
+                if (AsseCupola.isRunning)
+                    isInterrupted = false;
+            }
 
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    private final Task<Void> startcupolaparkingTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StartParkingDomeInfo");
+                
+            Error(PuntaCupola(CUP.ParkPos), 1000);
+                
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(5000);
+                AsseCupola.IsProgramRunning();
+                System.out.println("Dome is parking ... ");
+                if (AsseCupola.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
 
 
 
@@ -2059,23 +2539,31 @@ public class TCS {
         AsseY.StopMove(X);
     }
     
-    public void StartMotion(){
-        if(AsseX.IsMoving(X) == 1)
+    public void StartMotion(boolean AzAxis, boolean ElAxis){
+        if(AzAxis && AsseX.IsMoving(X) == 1){
             Error(AsseX.StopMove(X),1000);
             Sleep(100);
-        if(AsseY.IsMoving(X) == 1)
+        }
+        if(ElAxis && AsseY.IsMoving(X) == 1){
             Error(AsseY.StopMove(X),1000);
             Sleep(100);
-
+        }
         if(TEL.MotionType == 0){
+            if (AzAxis){
+                Error(AsseX.SetMotAcc(X, MotAZ.MaxAcc),1000);
+                Error(AsseX.SetMotDec(X, MotAZ.MaxAcc),1000);
+            }
+            if (ElAxis){
+                Error(AsseY.SetMotAcc(X, MotEL.MaxAcc),1000);
+                Error(AsseY.SetMotDec(X, MotEL.MaxAcc),1000);
+            }
 
-            Error(AsseX.SetMotAcc(X, MotAZ.MaxAcc),1000);
-            Error(AsseX.SetMotDec(X, MotAZ.MaxAcc),1000);
-            Error(AsseY.SetMotAcc(X, MotEL.MaxAcc),1000);
-            Error(AsseY.SetMotDec(X, MotEL.MaxAcc),1000);
-
-            Error(AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity),1000); // TEL.SlewVelX
-            Error(AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity),1000); // TEL.SlewVelY
+            if (AzAxis){
+                Error(AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity),1000); // TEL.SlewVelX
+            }
+            if (ElAxis){
+                Error(AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity),1000); // TEL.SlewVelY
+            }
         }
         
         /*if(TEL.MotionType == 1){
@@ -2389,13 +2877,10 @@ public class TCS {
     public int PuntaCupola(final double azObj){
         if (AsseCupola.CommStatus){
             final int az = (int) (3600*azObj*AsseCupola.CONVFACTOR[0]);
-            int Err;
             final byte[] command = AsseCupola.sbld("AVSE");
             AsseCupola.CommandArray(command, 10, az);
-            Err = AsseCupola.ExecProg("PUNTA");
-            if (Err != -1){
-                return Err;
-            }
+            int Err = AsseCupola.ExecProg("PUNTA");
+            return Err;
         }
         CUP.StatusRotazione = 1;
         CUP.Direzione = -1;
