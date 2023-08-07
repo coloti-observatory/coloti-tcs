@@ -96,7 +96,7 @@ public class TCS {
     };
     // 800 e qualcosa per i Begin Errors, 700 per program, 900 per general
     // 101 settato un modo sbagliato
-    private final int[] nEncErr = new int[]{999,100,101,600,700,0,1,3,10,12,15,16,17,19,20,21,22,41,44,90,91};
+    private final int[] nEncErr = new int[]{100,101,102,103,104,900,901,903,910,912,915,916,917,919,920,921,922,941,944,990,991};
 
     private static boolean check(final int[] arr, final int toCheckValue)
     {
@@ -108,29 +108,89 @@ public class TCS {
         return false;
     }
 
+    /*
+     * 1 program finished successfully (message)
+2 automatic routine finished successfully (message)
+3 program is paused by user (message)
+4 program is in step mode (message)
+7 program was stopped by user. (message)
+8 after a stop command: The program was not running (operational error)
+40 command is not available under host protocol  (edit error)
+41 command can't be executed while a program is running (edit error)
+42 illegal range was specified (edit error)
+43 unrecognized edit command (edit error)
+44 an attempt is made to delete or overwrite a protected program statement (PP>0) (operational error)
+50 unrecognized command (insert error)
+51 unrecognized set variable (insert error)
+52 unrecognized state (insert error)
+53 unrecognized variable (insert error)
+54 unrecognized index (insert error)
+55 unrecognized address variable (insert error)
+56 unrecognized array element (insert error)
+57 unrecognized relation (insert error)
+58 unrecognized operation (insert error)
+59 missing an equal sign (insert error)
+60 missing a label (insert error)
+61 the label name is too large (insert error)
+62 illlegal label name (insert error)
+63 the label is a
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+     */
     public Map <Integer, String> errEncMap = new HashMap <>(){
         {
-            put(999, "relative position overflow");
             put(100, "initialization issue, mode not setted");
             put(101, "initialization issue, wrong mode setted");
-            put(600, "serial answer length is zero");
-            put(700, "communication status is false during axes initialization");
-            put(0, "checksum error detected in the received command or empty command");
-            put(1, "command, or subcommand, was not executed, unrecognized");
-            put(3, "SAVE operation has failed)");
-            put(10, "command was not executed, requires special hardware");
-            put(12, "servo process does not communicate with the main processor");
-            put(15, "operation failed, many possible explanations, see the software guide for more informations");
-            put(16, "command was not executed, many possible explanations, see the software guide for more informations");
-            put(17, "command was not executed, command not supported in the current version");
-            put(19, "array set command was not executed, invalid data");
-            put(20, "command was not executed, missing data field");
-            put(21, "non fatal, data field out of valid range, parameter set with the nearest valid value");
-            put(22, "non fatal, unrecognized subcommand was found within data field");
-            put(41, "non fatal, operation cannot be executed while a program is running");
-            put(44, "non fatal, delete or overwrite operation are not allowed");
-            put(90, "non fatal, memory checksum error");
-            put(91, "non fatal, firmware checksum error");
+            put(102, "serial answer length is zero");
+            put(103, "communication status is false during axes initialization");
+            put(104, "relative position overflow");
+            put(105, "overflow in input or output request (RIP,ROP,RSI,RIL,SHI,SLO)");
+        
+
+            put(900, "checksum error detected in the received command or empty command");
+            put(901, "command, or subcommand, was not executed, unrecognized");
+            put(903, "SAVE operation has failed)");
+            put(910, "command was not executed, requires special hardware");
+            put(912, "servo process does not communicate with the main processor");
+            put(915, "operation failed, many possible explanations, see the software guide for more informations");
+            put(916, "command was not executed, many possible explanations, see the software guide for more informations");
+            put(917, "command was not executed, command not supported in the current version");
+            put(919, "array set command was not executed, invalid data");
+            put(920, "command was not executed, missing data field");
+            put(921, "non fatal, data field out of valid range, parameter set with the nearest valid value");
+            put(922, "non fatal, unrecognized subcommand was found within data field");
+            put(941, "non fatal, operation cannot be executed while a program is running");
+            put(944, "non fatal, delete or overwrite operation are not allowed");
+            put(990, "non fatal, memory checksum error");
+            put(991, "non fatal, firmware checksum error");
         }
     };
 
@@ -341,6 +401,8 @@ public class TCS {
         this.TemporaryErr = err;
         if(err != -1){
             this.nErrors += 1;
+            // se stringa: inizializzazione come String errorstring = "Least recent call: "
+            //  this.errorstring += IdErr+", ";
             this.error = IdErr;
             this.errorBuffer = errorMap.get(IdErr);
             //logger.warn(errorBuffer);
@@ -1228,7 +1290,7 @@ public class TCS {
             setFieldCmd(this.TEL, "StartMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
-    // questa da sistemare, fare prima az e el e poi usare quei comandi qui dentro
+    
     public void CmdStopMotion(final boolean value){ // OK 
         if (value && xAxisConnection && yAxisConnection){
             try {
@@ -1362,7 +1424,7 @@ public class TCS {
             CmdStopMotion(value);
     }
 
-    public void CmdHomePos(final boolean value){
+    public void CmdHomePos(final boolean value){ // OK 
         if (value && xAxisConnection && yAxisConnection)
             try {
                 taskExecutor.runTask(homeposTask, defaultListener);
@@ -1377,9 +1439,9 @@ public class TCS {
             FermaMoto();
     }
 
-    //  task apertura e chiusura cupola. aggiungere status movimento cupola come boolean nei get dell'icd. anche per l'inizializzazione, true o false sul set a zero della cupola. aggiungere info relativi ai command della cupola. Usare il T3 per controllare lo stato della cupola nel set degli zeri.
+    //  task apertura e chiusura cupola. aggiungere status movimento cupola come boolean nei get dell'icd. anche per l'inizializzazione, true o false sul set a zero della cupola.
 
-    public void CmdOpenCupola(final boolean value){
+    public void CmdOpenCupola(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(opendomeTask, defaultListener);
@@ -1389,7 +1451,7 @@ public class TCS {
             setFieldCmd(this.TEL, "OpenDomeInfo", "FALSE", 0L, 0L, "");
     }
 
-    public void CmdCloseCupola(final boolean value){
+    public void CmdCloseCupola(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(closedomeTask, defaultListener);
@@ -1399,7 +1461,7 @@ public class TCS {
             setFieldCmd(this.TEL, "CloseDomeInfo", "FALSE", 0L, 0L, "");
     }
 
-    public void CmdStartCupolaPointing(final boolean value) {
+    public void CmdStartCupolaPointing(final boolean value) { // OK 
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(startcupolapointingTask, defaultListener);
@@ -1409,7 +1471,7 @@ public class TCS {
             setFieldCmd(this.TEL, "StartPointingDomeInfo", "FALSE", 0L, 0L, "");
     }
 
-    public void CmdStartCupolaParking(final boolean value) {
+    public void CmdStartCupolaParking(final boolean value) { // OK 
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(startcupolaparkingTask, defaultListener);
@@ -1419,12 +1481,17 @@ public class TCS {
             setFieldCmd(this.TEL, "StartParkingDomeInfo", "FALSE", 0L, 0L, "");
     }
 
-    public void CmdStopCupola(final boolean value){
+    public void CmdStopCupola(final boolean value){ // OK 
         if (value && domeAxisConnection)
-            FermaCupola();
+            try {
+                taskExecutor.runTask(stopdomeTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "StopDomeInfo", "FALSE", 0L, 0L, "");
     }
 
-    public void CmdSetZeroCupola(final boolean value){
+    public void CmdSetZeroCupola(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(zerodomeTask, defaultListener);
@@ -1432,18 +1499,29 @@ public class TCS {
                 logger.error(e.getMessage());
             }
             this.TEL.ZeroDomeInfo = "commandname: ZeroDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
+            setFieldCmd(this.TEL, "ZeroDomeInfo", "FALSE", 0L, 0L, "");
 
             //CupolaSetZero();
     }
 
-    public void CmdCupolaOvest(final boolean value){
+    public void CmdCupolaOvest(final boolean value){ // OK 
         if (value && domeAxisConnection)
-            CupolaOvest();
+            try {
+                taskExecutor.runTask(domewestTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "DomeWestInfo", "FALSE", 0L, 0L, "");
     }
 
-    public void CmdCupolaEst(final boolean value){
+    public void CmdCupolaEst(final boolean value){ // OK 
         if (value && domeAxisConnection)
-            CupolaEst();
+            try {
+                taskExecutor.runTask(domeeastTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "DomeEastInfo", "FALSE", 0L, 0L, "");
     }
 
 
@@ -1529,6 +1607,13 @@ public class TCS {
     };
 
 
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    
+
     private final Task<Void> gostandbyTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -1593,6 +1678,12 @@ public class TCS {
 
         
     };
+
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 
     private final Task<Void> goonlineTask = new Task<Void>() {
@@ -1660,7 +1751,11 @@ public class TCS {
         
     };
 
-
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
     private final Task<Void> gomaintenanceTask = new Task<Void>() {
         boolean isInterrupted = true;
@@ -1726,6 +1821,12 @@ public class TCS {
 
         
     };
+
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
     
 
     private final Task<Void> zerodomeTask = new Task<Void>() {
@@ -1738,7 +1839,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("ZeroDomeInfo");
                 
-            CupolaSetZero();
+            Error(AsseCupola.ExecProg("HOMECUP"),1000);
             
             while(isInterrupted){
                 if(listener!=null)
@@ -1749,6 +1850,9 @@ public class TCS {
                 if (!AsseCupola.isRunning)
                     isInterrupted = false;
             }
+
+            CUP.StatusRotazione = 0;
+            CUP.Direzione = 0;
 
             if(listener!=null)
                 listener.onDone(null);
@@ -1782,6 +1886,11 @@ public class TCS {
         
     };
 
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
     private final Task<Void> homeposTask = new Task<Void>() {
         boolean isInterrupted = true;
@@ -1837,6 +1946,13 @@ public class TCS {
 
         
     };
+
+
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 
     private final Task<Void> startmotionTask = new Task<Void>() {
@@ -1895,6 +2011,13 @@ public class TCS {
     };
 
 
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+
     private final Task<Void> startAZmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -1949,6 +2072,12 @@ public class TCS {
         
     };
 
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
     private final Task<Void> startELmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -2002,6 +2131,13 @@ public class TCS {
 
         
     };
+
+
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 
     private final Task<Void> stopmotionTask = new Task<Void>() {
@@ -2062,6 +2198,12 @@ public class TCS {
         
     };
 
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
     private final Task<Void> stopAZmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -2116,6 +2258,14 @@ public class TCS {
 
         
     };
+
+
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
 
     private final Task<Void> stopELmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
@@ -2172,7 +2322,11 @@ public class TCS {
         
     };
 
-
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
     private final Task<Void> opendomeTask = new Task<Void>() {
         boolean isInterrupted = true;
@@ -2228,6 +2382,12 @@ public class TCS {
         
     };
 
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
     private final Task<Void> closedomeTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -2245,7 +2405,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(3000);
                 AsseCupola.IsProgramRunning();
-                System.out.println("Dome is closing ... ");
+                System.out.println("Dome is closing ... ");                
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
             }
@@ -2282,6 +2442,11 @@ public class TCS {
         
     };
 
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
     private final Task<Void> startcupolapointingTask = new Task<Void>() {
         boolean isInterrupted = true;
@@ -2293,7 +2458,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("StartPointingDomeInfo");
                 
-            Error(PuntaCupola(MotAZ.TelPosition), 1000);
+            PuntaCupola(MotAZ.TelPosition);
                 
             while(isInterrupted){
                 if(listener!=null)
@@ -2305,6 +2470,9 @@ public class TCS {
                     isInterrupted = false;
             }
 
+            CUP.StatusRotazione = 0;
+            CUP.Direzione = 0;
+
             if(listener!=null)
                 listener.onDone(null);
             isInterrupted = false;
@@ -2336,6 +2504,12 @@ public class TCS {
 
         
     };
+
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
     private final Task<Void> startcupolaparkingTask = new Task<Void>() {
         boolean isInterrupted = true;
@@ -2347,7 +2521,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("StartParkingDomeInfo");
                 
-            Error(PuntaCupola(CUP.ParkPos), 1000);
+            PuntaCupola(CUP.ParkPos);
                 
             while(isInterrupted){
                 if(listener!=null)
@@ -2358,6 +2532,9 @@ public class TCS {
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
             }
+
+            CUP.StatusRotazione = 0;
+            CUP.Direzione = 0;
 
             if(listener!=null)
                 listener.onDone(null);
@@ -2391,6 +2568,198 @@ public class TCS {
         
     };
 
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+    private final Task<Void> stopdomeTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StopDomeInfo");
+                
+            Error(AsseCupola.ExecProg("FERMACUP"),1000);
+                
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(2000);
+                AsseCupola.IsProgramRunning();
+                System.out.println("Dome is stopping ... ");                
+                if (AsseCupola.isRunning)
+                    isInterrupted = false;
+            }
+
+            CUP.StatusRotazione = 0;
+            CUP.Direzione = 0;
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    
+    private final Task<Void> domewestTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("DomeWestInfo");
+                
+            Error(AsseCupola.ExecProg("SXCUP"),1000);
+            CUP.StatusRotazione = 1;
+            CUP.Direzione = 1;
+
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(2000);
+                AsseCupola.IsProgramRunning();
+                System.out.println("Dome is moving to west ... ");
+                if (AsseCupola.isRunning)
+                    isInterrupted = false;
+            }
+
+            CUP.StatusRotazione = 0;
+            CUP.Direzione = 0;
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    //0000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+    private final Task<Void> domeeastTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("DomeEastInfo");
+                
+            Error(AsseCupola.ExecProg("DXCUP"),1000);
+            CUP.StatusRotazione = 1;
+            CUP.Direzione = -1;
+
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(2000);
+                AsseCupola.IsProgramRunning();
+                System.out.println("Dome is moving to east ... ");
+                if (AsseCupola.isRunning)
+                    isInterrupted = false;
+            }
+
+            CUP.StatusRotazione = 0;
+            CUP.Direzione = 0;
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
 
 
 
@@ -2513,12 +2882,12 @@ public class TCS {
             ValoX += (long) (ZeroX*3600*AsseX.CONVFACTOR[0] + 0.5 - 30*AsseX.CONVFACTOR[0]);
             AsseX.CommandArray("AVSE", 8, (int) ValoX);
             ValoX = AsseX.VALUECR;
-            AsseX.ExecProg("HOMEX");
+            Error(AsseX.ExecProg("HOMEX"),1000);
 
             ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
             AsseY.CommandArray("AVSE", 8, (int) ValoY);
             ValoY = AsseY.VALUECR;
-            AsseY.ExecProg("HOMEX");
+            Error(AsseY.ExecProg("HOMEX"),1000);
         }
         else{
             AsseX.CommandArray("AVSE", 8, (int) ValoX);
@@ -2862,16 +3231,12 @@ public class TCS {
     */
 
     public int FermaCupola(){
-        int Err;
         if (AsseCupola.CommStatus){
-            Err = AsseCupola.ExecProg("FERMACUP");
-            CUP.StatusRotazione = 0;
-            CUP.Direzione = 0;
+            Error(AsseCupola.ExecProg("FERMACUP"),1000);
+            this.CUP.StatusRotazione = 0;
+            this.CUP.Direzione = 0;
         }
-        else{
-            Err = 0;
-        }
-        return Err;
+        return -1;
     }
 
     public int PuntaCupola(final double azObj){
@@ -2879,27 +3244,22 @@ public class TCS {
             final int az = (int) (3600*azObj*AsseCupola.CONVFACTOR[0]);
             final byte[] command = AsseCupola.sbld("AVSE");
             AsseCupola.CommandArray(command, 10, az);
-            int Err = AsseCupola.ExecProg("PUNTA");
-            return Err;
+            Error(AsseCupola.ExecProg("PUNTA"),1000);
         }
-        CUP.StatusRotazione = 1;
-        CUP.Direzione = -1;
+        this.CUP.StatusRotazione = 1;
+        this.CUP.Direzione = -1;
         return -1;
     }
 
     public int PuntaCupola(){
         if (AsseCupola.CommStatus){
             final int az = (int) (3600*CUP.CommandedAZ*AsseCupola.CONVFACTOR[0]);
-            int Err;
             final byte[] command = AsseCupola.sbld("AVSE");
             AsseCupola.CommandArray(command, 10, az);
-            Err = AsseCupola.ExecProg("PUNTA");
-            if (Err != -1){
-                return Err;
-            }
+            Error(AsseCupola.ExecProg("PUNTA"),1000);
         }
-        CUP.StatusRotazione = 1;
-        CUP.Direzione = -1;
+        this.CUP.StatusRotazione = 1;
+        this.CUP.Direzione = -1;
         return -1;
     }
 

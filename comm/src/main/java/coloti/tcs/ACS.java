@@ -19,7 +19,7 @@ public class ACS {
   public int ERROR;
   boolean PRINT = true;
   int ACSOK = -1;
-  int ACSposoverflow = 999;
+  int ACSposoverflow = 104;
   int[] MOTORSTATUS = { 0, 0, 0 };
   long VALUE1 = 0L;
   long VALUE2 = 0L;
@@ -230,7 +230,7 @@ public class ACS {
       }
       return Err;
     }
-    return -7;
+    return 103;
   }
 
   // UTILITY
@@ -647,7 +647,7 @@ public class ACS {
 
   public int SetOutPortOn(int ipno) { // VERIFICATO 
     if (ipno > MAXINP)
-      return -2;
+      return 105;
     byte[] command = sbld("SHI");
     int Err = CommandSet(command, ipno);
     return Err;
@@ -655,7 +655,7 @@ public class ACS {
 
   public int SetOutPortOff(int ipno) { // VERIFICATO 
     if (ipno > MAXINP)
-      return -2;
+      return 105;
     byte[] command = sbld("SLO");
     int Err = CommandSet(command, ipno);
     return Err;
@@ -975,7 +975,7 @@ public class ACS {
 
   public int GetSysInp(int ipno) {
     if (ipno > MAXSYSINP)
-      return -2;
+      return 105;
     byte[] instruction = String.valueOf("RSI").getBytes();
     int ErrorCode = CommandReportParams(ipno, instruction);
     return ErrorCode;
@@ -983,7 +983,7 @@ public class ACS {
 
   public int GetInpLog(int ipno) {
     if (ipno > MAXSYSINP)
-      return -2;
+      return 105;
     byte[] instruction = String.valueOf("RIL").getBytes();
     int ErrorCode = CommandReportParams(ipno, instruction);
     return ErrorCode;
@@ -991,7 +991,7 @@ public class ACS {
 
   public int GetInpPortStatus(int ipno) {
     if (ipno > MAXSYSINP)
-      return -2;
+      return 105;
     byte[] instruction = String.valueOf("RIP").getBytes();
     int ErrorCode = CommandReportParams(ipno, instruction);
     return ErrorCode;
@@ -999,7 +999,7 @@ public class ACS {
 
   public int GetOutPortStatus(int ipno) {
     if (ipno > MAXSYSINP)
-      return -2;
+      return 105;
     byte[] instruction = String.valueOf("ROP").getBytes();
     int ErrorCode = CommandReportParams(ipno, instruction);
     return ErrorCode;
@@ -1621,7 +1621,7 @@ public class ACS {
         return this.ERROR = ACSOK;
     } 
     else
-      return this.ERROR = 600;
+      return this.ERROR = 102;
   }
 
 
@@ -1661,7 +1661,7 @@ public class ACS {
 
     /*
 
-    //byte[] dummyAns = new byte[]{'0','X','L','R',0,0,15,-17,-66,-96,-17,-65,-107,13};
+    //byte[] dummyAns = new byte[]{'0','X','L','R',0,0,15,17,66,96,17,-65,107,13};
     String dummyString = "";
     int[] dummyINTarray = new int[]{0,12,15,16,63,60,134,160,200};
     char bufferChar;

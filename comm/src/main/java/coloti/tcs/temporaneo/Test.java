@@ -223,11 +223,23 @@ public class Test {
   }
   */
 
+  public String nomepersona = "mario";
+
+  public void cambionome(){
+    nomepersona = "paolo";
+  }
 
 
   public static void main(String[] argV) {
     
     
+    Test tst = new Test();
+
+    System.out.println(tst.nomepersona);
+
+    tst.cambionome();
+
+    System.out.println(tst.nomepersona);
 
 
 
