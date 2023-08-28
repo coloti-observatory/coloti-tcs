@@ -96,7 +96,7 @@ public class TCS {
     };
     // 800 e qualcosa per i Begin Errors, 700 per program, 900 per general
     // 101 settato un modo sbagliato
-    private final int[] nEncErr = new int[]{100,101,102,103,104,900,901,903,910,912,915,916,917,919,920,921,922,941,944,990,991};
+    private final int[] nEncErr = new int[]{100,101,102,103,104,701,702,703,704,707,708,740,741,742,743,744,750,751,752,753,754,755,756,757,758,759,760,761,762,763,764,765,766,767,768,769,770,771,772,773,774,775,776,777,778,780,781,782,783,784,785,786,787,788,789,790,791,792,793,794,900,901,903,910,912,915,916,917,919,920,921,922,941,944,990,991};
 
     private static boolean check(final int[] arr, final int toCheckValue)
     {
@@ -108,63 +108,7 @@ public class TCS {
         return false;
     }
 
-    /*
-     * 1 program finished successfully (message)
-2 automatic routine finished successfully (message)
-3 program is paused by user (message)
-4 program is in step mode (message)
-7 program was stopped by user. (message)
-8 after a stop command: The program was not running (operational error)
-40 command is not available under host protocol  (edit error)
-41 command can't be executed while a program is running (edit error)
-42 illegal range was specified (edit error)
-43 unrecognized edit command (edit error)
-44 an attempt is made to delete or overwrite a protected program statement (PP>0) (operational error)
-50 unrecognized command (insert error)
-51 unrecognized set variable (insert error)
-52 unrecognized state (insert error)
-53 unrecognized variable (insert error)
-54 unrecognized index (insert error)
-55 unrecognized address variable (insert error)
-56 unrecognized array element (insert error)
-57 unrecognized relation (insert error)
-58 unrecognized operation (insert error)
-59 missing an equal sign (insert error)
-60 missing a label (insert error)
-61 the label name is too large (insert error)
-62 illlegal label name (insert error)
-63 the label is a
-64
-65
-66
-67
-68
-69
-70
-71
-72
-73
-74
-75
-76
-77
-78
-80
-81
-82
-83
-84
-85
-86
-87
-88
-89
-90
-91
-92
-93
-94
-     */
+
     public Map <Integer, String> errEncMap = new HashMap <>(){
         {
             put(100, "initialization issue, mode not setted");
@@ -174,6 +118,77 @@ public class TCS {
             put(104, "relative position overflow");
             put(105, "overflow in input or output request (RIP,ROP,RSI,RIL,SHI,SLO)");
         
+            put(701 , "rogram finished successfully (message)");
+            put(702 , "utomatic routine finished successfully (message)");
+            put(703 , "rogram is paused by user (message)");
+            put(704 , "rogram is in step mode (message)");
+            put(707 , "rogram was stopped by user. (message)");
+            put(708 , "fter a stop command: The program was not running (operational error)");
+            put(740, "command is not available under host protocol  (edit error)");
+            put(741, "command can't be executed while a program is running (edit error)");
+            put(742, "illegal range was specified (edit error)");
+            put(743, "unrecognized edit command (edit error)");
+            put(744, "an attempt is made to delete or overwrite a protected program statement (PP>0) (operational error)");
+            put(750, "unrecognized command (insert error)");
+            put(751, "unrecognized set variable (insert error)");
+            put(752, "unrecognized state (insert error)");
+            put(753, "unrecognized variable (insert error)");
+            put(754, "unrecognized index (insert error)");
+            put(755, "unrecognized address variable (insert error)");
+            put(756, "unrecognized array element (insert error)");
+            put(757, "unrecognized relation (insert error)");
+            put(758, "unrecognized operation (insert error)");
+            put(759, "missing an equal sign (insert error)");
+            put(760, "missing a label (insert error)");
+            put(761, "the label name is too large (insert error)");
+            put(762, "illlegal label name (insert error)");
+            put(763, "the label already exists (insert error)");
+            put(764, "the specified index is not available (insert error)");
+            put(765, "too many free constants (insert error)");
+            put(766, "illegal constant (insert error)");
+            put(767, "program is too large (insert error)");
+            put(768, "statement is too large (insert error)");
+            put(769, "illegal statement (insert error)");
+            put(770, "loop without end (compile error)");
+            put(771, "END without reason (compile error)");
+            put(772, "a label was not found (compile error)");
+            put(773, "loop nesting is too deep (compile error)");
+            put(774, "missing END statement (compile error)");
+            put(775, "IF nesting is too deep (compile error)");
+            put(776, "Else statement without reason (compile error)");
+            put(777, "CASE nesting is too deep (compile error)");
+            put(778, "CASE already exists or CASE statement is missing (compile error)");
+            put(780, "unrecognized command was referenced (internal error)");
+            put(781, "unrecognized data was referenced (internal error)");
+            put(782, "illegal datalocation was referenced (internal error)");
+            put(783, "program is not compiled yet (Run-time error)");
+            put(784, "zero divide (Run-time error)");
+            put(785, "the specified start location is not found (Run-time error)");
+            put(786, "illegal variable reference (Run-time error)");
+            put(787, "Ran into ret statemnent without call (Run-time error)");
+            put(788, "out of program (Run-time error)");
+            put(789, "Call nesting is too deep (Run-time error)");
+            put(790, "a checksum error is detected in the program area (Run-time error)");
+            put(791, "executed END without reason (Run-time error)");
+            put(792, "executed loop nesting is too deep (Run-time error)");
+            put(793, "executing a square root of a negative number (Run-time error)");
+            put(794, "executed CASE nesting is too deep (Run-time error)");
+
+            put(801, "motion has begun succesfully");
+            put(809, "the required motion is common and the other axis failed to move");
+            put(810, "in continuous path mode, length of first segment is not enough (acceleration to velocity)");
+            put(811, "in continuous path mode, length of first segment is not enough (deceleration to velocity)");
+            put(812, "in master slave mode (12) required master not defined, or in path gegeneration mode (16) master axis not defined, or in continuous path mode (15) lower index > upper index");
+            put(814, "in arbitrary path generation XUI>511");
+            put(819, "the combination of the motion parameters does not enable the creation of desired profile, in multiple velocities mode (9) or in search mode (8)");
+            put(820, "the motor is in a disable state");
+            put(821, "the required motion mode is not valid");
+            put(822, "either the required motion is common, but the two axies are not in the same motion mode");
+            put(823, "the required target is out of the permitted range (position low - posigion high)");
+            put(824, "the controller could not calculate the motion with the existing parameters");
+            put(825, "the motion mode is common, but the begin command has been issued for one axis");
+            put(890, "memory failure in the data area has been detected, it is reccomended to issue a RESET");
+            put(891, "memory failure in the code area (firmware) has been detected, the firmware must be replaced");
 
             put(900, "checksum error detected in the received command or empty command");
             put(901, "command, or subcommand, was not executed, unrecognized");
@@ -193,7 +208,6 @@ public class TCS {
             put(991, "non fatal, firmware checksum error");
         }
     };
-
 
     // FIRST THINGS TO DO
     String X = "X";

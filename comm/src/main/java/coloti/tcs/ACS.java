@@ -668,7 +668,7 @@ public class ACS {
 
   public int StartMove(String ax) {
     byte[] command = sbld("B%s", ax);
-    int Err = CommandMot(command);
+    int Err = CommandMot(command) + 800 - 900;
     return Err;
   }
 
@@ -684,13 +684,13 @@ public class ACS {
 
   public int ExecProg(int id) {
     byte[] command = sbld("PX%d", id);
-    int Err = CommandMot(command);
+    int Err = CommandMot(command) + 700 - 900;
     return Err;
   }
 
   public int ExecProg(String label) {
     byte[] command = sbld("PX%s", label);
-    int Err = CommandMot(command);
+    int Err = CommandMot(command) + 700 - 900;
     return Err;
   }
 
@@ -1616,7 +1616,7 @@ public class ACS {
       if (serialAnswer[1] == qmark)
         indexQuestionMark = 2;
       if (indexQuestionMark != 0)
-        return this.ERROR = serialAnswer[indexQuestionMark];
+        return this.ERROR = serialAnswer[indexQuestionMark] + 900;
       else
         return this.ERROR = ACSOK;
     } 
