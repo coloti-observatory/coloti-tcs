@@ -86,6 +86,7 @@ public class TCS {
     public String errorBuffer;
     public String errorText = "";
 
+    
     public Map <Integer, String> errorMap = new HashMap <>(){ // mappa da completare
         {
             put(100, "InitAxes");
@@ -94,6 +95,7 @@ public class TCS {
             put(1000, "ERRORE");
         }
     };
+
     // 800 e qualcosa per i Begin Errors, 700 per program, 900 per general
     // 101 settato un modo sbagliato
     private final int[] nEncErr = new int[]{100,101,102,103,104,701,702,703,704,707,708,740,741,742,743,744,750,751,752,753,754,755,756,757,758,759,760,761,762,763,764,765,766,767,768,769,770,771,772,773,774,775,776,777,778,780,781,782,783,784,785,786,787,788,789,790,791,792,793,794,801,809,810,811,812,814,819,820,821,822,823,824,825,890,891,900,901,903,910,912,915,916,917,919,920,921,922,941,944,990,991};

@@ -1,0 +1,95 @@
+* errore da una funzione ereditata da ACS
+- errore statico
+
+
+
+ * init axes x3
+ - disconnect, CloseComm x3
+
+ * GetMotorStatus x2
+
+ * GetAzTelPos, GetMosPos
+ * GetAzActVel, GetActualMotVel
+ * GetAzCommandedPos, GetAbsTargPos
+ * GetAzCommandedVel, GetMotVel
+ * GetAzCommandedAcc, GetMotAcc
+
+ * GetCupolaPosition, GetMotEncPos
+
+ * GetElTelPos, GetMosPos
+ * GetElActVel, GetActualMotVel
+ * GetElCommandedPos, GetAbsTargPos
+ * GetElCommandedVel, GetMotVel
+ * GetElCommandedAcc, GetMotAcc
+
+ * GetAzMotionState, GetMotionMode
+ * GetElMotionState, GetMotionMode
+
+ * SetAzTelPos, SetAbsTargPos x2
+ * SetAzTelPos, GetAbsTargPos x2
+
+ * SetMotionType, SetSlewMode x2
+                    SetMotVel x2
+                    setTrackMode x2
+                    setMotVel x2
+
+ * SetAzSlewAccel, SetMotAcc
+                    GetMotAcc
+ * SetAzSlewDeccel, SetMotDec
+                     GetMotDec
+
+ * SetElSlewAccel, SetMotAcc
+                    GetMotAcc
+ * SetElSlewDeccel, SetMotDec
+                     GetMotDec
+
+ * CmdEnableAzMotors, SetMotorOn
+
+ * CmdDisableAzMotors, StopMove
+                        SetMotorOff
+
+ * CmdEnableElMotors, SetMotorOn
+
+ * CmdDisableElMotors, StopMove
+                        SetMotorOff
+
+* stopmotiontask, StopMove
+                    StopMove
+
+* opendomeTask, APRICUP
+* closedomeTask, CHIUDICUP
+* stopdomeTask, FERMACUP
+* domewestTask, SXCUP
+* domeeastTask, DXCUP
+
+* settaPosHome, HOMEX
+                HOMEX
+
+* StartMotion, SetMotAcc
+                SetMotDec
+                SetMotAcc
+                SetMotDec
+                Move
+                Move
+
+* FermaCupola, FERMACUP
+
+* PuntaCupola, PUNTA
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
