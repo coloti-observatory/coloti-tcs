@@ -3,6 +3,7 @@ import java.util.*;
 //import java.util.ResourceBundle.Control;
 
 import coloti.tcs.CommClass;
+import coloti.tcs.temporaneo.TestWeather;
 
 public class WeatherData {
     //private long timestamp;
@@ -11,14 +12,17 @@ public class WeatherData {
 
     public WeatherData() {
         this.communication = new CommClass();
-        communication.Open();
+        communication.Open(19200);
         trytest(); 
     }
 
     public WeatherData(String PortName) {
         this.communication = new CommClass(PortName);
-        communication.Open();
-        trytest(); 
+        System.out.println("Porta identificata");
+        communication.Open(19200);
+        System.out.println("Comunicazione Aperta");
+        trytest();
+        System.out.println("test funzionante");
     }
 
 
@@ -113,13 +117,18 @@ public class WeatherData {
     }
 
     public void trytest(){
-        boolean conditionPrint = false;
-        String teststring = "";
+        boolean conditionPrint = true;
+        String teststring = "TEST\n";
+        byte[] instruction = String.valueOf(teststring).getBytes();
         for (int j = 0; j<3; j++){
             //System.out.print("\nrisposta numero "+j);
-            communication.Write("TEST\r");
-            byte[] rispostaTest = communication.Read(8);
+            communication.Write(instruction);
+            //byte[] rispostaTest = communication.Read(8);
+            byte[] rispostaTest = communication.Read();
+            System.out.println(rispostaTest.length);
             for (int i = 0; i<rispostaTest.length; i++){
+                System.out.println(rispostaTest[i]);
+
                 teststring += (char) rispostaTest[i];
                 if (conditionPrint){
                     System.out.print((char) rispostaTest[i]);
@@ -425,5 +434,11 @@ public class WeatherData {
         return toPrint;
     }
 
-    
+    public static void main(final String[] a){ 
+
+        WeatherData WD = new WeatherData("/dev/ttyUSB0");
+
+
+    }
+
 }

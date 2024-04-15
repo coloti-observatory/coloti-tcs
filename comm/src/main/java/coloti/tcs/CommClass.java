@@ -316,8 +316,9 @@ public class CommClass{
     
     public static void main(String[] a) throws InterruptedException{
         CommClass com = new CommClass("/dev/ttyUSB0");
+        System.out.println(com.Open());
         if (com.Open()){
-            
+            System.out.println("okay");
             byte[] comando0 = new byte[5];
             comando0[0] = (byte) 'S';
             comando0[1] = (byte) 'H';
@@ -338,14 +339,21 @@ public class CommClass{
             comando2[1] = (byte) '0';
             comando2[2] = (byte) '\r';
 
-            com.Write(comando2); 
+            //com.Write(comando2); 
 
+            byte[] comando3 = new byte[1];
+            comando3[0] = (byte) '\r';
+
+            com.Write(comando3); 
+            System.out.println("okay");
 
             TimeUnit.MILLISECONDS.sleep(200);
-            String risposta = com.ReadMessage();
+            //String risposta = com.ReadMessage();
+            int[] risposta = com.ReadMessageInt();
+            System.out.println("okay");
             //System.out.println(risposta.length);
             //for (int i = 0; i < risposta.length; i++){System.out.print((char)risposta[i]);}
-            System.out.print(risposta);
+            System.out.println(risposta);
         }
     }
     

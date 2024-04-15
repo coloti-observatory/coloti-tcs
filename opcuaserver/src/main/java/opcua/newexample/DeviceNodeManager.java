@@ -31,7 +31,7 @@ public class DeviceNodeManager {
         this.icdFile = icdfile;
         loadIcd();
         createDeviceRootFolderNode();
-        tcs = new TCS(true);
+        tcs = new TCS();
     }
 
     private void loadIcd() {
