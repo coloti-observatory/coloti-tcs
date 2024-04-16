@@ -4,77 +4,122 @@
 
 
  * init axes x3
+ 1100 1200 1300 "- axis connection issue during initialization"
+
  - disconnect, CloseComm x3
+ 1101 1201 1301 "close communication issue, -axis not disconnected"
 
  * GetMotorStatus x2
+ 1151 1251 "error in get - motor status"
+
+---------------------------------------------
 
  * GetAzTelPos, GetMosPos
+ 1152
  * GetAzActVel, GetActualMotVel
+ 1153
  * GetAzCommandedPos, GetAbsTargPos
+ 1154
  * GetAzCommandedVel, GetMotVel
+ 1155
  * GetAzCommandedAcc, GetMotAcc
-
- * GetCupolaPosition, GetMotEncPos
-
- * GetElTelPos, GetMosPos
- * GetElActVel, GetActualMotVel
- * GetElCommandedPos, GetAbsTargPos
- * GetElCommandedVel, GetMotVel
- * GetElCommandedAcc, GetMotAcc
-
+ 1156
  * GetAzMotionState, GetMotionMode
- * GetElMotionState, GetMotionMode
-
+ 1157
  * SetAzTelPos, SetAbsTargPos x2
- * SetAzTelPos, GetAbsTargPos x2
-
- * SetMotionType, SetSlewMode x2
-                    SetMotVel x2
-                    setTrackMode x2
-                    setMotVel x2
-
+ 1160
+ * GetAzTelPos, GetAbsTargPos x2
+ 1154
  * SetAzSlewAccel, SetMotAcc
                     GetMotAcc
+ 1161 - 1156
  * SetAzSlewDeccel, SetMotDec
-                     GetMotDec
-
- * SetElSlewAccel, SetMotAcc
-                    GetMotAcc
- * SetElSlewDeccel, SetMotDec
-                     GetMotDec
-
+                      GetMotDec
+ 1162 - 1158
  * CmdEnableAzMotors, SetMotorOn
-
+ 1170
  * CmdDisableAzMotors, StopMove
                         SetMotorOff
+ 1171 1172
+---------------------------------------------
 
+
+ * GetElTelPos, GetMosPos
+ 1252
+ * GetElActVel, GetActualMotVel
+ 1253
+ * GetElCommandedPos, GetAbsTargPos
+ 1254
+ * GetElCommandedVel, GetMotVel
+ 1255 
+ * GetElCommandedAcc, GetMotAcc
+ 1256
+ * GetElMotionState, GetMotionMode
+ 1257
+ * SetElTelPos, SetAbsTargPos x2
+ 1260
+ * GetElTelPos, GetAbsTargPos x2
+ 1258
+ * SetElSlewAccel, SetMotAcc
+                    GetMotAcc
+ 1261 - 1261
+ * SetElSlewDeccel, SetMotDec
+                     GetMotDec
+ 1263 - 1264
  * CmdEnableElMotors, SetMotorOn
-
+ 1270
  * CmdDisableElMotors, StopMove
                         SetMotorOff
+ 1271 - 1272
 
+
+ * GetCupolaPosition, GetMotEncPos
+ 1351
+ * opendomeTask, APRICUP
+ 1380
+ * closedomeTask, CHIUDICUP
+ 1381
+ * stopdomeTask, FERMACUP
+ 1382
+ * domewestTask, SXCUP
+ 1383
+ * domeeastTask, DXCUP
+ 1384
+ * FermaCupola, FERMACUP
+ 1385
+ * PuntaCupola, PUNTA
+ 1386
+ * HOMECUP 
+ 1387
+
+
+ * SetMotionType, SetSlewMode x2
+ 1165
+                    SetMotVel x2
+ 1166
+                    setTrackMode x2
+ 1167
+                    setMotVel x2
 * stopmotiontask, StopMove
                     StopMove
+ 1191 1291
 
-* opendomeTask, APRICUP
-* closedomeTask, CHIUDICUP
-* stopdomeTask, FERMACUP
-* domewestTask, SXCUP
-* domeeastTask, DXCUP
 
 * settaPosHome, HOMEX
+ 1192
                 HOMEX
+ 1292
 
-* StartMotion, SetMotAcc
+* StartMotion x2, SetMotAcc
+ 1168
                 SetMotDec
+ 1169
                 SetMotAcc
                 SetMotDec
                 Move
+ 1190
                 Move
-
-* FermaCupola, FERMACUP
-
-* PuntaCupola, PUNTA
+ 1290
 
 
 

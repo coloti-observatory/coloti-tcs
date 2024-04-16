@@ -89,10 +89,67 @@ public class TCS {
     
     public Map <Integer, String> errorMap = new HashMap <>(){ // mappa da completare
         {
-            put(100, "InitAxes");
-            put(110, "GetAzAbsTargPos");
-            put(120, "...");
-            put(1000, "ERRORE");
+            put(1100, "Az axis connection issue during initialization");
+            put(1200, "El axis connection issue during initialization");
+            put(1300, "Dome axis connection issue during initialization");
+
+            put(1101, "Close communication issue, Az axis not disconnected");
+            put(1201, "Close communication issue, El axis not disconnected");
+            put(1301, "Close communication issue, Dome axis not disconnected");
+
+            put(1151, "Error in get Az motor status");
+            put(1251, "Error in get El motor status");
+
+            put(1152, "Error in Get Az telescope position");
+            put(1153, "Error in Get Az actual velocity");
+            put(1154, "Error in Get Az commanded position");
+            put(1155, "Error in Get Az commanded velocity");
+            put(1156, "Error in Get Az commanded acceleration");
+            put(1157, "Error in Get Az motion state");
+            put(1158, "Error in Get Az commanded deceleration");
+            put(1160, "Error in Set Az target position");
+            put(1161, "Error in Set Az slew acceleration");
+            put(1162, "Error in Set Az slew deceleration");
+            put(1165, "Error in Set Az slew mode");
+            put(1166, "Error in Set Az motor velocity");
+            put(1167, "Error in Set Az track mode");
+            put(1170, "Error in Set Az motor on");
+            put(1171, "Error in Stop Az Move");
+            put(1172, "Error in Set Az motor off");
+            put(1190, "Error in move Az motor");
+            put(1192, "Execution program issue in Az Home position");
+
+            put(1252, "Error in Get El telescope position");
+            put(1253, "Error in Get El actual velocity");
+            put(1254, "Error in Get El commanded position");
+            put(1255, "Error in Get El commanded velocity");
+            put(1256, "Error in Get El commanded acceleration");
+            put(1257, "Error in Get El motion state");
+            put(1258, "Error in Get El commanded deceleration");
+            put(1260, "Error in Set El target position");
+            put(1261, "Error in Set El slew acceleration");
+            put(1262, "Error in Set El slew deceleration");
+            put(1265, "Error in Set El slew mode");
+            put(1266, "Error in Set El motor velocity");
+            put(1267, "Error in Set El track mode");
+            put(1270, "Error in Set El motor on");
+            put(1271, "Error in Stop El Move");
+            put(1272, "Error in Set El motor off");
+            put(1290, "Error in move Az motor");
+            put(1292, "Execution program issue in Az Home position");
+
+            put(1351, "Error in get Dome position");
+            put(1380, "Execution program issue in open Dome");
+            put(1381, "Execution program issue in close Dome");
+            put(1382, "Execution program issue in stop Dome");
+            put(1383, "Execution program issue in move Dome to west");
+            put(1384, "Execution program issue in move Dome to east");
+            put(1386, "Execution program issue in move Dome to point");
+            put(1387, "Execution program issue in move Dome to home position");
+            
+            //put(110, "GetAzAbsTargPos");
+            //put(120, "...");
+            //put(1000, "ERRORE");
         }
     };
 
@@ -340,7 +397,7 @@ public class TCS {
         if (xAxisConnection){
             this.xAxisConnection= AsseX.SetSimpleStart(0);
             Sleep(500);
-            Error(AsseX.InitAxes(), 100);
+            Error(AsseX.InitAxes(), 1100);
         }
         final double gearratioX = TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
         this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
@@ -350,7 +407,7 @@ public class TCS {
         if (yAxisConnection){
             this.yAxisConnection = AsseY.SetSimpleStart(0);
             Sleep(500);
-            Error(AsseY.InitAxes(), 100);
+            Error(AsseY.InitAxes(), 1200);
         }
         final double gearratioY = TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
         this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
@@ -361,7 +418,7 @@ public class TCS {
         if(domeAxisConnection){
             this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
             Sleep(500);
-            Error(AsseCupola.InitAxes(), 100);
+            Error(AsseCupola.InitAxes(), 1300);
         }
 
 
@@ -382,15 +439,15 @@ public class TCS {
         if (xAxisConnection)
             status = AsseX.CloseComm();
             if (status)
-                Error(0,1000);
+                Error(0,1101);
         if (yAxisConnection)
             status = AsseY.CloseComm();
             if (status)
-                Error(0,1000);
+                Error(0,1201);
         if (domeAxisConnection)
             status = AsseCupola.CloseComm();
             if (status)
-                Error(0,1000);
+                Error(0,1301);
 
         taskExecutor.shutdown();
     }
@@ -490,7 +547,7 @@ public class TCS {
 
     public int  GetAzMotorStatus(){
         if (xAxisConnection){
-            Error(AsseX.GetMotorStatus(X),1000);
+            Error(AsseX.GetMotorStatus(X),1151);
             this.MotAZ.MotorStatus = AsseX.MOTORSTATUS[0];
         }
         return MotAZ.MotorStatus; // cumulative status of the AZ motors: 0=both disabled; 1=both enabled; 2=degraded state i.e. 1 enabled; 1 in fault; 3=both in fault
@@ -498,7 +555,7 @@ public class TCS {
 
     public int GetElMotorStatus(){
         if (yAxisConnection){
-            Error(AsseY.GetMotorStatus(X),1000);
+            Error(AsseY.GetMotorStatus(X),1251);
             this.MotEL.MotorStatus = AsseY.MOTORSTATUS[0];
         }
         return MotEL.MotorStatus; // status of the EL motor: 0=disabled; 1=enabled; 2=fault
@@ -506,7 +563,7 @@ public class TCS {
 
     public double GetAzTelPos(){
         if (xAxisConnection){
-            Error(AsseX.GetMotPos(X),1000);
+            Error(AsseX.GetMotPos(X),1152);
             this.MotAZ.TelPos = AsseX.PositionAx[0];
         }
         return MotAZ.TelPos;
@@ -514,7 +571,7 @@ public class TCS {
 
     public double GetAzActVel(){
         if (xAxisConnection){
-            Error(AsseX.GetActualMotVel(X),1000);
+            Error(AsseX.GetActualMotVel(X),1153);
             this.MotAZ.ActualVel = AsseX.ActualVelAx[0];
         }
         return MotAZ.ActualVel;
@@ -526,7 +583,7 @@ public class TCS {
 
     public double GetAzCommandedPos(){
         if (xAxisConnection){
-            Error(AsseX.GetAbsTargPos(X), 1000);
+            Error(AsseX.GetAbsTargPos(X), 1154);
             this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
         }
         return MotAZ.TelPosition;
@@ -534,7 +591,7 @@ public class TCS {
 
     public double GetAzCommandedVel(){
         if (xAxisConnection){
-            Error(AsseX.GetMotVel(X),1000);
+            Error(AsseX.GetMotVel(X),1155);
             this.MotAZ.CommandedVel = AsseX.VelAx[0];
         }
         return MotAZ.CommandedVel;
@@ -542,7 +599,7 @@ public class TCS {
 
     public double GetAzCommandedAcc(){
         if (xAxisConnection){
-            Error(AsseX.GetMotAcc(X),1000);
+            Error(AsseX.GetMotAcc(X),1156);
             this.MotAZ.CommandedAcc = AsseX.AccAx[0];
         }
         return MotAZ.CommandedAcc;
@@ -553,7 +610,7 @@ public class TCS {
         if (domeAxisConnection){
             //GetCupolaInfo();
             if (AsseCupola.CommStatus){
-                Error(AsseCupola.GetMotEncPos(X),1000);
+                Error(AsseCupola.GetMotEncPos(X),1351);
                 valo = AsseCupola.VALUECR;
                 this.CUP.Pos = valo/AsseCupola.CONVFACTOR[0];
                 this.CUP.AZ = CUP.Pos/3600.0;
@@ -566,7 +623,7 @@ public class TCS {
 
     public double GetElTelPos(){
         if (yAxisConnection){
-            Error(AsseY.GetMotPos(X),1000);
+            Error(AsseY.GetMotPos(X),1252);
             this.MotEL.TelPos = AsseY.PositionAx[0];
         }
         return MotEL.TelPos;
@@ -574,7 +631,7 @@ public class TCS {
 
     public double GetElActVel(){
         if (yAxisConnection){
-            Error(AsseY.GetActualMotVel(X),1000); 
+            Error(AsseY.GetActualMotVel(X),1253); 
             this.MotEL.ActualVel = AsseY.ActualVelAx[0];
         }
         return MotEL.ActualVel;
@@ -586,7 +643,7 @@ public class TCS {
 
     public double GetElCommandedPos(){
         if (yAxisConnection){
-            Error(AsseY.GetAbsTargPos(X),1000);
+            Error(AsseY.GetAbsTargPos(X),1254);
             this.MotEL.TelPosition = AsseY.AbsTargPosAx[0];
         }
         return MotEL.TelPosition;
@@ -594,7 +651,7 @@ public class TCS {
     
     public double GetElCommandedVel(){
         if (yAxisConnection){
-            Error(AsseY.GetMotVel(X),1000);
+            Error(AsseY.GetMotVel(X),1255);
             this.MotEL.ActualVel = AsseY.VelAx[0];
         }
         return MotEL.CommandedVel;
@@ -602,7 +659,7 @@ public class TCS {
 
     public double GetElCommandedAcc(){
         if (yAxisConnection){
-            Error(AsseY.GetMotAcc(X),1000);
+            Error(AsseY.GetMotAcc(X),1256);
             this.MotEL.CommandedAcc = AsseY.AccAx[0];
         }
         return MotEL.CommandedAcc;
@@ -611,13 +668,13 @@ public class TCS {
     public int GetAzMotionState(){
         if (xAxisConnection){
             int MS = 0;
-            Error(AsseX.GetActualMotVel(X),1000);
+            Error(AsseX.GetActualMotVel(X),1153);
             final double ActualVelocity1 = AsseX.ActualVelAx[0];
             Sleep(200);
-            Error(AsseX.GetActualMotVel(X),1000);
+            Error(AsseX.GetActualMotVel(X),1153);
             final double ActualVelocity2 = AsseX.ActualVelAx[0];
             final double deltaV = ActualVelocity2 - ActualVelocity1;
-            Error(AsseX.GetMotionMode(X),1000);
+            Error(AsseX.GetMotionMode(X),1157);
 
             if (AsseX.MOTIONMODE[0] == 0)
                 MS = 2; //slewing
@@ -637,13 +694,13 @@ public class TCS {
     public int GetElMotionState(){
         if (yAxisConnection){
             int MS = 0;
-            Error(AsseY.GetActualMotVel(X),1000);
+            Error(AsseY.GetActualMotVel(X),1253);
             final double ActualVelocity1 = AsseY.ActualVelAx[0];
             Sleep(200);
-            Error(AsseY.GetActualMotVel(X),1000);
+            Error(AsseY.GetActualMotVel(X),1253);
             final double ActualVelocity2 = AsseY.ActualVelAx[0];
             final double deltaV = ActualVelocity2 - ActualVelocity1;
-            Error(AsseY.GetMotionMode(X),1000);
+            Error(AsseY.GetMotionMode(X),1257);
 
             if (AsseY.MOTIONMODE[0] == 0)
                 MS = 2; //slewing
@@ -839,8 +896,8 @@ public class TCS {
 
     public void SetAzTelPosition(final double value){
         if (xAxisConnection){
-            Error(AsseX.SetAbsTargPos(X, value),1000);
-            Error(AsseX.GetAbsTargPos(X),1000);
+            Error(AsseX.SetAbsTargPos(X, value),1160);
+            Error(AsseX.GetAbsTargPos(X),1154);
             this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
         }
     }
@@ -864,8 +921,8 @@ public class TCS {
 
     public void SetElTelPosition(final double value){
         if (yAxisConnection){
-            Error(AsseY.SetAbsTargPos(X, value),1000);
-            Error(AsseY.GetAbsTargPos(X),1000);
+            Error(AsseY.SetAbsTargPos(X, value),1260);
+            Error(AsseY.GetAbsTargPos(X),1254);
             this.MotEL.TelPosition = AsseY.AbsTargPosAx[0];
         }
     }
@@ -890,25 +947,25 @@ public class TCS {
     public void SetMotionType(final int value){
         if (xAxisConnection && yAxisConnection){
             if (value == 0){
-                Error(AsseX.SetSlewMode(X),1000);
+                Error(AsseX.SetSlewMode(X),1165);
 
                 if (this.NumAxes == 2)
-                    Error(AsseY.SetSlewMode(X),1000);
+                    Error(AsseY.SetSlewMode(X),1265);
 
-                Error(AsseX.SetMotVel(X, MotAZ.SlewVelocity),1000);
+                Error(AsseX.SetMotVel(X, MotAZ.SlewVelocity),1166);
 
                 if (this.NumAxes == 2)
-                    Error(AsseY.SetMotVel(X, MotEL.SlewVelocity),1000);
+                    Error(AsseY.SetMotVel(X, MotEL.SlewVelocity),1266);
             }
             else if (value == 1){
-                Error(AsseX.SetTrackMode(X),1000);
+                Error(AsseX.SetTrackMode(X),1167);
                 
                 if (this.NumAxes == 2)
-                    Error(AsseY.SetTrackMode(X),1000);
+                    Error(AsseY.SetTrackMode(X),1267);
 
-                Error(AsseX.SetMotVel(X, MotAZ.JogVelocity),1000);
+                Error(AsseX.SetMotVel(X, MotAZ.JogVelocity),1166);
                 if (this.NumAxes == 2)
-                    Error(AsseY.SetMotVel(X, MotEL.JogVelocity),1000);
+                    Error(AsseY.SetMotVel(X, MotEL.JogVelocity),1266);
             }
             this.TEL.MotionType = value;
         }
@@ -933,16 +990,16 @@ public class TCS {
 
     public void SetAzSlewAcceleration(final double value){
         if (xAxisConnection){
-            Error(AsseX.SetMotAcc(X, value),1000);
-            Error(AsseX.GetMotAcc(X),1000);
+            Error(AsseX.SetMotAcc(X, value),1161);
+            Error(AsseX.GetMotAcc(X),1155);
             this.MotAZ.SlewAcceleration = AsseX.AccAx[0];
         }        
     }
 
     public void SetAzSlewDeceleration(final double value){
         if (xAxisConnection){
-            Error(AsseX.SetMotDec(X, value),1000);
-            Error(AsseX.GetMotDec(X),1000);
+            Error(AsseX.SetMotDec(X, value),1162);
+            Error(AsseX.GetMotDec(X),1158);
             this.MotAZ.SlewAcceleration = AsseX.DecAx[0];
         }
     }
@@ -966,16 +1023,16 @@ public class TCS {
 
     public void SetElSlewAcceleration(final double value){
         if (yAxisConnection){
-            Error(AsseY.SetMotAcc(X, value),1000);
-            Error(AsseY.GetMotAcc(X),1000);
+            Error(AsseY.SetMotAcc(X, value),1261);
+            Error(AsseY.GetMotAcc(X),1256);
             this.MotEL.SlewAcceleration = AsseY.AccAx[0];
         }
     }
 
     public void SetElSlewDeceleration(final double value){
         if (yAxisConnection){
-            Error(AsseY.SetMotDec(X, value),1000);
-            Error(AsseY.GetMotDec(X),1000);
+            Error(AsseY.SetMotDec(X, value),1262);
+            Error(AsseY.GetMotDec(X),1258);
             this.MotEL.SlewAcceleration = AsseY.AccAx[0];
         }
     }
@@ -1265,7 +1322,7 @@ public class TCS {
         if (value && xAxisConnection){
             long tStart = System.currentTimeMillis();
             setFieldCmd(this.TEL, "EnableAzMotorsInfo", "TRUE", tStart, 0L, "");
-            Error(AsseX.SetMotorOn(X),1000);
+            Error(AsseX.SetMotorOn(X),1170);
             setFieldCmd(this.TEL, "EnableAzMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), errorBuffer);
             if (TemporaryErr == -1)
                 setFieldCmd(this.TEL, "EnableAzMotorsInfo", "FALSE", 0L, 0L, "");
@@ -1277,9 +1334,9 @@ public class TCS {
             long tStart = System.currentTimeMillis();
             setFieldCmd(this.TEL, "DisableAzMotorsInfo", "TRUE", tStart, 0L, "");
             if (AsseX.IsMoving(X) == 1){
-                Error(AsseX.StopMove(X),1000);
+                Error(AsseX.StopMove(X),1171);
             }
-            Error(AsseX.SetMotorOff(X),1000);
+            Error(AsseX.SetMotorOff(X),1172);
             setFieldCmd(this.TEL, "DisableAzMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
             if (TemporaryErr == -1)
                 setFieldCmd(this.TEL, "DisableAzMotorsInfo", "FALSE", 0L, 0L, "");
@@ -1290,7 +1347,7 @@ public class TCS {
         if (value && yAxisConnection){
             long tStart = System.currentTimeMillis();
             setFieldCmd(this.TEL, "EnableElMotorsInfo", "TRUE", tStart, 0L, "");
-            Error(AsseY.SetMotorOn(X),1000);
+            Error(AsseY.SetMotorOn(X),1270);
             setFieldCmd(this.TEL, "EnableElMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), errorBuffer);
             if (TemporaryErr == -1)
                 setFieldCmd(this.TEL, "EnableElMotorsInfo", "FALSE", 0L, 0L, "");
@@ -1302,9 +1359,9 @@ public class TCS {
             long tStart = System.currentTimeMillis();
             setFieldCmd(this.TEL, "DisableElMotorsInfo", "TRUE", tStart, 0L, "");
             if (AsseY.IsMoving(X) == 1){
-                Error(AsseY.StopMove(X),1000);
+                Error(AsseY.StopMove(X),1271);
             }
-            Error(AsseY.SetMotorOff(X),1000);
+            Error(AsseY.SetMotorOff(X),1272);
             setFieldCmd(this.TEL, "DisableElMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
             if (TemporaryErr == -1)
                 setFieldCmd(this.TEL, "DisableElMotorsInfo", "FALSE", 0L, 0L, "");
@@ -1871,7 +1928,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("ZeroDomeInfo");
                 
-            Error(AsseCupola.ExecProg("HOMECUP"),1000);
+            Error(AsseCupola.ExecProg("HOMECUP"),1387);
             
             while(isInterrupted){
                 if(listener!=null)
@@ -2183,9 +2240,9 @@ public class TCS {
                 listener.onStart("StopMotionInfo");
                 
             if (AsseX.IsMoving(X) == 1)
-                Error(AsseX.StopMove(X),1000);
+                Error(AsseX.StopMove(X),1171);
             if (AsseY.IsMoving(X) == 1)
-                Error(AsseY.StopMove(X),1000);
+                Error(AsseY.StopMove(X),1271);
             
             while(isInterrupted){
                 if(listener!=null)
@@ -2247,7 +2304,7 @@ public class TCS {
                 listener.onStart("StopAzMotionInfo");
                 
             if (AsseX.IsMoving(X) == 1)
-                Error(AsseX.StopMove(X),1000);
+                Error(AsseX.StopMove(X),1171);
                 
             while(isInterrupted){
                 if(listener!=null)
@@ -2310,7 +2367,7 @@ public class TCS {
                 listener.onStart("StopElMotionInfo");
                 
             if (AsseY.IsMoving(X) == 1)
-                Error(AsseY.StopMove(X),1000);
+                Error(AsseY.StopMove(X),1271);
                 
             while(isInterrupted){
                 if(listener!=null)
@@ -2370,7 +2427,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("OpenDomeInfo");
                 
-            Error(AsseCupola.ExecProg("APRICUP"),1000);
+            Error(AsseCupola.ExecProg("APRICUP"),1380);
                 
             while(isInterrupted){
                 if(listener!=null)
@@ -2430,7 +2487,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("CloseDomeInfo");
                 
-            Error(AsseCupola.ExecProg("CHIUDCUP"),1000);
+            Error(AsseCupola.ExecProg("CHIUDCUP"),1381);
                 
             while(isInterrupted){
                 if(listener!=null)
@@ -2616,7 +2673,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("StopDomeInfo");
                 
-            Error(AsseCupola.ExecProg("FERMACUP"),1000);
+            Error(AsseCupola.ExecProg("FERMACUP"),1382);
                 
             while(isInterrupted){
                 if(listener!=null)
@@ -2679,7 +2736,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("DomeWestInfo");
                 
-            Error(AsseCupola.ExecProg("SXCUP"),1000);
+            Error(AsseCupola.ExecProg("SXCUP"),1383);
             CUP.StatusRotazione = 1;
             CUP.Direzione = 1;
 
@@ -2744,7 +2801,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("DomeEastInfo");
                 
-            Error(AsseCupola.ExecProg("DXCUP"),1000);
+            Error(AsseCupola.ExecProg("DXCUP"),1384);
             CUP.StatusRotazione = 1;
             CUP.Direzione = -1;
 
@@ -2914,12 +2971,12 @@ public class TCS {
             ValoX += (long) (ZeroX*3600*AsseX.CONVFACTOR[0] + 0.5 - 30*AsseX.CONVFACTOR[0]);
             AsseX.CommandArray("AVSE", 8, (int) ValoX);
             ValoX = AsseX.VALUECR;
-            Error(AsseX.ExecProg("HOMEX"),1000);
+            Error(AsseX.ExecProg("HOMEX"),1192);
 
             ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
             AsseY.CommandArray("AVSE", 8, (int) ValoY);
             ValoY = AsseY.VALUECR;
-            Error(AsseY.ExecProg("HOMEX"),1000);
+            Error(AsseY.ExecProg("HOMEX"),1291);
         }
         else{
             AsseX.CommandArray("AVSE", 8, (int) ValoX);
@@ -2942,28 +2999,28 @@ public class TCS {
     
     public void StartMotion(boolean AzAxis, boolean ElAxis){
         if(AzAxis && AsseX.IsMoving(X) == 1){
-            Error(AsseX.StopMove(X),1000);
+            Error(AsseX.StopMove(X),1171);
             Sleep(100);
         }
         if(ElAxis && AsseY.IsMoving(X) == 1){
-            Error(AsseY.StopMove(X),1000);
+            Error(AsseY.StopMove(X),1271);
             Sleep(100);
         }
         if(TEL.MotionType == 0){
             if (AzAxis){
-                Error(AsseX.SetMotAcc(X, MotAZ.MaxAcc),1000);
-                Error(AsseX.SetMotDec(X, MotAZ.MaxAcc),1000);
+                Error(AsseX.SetMotAcc(X, MotAZ.MaxAcc),1161);
+                Error(AsseX.SetMotDec(X, MotAZ.MaxAcc),1162);
             }
             if (ElAxis){
-                Error(AsseY.SetMotAcc(X, MotEL.MaxAcc),1000);
-                Error(AsseY.SetMotDec(X, MotEL.MaxAcc),1000);
+                Error(AsseY.SetMotAcc(X, MotEL.MaxAcc),1261);
+                Error(AsseY.SetMotDec(X, MotEL.MaxAcc),1262);
             }
 
             if (AzAxis){
-                Error(AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity),1000); // TEL.SlewVelX
+                Error(AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity),1190); // TEL.SlewVelX
             }
             if (ElAxis){
-                Error(AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity),1000); // TEL.SlewVelY
+                Error(AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity),1290); // TEL.SlewVelY
             }
         }
         
@@ -3264,7 +3321,7 @@ public class TCS {
 
     public int FermaCupola(){
         if (AsseCupola.CommStatus){
-            Error(AsseCupola.ExecProg("FERMACUP"),1000);
+            Error(AsseCupola.ExecProg("FERMACUP"),1382);
             this.CUP.StatusRotazione = 0;
             this.CUP.Direzione = 0;
         }
@@ -3276,7 +3333,7 @@ public class TCS {
             final int az = (int) (3600*azObj*AsseCupola.CONVFACTOR[0]);
             final byte[] command = AsseCupola.sbld("AVSE");
             AsseCupola.CommandArray(command, 10, az);
-            Error(AsseCupola.ExecProg("PUNTA"),1000);
+            Error(AsseCupola.ExecProg("PUNTA"),1386);
         }
         this.CUP.StatusRotazione = 1;
         this.CUP.Direzione = -1;
@@ -3288,7 +3345,7 @@ public class TCS {
             final int az = (int) (3600*CUP.CommandedAZ*AsseCupola.CONVFACTOR[0]);
             final byte[] command = AsseCupola.sbld("AVSE");
             AsseCupola.CommandArray(command, 10, az);
-            Error(AsseCupola.ExecProg("PUNTA"),1000);
+            Error(AsseCupola.ExecProg("PUNTA"),1386);
         }
         this.CUP.StatusRotazione = 1;
         this.CUP.Direzione = -1;
