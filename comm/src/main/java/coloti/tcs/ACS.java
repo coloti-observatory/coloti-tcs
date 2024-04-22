@@ -163,7 +163,7 @@ public class ACS {
     this.communication = new CommClass(SerialID);
   }
 
-  // STARTING
+  //#region STARTING
 
   public boolean OpenCommunications(int baud, byte bytesize, byte stop, byte parity, int timeout) { // VERIFICATO 
     boolean status = this.communication.GetStatus();
@@ -233,7 +233,7 @@ public class ACS {
     return 103;
   }
 
-  // UTILITY
+  //#region UTILITY
 
   public double SetUserUnit(String ax, int um, double gr) { // VERIFICATO 
     int axI = AxesNumber(ax);
@@ -323,8 +323,6 @@ public class ACS {
 
   Tell2 Tell2 = new Tell2();
   
-  
-  
 
   public int AxesNumber(String ax) { // VERIFICATO 
     int axint = 0;
@@ -389,7 +387,7 @@ public class ACS {
   }
 
 
-  // -------------
+  //#region MOVE
 
   public int Move(String ax, double pos) {
     if (this.MOTORSTATUS[AxesNumber(ax)] == 0) {
@@ -473,7 +471,7 @@ public class ACS {
   }
   
 
-  // SET FUNCTIONS
+  //#region SET
 
   public int SetHostMode() { // VERIFICATO 
     int Err = DirectCommand("SHT1\r");
@@ -726,7 +724,7 @@ public class ACS {
 
 
 
-  // GET FUNCTIONS
+  //#region GET
 
   public void GetAllInfo(String ax) { // VERIFICATO 
     int nax = AxesNumber(ax);
@@ -1060,7 +1058,7 @@ public class ACS {
 
 
 
-  // COMMUNICATIONS
+  //#region COMM
 
   public int DirectCommand(String Instruction) { // VERIFICATO 
     byte[] instruction = String.valueOf(Instruction).getBytes();
