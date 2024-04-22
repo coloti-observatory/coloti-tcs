@@ -450,8 +450,27 @@ public class ACS {
     if (ERROR != this.ACSOK)
       return ERROR;
 
-    // while GetEndMotionStatus
     this.ERROR = SetMotVel(ax, trackvel);
+    if (ERROR != this.ACSOK)
+      return ERROR;
+
+    this.ERROR = StartMove(ax);
+    if (ERROR != this.ACSOK)
+      return ERROR;
+
+    return ACSOK;
+  }
+
+  public int MoveTrack(String ax, double pos) {
+    this.ERROR = SetSlewMode(ax); 
+    if (ERROR != this.ACSOK)
+      return ERROR;
+
+    this.ERROR = Move(ax, pos);
+    if (ERROR != this.ACSOK)
+      return ERROR;
+
+    this.ERROR = SetTrackMode(ax);
     if (ERROR != this.ACSOK)
       return ERROR;
 

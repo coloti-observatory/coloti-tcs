@@ -1497,7 +1497,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.TEL.HomePosInfo = "commandname: CommandGoLoaded; busy: FALSE; tstart: 0; tstop: 0; error:";
+            setFieldCmd(this.TEL, "HomePosInfo", "FALSE", 0L, 0L, "");
     }
 
     public void CmdStopPointMotion(final boolean value){
