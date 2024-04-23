@@ -2823,6 +2823,71 @@ public class TCS {
 
 
 
+    private final Task<Void> trakingTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("TrakingInfo");
+                
+            
+
+            // FUNZIONE DI TRACCIAMENTO (OnTimer)
+
+
+
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(1000);
+
+
+                // FUNZIONE DI TRACCIAMENTO (OnTimer)
+
+                AsseX.IsMoving(X);
+                AsseY.IsMoving(X);
+                //System.out.println("Tracking...");
+                if (!AsseX.isMoving && !AsseY.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+
+
 
 
 
@@ -2869,8 +2934,220 @@ public class TCS {
     public void InitStar(){}
     public void Puntamento(){}
     public void ComandiTastierino(){}
-    public void TraiettoriaX(){}
-    public void TraiettoriaY(){}
+
+    public void TraiettoriaX(){
+        double Vmax, Amax, Tnew = 0, Tmin = 0.1;
+        double Told = 0, Vm, Dp;
+        double Pi, Pf, Vi, Vf, Vs;
+        double d, h, az, el, vaz, vel;
+        double P0;
+        
+        // Telescopio
+        GetTelInfoX();
+        P0 = TEL.AZ * 3600;
+        Vi = 0.0; // m_telescopeInfo.TrackVelX;
+        Amax = TEL.MaxAccX;
+        Vmax = MotAZ.MaxVel;
+        
+        // Oggetto
+        // OggettoPuntato.CalcStarPos();
+        // CALCOLO DELLA POSIZIONE OGGETTO
+        Pf = TEL.TargetAZ * 3600;
+        Vs = TEL.TargetVelAZ;
+        Vf = Vs;
+    
+        do {
+            Told = Tnew;
+            double DP = Vs * Told; // ricalcolo le posizioni finali al tempo Told
+            Dp = Pf - P0 + DP;
+            double Dir = Dp / Math.abs(Dp);
+            double A = Dir * Amax;
+            Vm = Math.sqrt(A * Dp + 2.0 * (Vi * Vi + Vf * Vf));
+            if (Vm > Vmax) Vm = Vmax;
+            Vm = Dir * Vm;
+            double T1 = (Vm - Vi) / A;
+            double S1 = Vi * T1 + A * T1 * T1 / 2;
+            double T3 = (Vm - Vf) / A;
+            double S3 = Vm * T3 - A * T3 * T3 / 2;
+            double S2 = Dp - S1 - S3;
+            double T2 = S2 / Vm;
+            if (T1 <= 0.0 || T2 <= 0.0 || T3 <= 0.0) break; // Puntare senza rampe;
+            Tnew = T1 + T2 + T3;
+        } while ((Tnew > Tmin) && (Math.abs(Tnew - Told) > Tmin));
+    
+        //TEL.SlewTimeX = Tnew;
+        TEL.SlewVelX = Math.abs(Vm);
+        CorreggiAZ(TEL.TargetAZ, TEL.TargetEL);
+        TEL.TargetPosX = (180 * 3600 - (P0 + Dp)) + CostX[0];
+    }
+
+    public void TraiettoriaY(){
+        double Vmax, Amax, Tnew = 0, Tmin = 0.1;
+        double Told, Vm, Dp;
+        double Pi, Pf, Vi, Vf;
+        
+        // Telescopio
+        GetTelInfoY();
+        Pi = TEL.PosY;
+        Vi = 0.0; // m_telescopeInfo.TrackVelX;
+        Amax = TEL.MaxAccY;
+        Vmax = MotEL.MaxVel;
+        
+        // Oggetto
+        // OggettoPuntato.CalcStarPos();
+        // CALCOLO DELLA POSIZIONE OGGETTO
+        Pf = TEL.TargetEL * 3600;
+        Vf = TEL.TargetVelEL;
+    
+        do {
+            Told = Tnew;
+            double DP = Vf * Told; // ricalcolo le posizioni finali al tempo Told
+            Dp = Pf - Pi + DP;
+            double Dir = Dp / Math.abs(Dp);
+            double A = Dir * Amax;
+            Vm = Math.sqrt(A * Dp + 2.0 * (Vi * Vi + Vf * Vf));
+            if (Vm > Vmax) Vm = Vmax;
+            Vm = Dir * Vm;
+            double T1 = (Vm - Vi) / A;
+            double S1 = Vi * T1 + A * T1 * T1 / 2;
+            double T3 = (Vm - Vf) / A;
+            double S3 = Vm * T3 - A * T3 * T3 / 2;
+            double S2 = Dp - S1 - S3;
+            double T2 = S2 / Vm;
+            if (T1 <= 0.0 || T2 <= 0.0 || T3 <= 0.0) break; // Puntare senza rampe;
+            Tnew = T1 + T2 + T3;
+        } while ((Tnew > Tmin) && (Math.abs(Tnew - Told) > Tmin));
+    
+        //TEL.SlewTimeY = Tnew;
+        TEL.SlewVelY = Math.abs(Vm);
+        CorreggiEL(TEL.TargetAZ, TEL.TargetEL);
+        TEL.TargetPosY = ((Pi + Dp)) + CostY[0];
+    }
+    
+    public void CorreggiAZ(double az, double el){
+        double azr = az*D2R;
+        double elr = el*D2R;
+        double coel = Math.cos(elr);
+        double daz = CostX[1];//+874.98 - 892.4*coel -256.*sin(elr) -24.*coel*sin(2*azr)
+            //+ 36.*coel*sin(3.*azr);
+        CostX[0] = daz;
+
+    }
+
+    public void CorreggiEL(double az, double el){
+        double azr = az*D2R;
+        double elr = el*D2R;
+        double coel = Math.cos(elr);
+        double del = CostY[1];//+874.98 - 892.4*coel -256.*sin(elr) -24.*coel*sin(2*azr) 
+            //+ 36.*coel*sin(3.*azr);
+        CostY[0] = del;
+    }
+
+
+    public void Tracking(int event){
+        char[] buf = new char[80];
+        char[] buf1 = new char[80];
+        double DPX = 0;
+        double DPY = 0;
+        long val = 0;
+
+        //OggettoPuntato.calcStarPos(); 
+        // CALCOLO DELLA POSIZIONE OGGETTO
+        // va sempre riletta la posizione per aggiornare Az ed El
+
+        GetTelInfo();
+
+        DPX = (TEL.AZ - TEL.TargetAZ) * 3600;
+        DPY = (TEL.EL - TEL.TargetEL) * 3600;
+        
+        if (SetPointX == 0) {
+            if (SetTrackX == 1) {
+                if (Math.abs(DPX) > 1.0 && (Joy == 0) && (SetTrackY == 1)) { 
+                    if (DPX > 0.)
+                        AsseX.SetMotVel(X, (1. * TEL.TargetVelAZ / CostX[2]));
+                    if (DPX < 0.)
+                        AsseX.SetMotVel(X, -1. * TEL.TargetVelAZ * CostY[2]);
+                }
+                else
+                    AsseX.SetMotVel(X, MotAZ.JogDirection * TEL.TargetVelAZ);
+            }
+        }
+        else{ //SetPointX != 0
+            if (SetTrackY == 1) {
+                if (Math.abs(DPX) >= 1.0) { 
+                    if (DPX > 0.0)
+                        AsseX.SetMotVel(X, (TEL.TargetVelAZ + DPX/1.5));
+                    if (DPX < 0.0)
+                        AsseX.SetMotVel(X, -1*(TEL.TargetVelAZ + Math.abs(DPX)/3));
+                }
+                else{
+                    AsseX.SetMotVel(X, -1*TEL.TargetVelAZ);
+                    SetPointX = 0;
+                }
+            }
+        }    
+
+
+
+        if (SetPointY == 0) {
+            if (SetTrackY == 1){
+                if(Math.abs(DPY) >= 0.5 && (Joy == 0) && (SetTrackX == 1)){
+                    if (DPY > 0.0){
+                        if(TEL.TargetVelEL<0.)
+                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL*1.1);
+                        else
+                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL/1.1);
+                    }
+                    if (DPY < 0.0){
+                        if(TEL.TargetVelEL < 0.0)
+                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL/1.1);
+                        else
+                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL*1.1);
+                    }
+                }
+                else{
+                    AsseY.SetMotVel(X, TEL.TargetVelEL);
+                }
+            }
+        }
+        else{ // SetPointY != 0
+            if (SetTrackX == 1){
+                if (Math.abs(DPY) >= 0.5){
+                    if (DPY > 0.0){
+                        if (TEL.TargetVelEL < 0.0)
+                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL*1.15);
+                        else
+                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL/1.15);
+                    }
+                    if (DPY < 0.0){
+                        if (TEL.TargetVelEL < 0.0)
+                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL/1.15);
+                        else
+                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL*1.15);
+                    }
+                }
+                else{
+                    AsseY.SetMotVel(X, TEL.TargetVelEL);
+                    SetPointY = 0;
+                }
+            }
+        }
+    
+        // Aggiungere anche lo spostamento della cupola?
+    }
+
+    public void TrackingMode(){
+        Error(AsseX.SetTrackMode(X),1167);
+        Error(AsseY.SetTrackMode(X),1267);
+    }
+
+    public void CoordinatesConversion(double ra, double dec){
+        double conversione = 0.0;
+        SetAzTelPosition(dec*conversione);
+        SetElTelPosition(ra*conversione);
+    }
+    
+
     public void Controllore(){} // vari, utilizza funzione consolle
     public void PuntamentoCoordinate(){}
     public void PuntamentoMinimo(){}

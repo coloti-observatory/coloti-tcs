@@ -2095,7 +2095,7 @@ void CTcsDlg::OnStartTrack(LPARAM lp,WPARAM wp)
 */
 }
 
-
+//MARK: Timer
 void CTcsDlg::OnTimer(UINT nIDEvent) 
 {
 	// TODO: Add your message handler code here and/or call default
@@ -2130,39 +2130,39 @@ void CTcsDlg::OnTimer(UINT nIDEvent)
 	///
 	if(SetPointX==0){
 		if(SetTrackX==1){//1	
-		
-		if(Telescopio.m_TelMonTipo==0){//2
-			//DPX=(m_telescopeInfo.AZ-OggettoPuntato.ObsAZ)*3600;
-			if(fabs(DPX)>1.0 && (Joy==0) && (SetTrackY==1)){//3
-				//if(fabs(DPX)<=m_telescopeInfo.MaxVelX/4.)
-		//Mettere controllo sulla velocita' massima
-				if(DPX>0. ){
-					AsseX.SetMotVel(X, (1.*OggettoPuntato.ObsVAZ/CostX[2]));
-						sprintf(buf,"V%6.1lf",1.*OggettoPuntato.ObsVAZ/CostX[2]);
-					SetDlgItemText(IDC_MVHA, buf);
-				}
-				if(DPX<0. )
-					AsseX.SetMotVel(X, -1.*OggettoPuntato.ObsVAZ*CostY[2]);
-			}//3
-			else
-				AsseX.SetMotVel(X,m_telescopeInfo.DirX*OggettoPuntato.ObsVAZ);
-		}//2
-		else{//4
-			//DPX=(m_telescopeInfo.H-OggettoPuntato.ObsH)*54000.;
-			if(fabs(DPX)>=0.5 && (Joy==0)){
-				if(m_telescopeInfo.H>12.)m_telescopeInfo.H-=24.;
-				if(OggettoPuntato.ObsH>12.)OggettoPuntato.ObsH-=24.;
+			
+			if(Telescopio.m_TelMonTipo==0){//2
+				//DPX=(m_telescopeInfo.AZ-OggettoPuntato.ObsAZ)*3600;
+				if(fabs(DPX)>1.0 && (Joy==0) && (SetTrackY==1)){//3
+					//if(fabs(DPX)<=m_telescopeInfo.MaxVelX/4.)
+					//Mettere controllo sulla velocita' massima
+					if(DPX>0. ){
+						AsseX.SetMotVel(X, (1.*OggettoPuntato.ObsVAZ/CostX[2]));
+							sprintf(buf,"V%6.1lf",1.*OggettoPuntato.ObsVAZ/CostX[2]);
+						SetDlgItemText(IDC_MVHA, buf);
+					}
+					if(DPX<0. )
+						AsseX.SetMotVel(X, -1.*OggettoPuntato.ObsVAZ*CostY[2]);
+				}//3
+				else
+					AsseX.SetMotVel(X,m_telescopeInfo.DirX*OggettoPuntato.ObsVAZ);
+			}//2
+			else{//4
 				//DPX=(m_telescopeInfo.H-OggettoPuntato.ObsH)*54000.;
-				if(DPX>0. )
-					AsseX.SetMotVel(X, 0.9*OggettoPuntato.ObsVH);
-				if(DPX<0. )
-					AsseX.SetMotVel(X, 1.1*OggettoPuntato.ObsVH);
+				if(fabs(DPX)>=0.5 && (Joy==0)){
+					if(m_telescopeInfo.H>12.)m_telescopeInfo.H-=24.;
+					if(OggettoPuntato.ObsH>12.)OggettoPuntato.ObsH-=24.;
+					//DPX=(m_telescopeInfo.H-OggettoPuntato.ObsH)*54000.;
+					if(DPX>0. )
+						AsseX.SetMotVel(X, 0.9*OggettoPuntato.ObsVH);
+					if(DPX<0. )
+						AsseX.SetMotVel(X, 1.1*OggettoPuntato.ObsVH);
 
-			}
-			else 
-				AsseX.SetMotVel(X,m_telescopeInfo.DirX*OggettoPuntato.ObsVH);
-		}//4
-	}//1
+				}
+				else 
+					AsseX.SetMotVel(X,m_telescopeInfo.DirX*OggettoPuntato.ObsVH);
+			}//4
+		}//1
 	}
 	else{
 		if((SetTrackY==1) ){

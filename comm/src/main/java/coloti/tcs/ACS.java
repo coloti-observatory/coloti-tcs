@@ -662,6 +662,18 @@ public class ACS {
     return ACSOK;
   }
 
+  public int SetTrueTrackingMode(String ax) { // forse manca un GetMotionMode
+    if (MOTIONMODE[AxesNumber(ax)] != 1)
+    {
+      byte[] command = sbld("S%sMM", ax);
+      int Err = CommandSet(command, 22);
+      if (Err == -1)
+        MOTIONMODE[AxesNumber(ax)] = 1;
+      return Err;
+    }
+    return ACSOK;
+  }
+
   public int SetOutPortOn(int ipno) { // VERIFICATO 
     if (ipno > MAXINP)
       return 105;

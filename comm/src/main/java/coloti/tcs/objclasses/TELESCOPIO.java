@@ -107,7 +107,9 @@ public class TELESCOPIO {
     public double TargetRA;
     public double TargetDEC;
     public double TargetAZ;
+    public double TargetVelAZ;
     public double TargetEL;
+    public double TargetVelEL;
     public double TargetPmRA;
     public double TargetPmDEC;
     public double TargetPX;
