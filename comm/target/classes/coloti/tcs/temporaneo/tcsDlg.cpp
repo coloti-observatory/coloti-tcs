@@ -2228,7 +2228,7 @@ void CTcsDlg::OnTimer(UINT nIDEvent)
 					else
 						AsseY.SetMotVel(X, m_telescopeInfo.DirY*OggettoPuntato.ObsVEL/1.15);
 					}
-					if(DPY<0. ){
+				if(DPY<0. ){
 						if(OggettoPuntato.ObsVEL<0.)
 							AsseY.SetMotVel(X, m_telescopeInfo.DirY*OggettoPuntato.ObsVEL/1.15);
 						else

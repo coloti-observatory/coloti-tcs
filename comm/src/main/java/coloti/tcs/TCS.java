@@ -139,6 +139,7 @@ public class TCS {
             put(1292, "Execution program issue in Az Home position");
 
             put(1351, "Error in get Dome position");
+            put(1360, "Error in Set Dome target position");
             put(1380, "Execution program issue in open Dome");
             put(1381, "Execution program issue in close Dome");
             put(1382, "Execution program issue in stop Dome");
@@ -516,7 +517,7 @@ public class TCS {
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
 
-    //#region GETTERS
+    //#region GET
 
 
     // GETTERS
@@ -537,7 +538,7 @@ public class TCS {
         return MotEL.StatusLimitSwitchHigh;
     }
 
-    public int  GetAzMotorStatus(){
+    public int GetAzMotorStatus(){
         if (xAxisConnection){
             Error(AsseX.GetMotorStatus(X),1151);
             this.MotAZ.MotorStatus = AsseX.MOTORSTATUS[0];
@@ -842,12 +843,12 @@ public class TCS {
     }
 
     // ultimo errore o numero totale di errori? Se lo metto come stringa posso avere entrambi
-    public int GetErrorNumber(){
+    public int GetErrorNumber(){ // adesso tiene il numero totale di errori ottenuti
         this.GEN.ErrorNumber = nErrors;
         return GEN.ErrorNumber;
     }
     
-    public String GetErrorBuffer(){
+    public String GetErrorBuffer(){ // adesso tiene solo l'ultimo errore
         this.GEN.ErrorBuffer = "{"+errorText+"}";
         return GEN.ErrorBuffer;
     }
@@ -869,66 +870,12 @@ public class TCS {
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
 
-    //#region SETTERS
+    //#region SET
 
 
     // SETTERS 
 
-    public void SetCupolaTargetPosition(final double value){
-        this.CUP.CommandedAZ = value;
-    }
-
-    public void SetAzTelPosition(final double value){
-        if (xAxisConnection){
-            Error(AsseX.SetAbsTargPos(X, value),1160);
-            Error(AsseX.GetAbsTargPos(X),1154);
-            this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
-        }
-    }
-
-    public void SetAzJogDirection(final int value){
-        if (value == -1 || value == 1)
-            this.MotAZ.JogDirection = value;
-    }
-
-    public void SetAzJogVelocity(final double value){
-        /*
-        AsseX.GetMotionMode(X);
-        if (AsseX.MOTIONMODE[0] == 10){
-            AsseX.SetMotVel(X, value);
-            this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
-        }
-        */
-        this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
-
-    }
-
-    public void SetElTelPosition(final double value){
-        if (yAxisConnection){
-            Error(AsseY.SetAbsTargPos(X, value),1260);
-            Error(AsseY.GetAbsTargPos(X),1254);
-            this.MotEL.TelPosition = AsseY.AbsTargPosAx[0];
-        }
-    }
-
-    public void SetElJogDirection(final int value){
-        if (value == -1 || value == 1)
-            this.MotEL.JogDirection = value;
-    }
-
-    public void SetElJogVelocity(final double value){
-        /*
-        AsseY.GetMotionMode(X);
-        if (AsseY.MOTIONMODE[0] == 10){
-            AsseY.SetMotVel(X, value);
-            this.MotEL.JogVelocity = value*MotEL.JogDirection;
-        }
-        */
-        this.MotEL.JogVelocity = value*MotEL.JogDirection;
-
-    }
-    
-    public void SetMotionType(final int value){
+    public void SetMotionType(final int value){ // 0 slew, 1 jog
         if (xAxisConnection && yAxisConnection){
             if (value == 0){
                 Error(AsseX.SetSlewMode(X),1165);
@@ -955,21 +902,87 @@ public class TCS {
         }
     }
 
+    public void SetCupolaTargetPosition(final double value){
+        if (domeAxisConnection){
+            Error(AsseCupola.SetAbsTargPos(X, value),1360);
+            Error(AsseCupola.GetAbsTargPos(X),1351);
+            this.CUP.CommandedAZ = AsseCupola.AbsTargPosAx[0];
+        }
+    }
+
+
+    public void SetAzTelPosition(final double value){
+        if (xAxisConnection){
+            Error(AsseX.SetAbsTargPos(X, value),1160);
+            Error(AsseX.GetAbsTargPos(X),1154);
+            this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
+        }
+    }
+
+    public void SetAzJogDirection(final int value){
+        if (value == -1 || value == 1)
+            this.MotAZ.JogDirection = value;
+    }
+
+    public void SetAzJogVelocity(final double value){
+        boolean live = false;
+        if (live) {
+            AsseX.GetMotionMode(X);
+            if (AsseX.MOTIONMODE[0] == 10){
+                AsseX.SetMotVel(X, value);
+                this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
+            }
+        }
+        else{
+            this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
+        }
+    }
+
+
+    public void SetElTelPosition(final double value){
+        if (yAxisConnection){
+            Error(AsseY.SetAbsTargPos(X, value),1260);
+            Error(AsseY.GetAbsTargPos(X),1254);
+            this.MotEL.TelPosition = AsseY.AbsTargPosAx[0];
+        }
+    }
+
+    public void SetElJogDirection(final int value){
+        if (value == -1 || value == 1)
+            this.MotEL.JogDirection = value;
+    }
+
+    public void SetElJogVelocity(final double value){
+        boolean live = false;
+        if (live){
+            AsseY.GetMotionMode(X);
+            if (AsseY.MOTIONMODE[0] == 10){
+                AsseY.SetMotVel(X, value);
+                this.MotEL.JogVelocity = value*MotEL.JogDirection;
+            }
+        }
+        else{
+            this.MotEL.JogVelocity = value*MotEL.JogDirection;
+        }
+    }
+    
+    
     public void SetAzSlewVelocity(final double value){
-        
+        boolean live = false;
         int sign = 1;
         if (value < 0)
             sign = -1;
 
-        /*
-        AsseX.GetMotionMode(X);
-        if (AsseX.MOTIONMODE[0] == 0){
-            AsseX.SetMotVel(X, value*sign);
-            this.MotAZ.SlewVelocity = value*sign;
+        if (live){
+            AsseX.GetMotionMode(X);
+            if (AsseX.MOTIONMODE[0] == 0){
+                AsseX.SetMotVel(X, value*sign);
+                this.MotAZ.SlewVelocity = value*sign;
+            }
         }
-        */
-
-        this.MotAZ.SlewVelocity = value*sign;        
+        else{
+            this.MotAZ.SlewVelocity = value*sign;       
+        } 
     }
 
     public void SetAzSlewAcceleration(final double value){
@@ -988,21 +1001,23 @@ public class TCS {
         }
     }
 
+
     public void SetElSlewVelocity(final double value){
-         
+        boolean live = false;
         int sign = 1;
         if (value < 0)
             sign = -1;
 
-        /*
-        AsseY.GetMotionMode(X);
-        if (AsseY.MOTIONMODE[0] == 0){
-            AsseY.SetMotVel(X, value*sign);
+        if (live){
+            AsseY.GetMotionMode(X);
+            if (AsseY.MOTIONMODE[0] == 0){
+                AsseY.SetMotVel(X, value*sign);
+                this.MotEL.SlewVelocity = value*sign;
+            }
+        }
+        else{
             this.MotEL.SlewVelocity = value*sign;
         }
-        */
-
-        this.MotEL.SlewVelocity = value*sign;
     }
 
     public void SetElSlewAcceleration(final double value){
@@ -1020,6 +1035,8 @@ public class TCS {
             this.MotEL.SlewAcceleration = AsseY.AccAx[0];
         }
     }
+
+    // MAX MIN
 
     public void SetAzMinAcc(final double value){
         if (xAxisConnection){
@@ -1122,6 +1139,8 @@ public class TCS {
         }
     }
 
+    // OTHERS
+
     public void SetAzLsOpCwPos(final double value){
         this.MotAZ.LsOpCwPos = value;
     }
@@ -1150,6 +1169,7 @@ public class TCS {
         this.OSS.Altitudine = value;
     }
 
+    // PARKING
 
     public void SetAzParkingPosition(final double value){
         this.MotAZ.ParkPos = value;
@@ -1169,7 +1189,7 @@ public class TCS {
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
 
-    //#region COMMAND
+    //#region CMD
 
 
 
@@ -1345,6 +1365,7 @@ public class TCS {
         }
     }
 
+    // motion (slew) to position
 
     public void CmdStartMotion(final boolean value){ // OK
         if (value && xAxisConnection && yAxisConnection){
@@ -1412,6 +1433,7 @@ public class TCS {
         }
     }
 
+
     public void CmdEmergencyStop(final boolean value){
         if (value){
             EmergencyStop();
@@ -1426,6 +1448,8 @@ public class TCS {
 
         }
     }
+
+    // PARKING
 
     public void CmdStartParking(final boolean value){
         if (value){
@@ -1463,6 +1487,8 @@ public class TCS {
         if (value)
             CmdStopMotion(value);
     }
+
+
 
     public void CmdStartTracking(final boolean value){
         if (value){
@@ -2821,8 +2847,7 @@ public class TCS {
     };
 
 
-
-
+    //#region Tracking
     private final Task<Void> trakingTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -3214,26 +3239,15 @@ public class TCS {
         // aprire file Zeri.dat e prendere i valori degli zeri 
         final long ZeroX=0, ZeroY=0; // non sono assegnati, vengono dal file?
 
-        if (TEL.MonType == 0){
-            ValoX += (long) (ZeroX*3600*AsseX.CONVFACTOR[0] + 0.5 - 30*AsseX.CONVFACTOR[0]);
-            AsseX.CommandArray("AVSE", 8, (int) ValoX);
-            ValoX = AsseX.VALUECR;
-            Error(AsseX.ExecProg("HOMEX"),1192);
+        ValoX += (long) (ZeroX*3600*AsseX.CONVFACTOR[0] + 0.5 - 30*AsseX.CONVFACTOR[0]);
+        AsseX.CommandArray("AVSE", 8, (int) ValoX);
+        ValoX = AsseX.VALUECR;
+        Error(AsseX.ExecProg("HOMEX"),1192);
 
-            ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
-            AsseY.CommandArray("AVSE", 8, (int) ValoY);
-            ValoY = AsseY.VALUECR;
-            Error(AsseY.ExecProg("HOMEX"),1291);
-        }
-        else{
-            AsseX.CommandArray("AVSE", 8, (int) ValoX);
-            ValoX = AsseX.VALUECR;
-            AsseX.ExecProg("HOMEX");
-
-            AsseY.CommandArray("AVSE", 8, (int) ValoY);
-            ValoY = AsseY.VALUECR;
-            AsseY.ExecProg("HOMEX");
-        }
+        ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
+        AsseY.CommandArray("AVSE", 8, (int) ValoY);
+        ValoY = AsseY.VALUECR;
+        Error(AsseY.ExecProg("HOMEX"),1291);
     }
 
     public void FermaMoto(){  // era dentro setta pos home
