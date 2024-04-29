@@ -780,8 +780,8 @@ public class TCS {
         return TEL.StartMotionInfo;
     }
 
-    public String GetTrackingInfo(){
-        return TEL.TrackingInfo;
+    public String GetStartTrackingInfo(){
+        return TEL.StartTrackingInfo;
     }
 
     public String GetStopMotionInfo(){
@@ -876,7 +876,7 @@ public class TCS {
     //#region SET
 
 
-    // SETTERS 
+    // SETTERS
 
     public void SetMotionType(final int value){ // 0 slew, 1 jog
         if (xAxisConnection && yAxisConnection){
@@ -1510,7 +1510,7 @@ public class TCS {
     public void CmdStartTracking(final boolean value){
         if (value && xAxisConnection && yAxisConnection){
             try {
-                taskExecutor.runTask(trakingTask, defaultListener);
+                taskExecutor.runTask(trackingTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
@@ -1524,9 +1524,18 @@ public class TCS {
     }
 
     public void CmdStartPointing(final boolean value){
+        /*
         if (value){
             SetMotionType(0);
             CmdStartMotion(value);
+        }*/
+        if (value && xAxisConnection && yAxisConnection){
+            try {
+                taskExecutor.runTask(pointingTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "");
         }
     }
 
@@ -2803,17 +2812,8 @@ public class TCS {
 
 
 
-
-
-    //#region Tracking
-
-
-
-    
-
-
-
-    private final Task<Void> trakingTask = new Task<Void>() {
+    //#region T tracking
+    private final Task<Void> trackingTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
         
@@ -2821,9 +2821,9 @@ public class TCS {
         @Override
         public Void call() throws Exception {
             if(listener!=null)
-                listener.onStart("TrakingInfo");
+                listener.onStart("StartTrackingInfo");
                 
-                if (TEL.MotionType == 0)
+                if (TEL.MotionType != 1)
                     SetTrackingMode();
 
             while(isInterrupted){
@@ -2871,8 +2871,65 @@ public class TCS {
         
     };
 
+    //#region T pointing
 
 
+    private final Task<Void> pointingTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StartMotionInfo");
+                
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+        
+            StartMotion(true,true);
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(10000);
+                AsseX.IsMoving(X);
+                AsseY.IsMoving(X);
+                //System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+                if (!AsseX.isMoving && !AsseY.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
 
 
 
