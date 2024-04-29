@@ -54,6 +54,7 @@ public class TELESCOPIO {
     public String GoMaintenanceInfo;
     public String StartMotionInfo;
     public String StopMotionInfo;
+    public String TrackingInfo;
     public String EmergencyStopInfo;
     public String StartParkingInfo; 
     public String StopParkingInfo; 

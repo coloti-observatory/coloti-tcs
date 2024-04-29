@@ -780,6 +780,10 @@ public class TCS {
         return TEL.StartMotionInfo;
     }
 
+    public String GetTrackingInfo(){
+        return TEL.TrackingInfo;
+    }
+
     public String GetStopMotionInfo(){
         return TEL.StopMotionInfo;
     }
@@ -899,6 +903,14 @@ public class TCS {
             }
             this.TEL.MotionType = value;
         }
+    }
+
+    public void SetTrackingMode(){
+        SetMotionType(1);
+    }
+
+    public void SetPointingMode(){
+        SetMotionType(0);
     }
 
     public void SetCupolaTargetPosition(final double value){
@@ -1386,6 +1398,12 @@ public class TCS {
             }
             setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "");
         }
+        else if(value && xAxisConnection){
+            CmdStopAzMotion(value);
+        }
+        else if(value && yAxisConnection){
+            CmdStopElMotion(value);
+        }
     }
 
     public void CmdStartAzMotion(final boolean value){ // OK 
@@ -1490,11 +1508,13 @@ public class TCS {
 
 
     public void CmdStartTracking(final boolean value){
-        if (value){
-            SetMotionType(0);
-            CmdStartMotion(value);
-            SetMotionType(1);
-            CmdStartMotion(value);
+        if (value && xAxisConnection && yAxisConnection){
+            try {
+                taskExecutor.runTask(trakingTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "StartTrackingInfo", "FALSE", 0L, 0L, "");
         }
     }
 
@@ -2803,19 +2823,15 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("TrakingInfo");
                 
-            
-
-            // FUNZIONE DI TRACCIAMENTO (OnTimer)
-
-
+                if (TEL.MotionType == 0)
+                    SetTrackingMode();
 
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
                 Sleep(1000);
 
-
-                // FUNZIONE DI TRACCIAMENTO (OnTimer)
+                Tracking();
 
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
@@ -3106,13 +3122,10 @@ public class TCS {
         // Aggiungere anche lo spostamento della cupola?
     }
 
-    public void TrackingMode(){
-        Error(AsseX.SetTrackMode(X),1167);
-        Error(AsseY.SetTrackMode(X),1267);
-    }
+    
 
     public void CoordinatesConversion(double ra, double dec){
-        double conversione = 0.0;
+        double conversione = 1.0;
         SetAzTelPosition(dec*conversione);
         SetElTelPosition(ra*conversione);
     }
