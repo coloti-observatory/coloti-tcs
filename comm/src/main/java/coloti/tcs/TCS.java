@@ -66,6 +66,10 @@ public class TCS {
 
     double[] CostX = new double[6];
     double[] CostY = new double[6];
+    int SetPointX;
+    int SetTrackX;
+    int SetPointY;
+    int SetTrackY;
     
     double ConversionFactorX;
     double ConversionFactorY;
@@ -364,6 +368,13 @@ public class TCS {
         AsseY = new ACS(GEN.IdSerialEl);
         AsseCupola = new ACS(GEN.IdSerialDome);
         
+        this.CostX[0] = 1;
+        this.CostX[1] = 1;
+        this.CostX[2] = 1;
+        this.CostY[0] = 1;
+        this.CostY[1] = 1;
+        this.CostY[2] = 1;
+
         /*
         this.xAxisConnection = connectX;
         this.yAxisConnection = connectY;
@@ -1180,6 +1191,10 @@ public class TCS {
         this.OSS.Altitudine = value;
     }
 
+    public void SetTriggerAngleDome(final int value){
+        this.CUP.TriggerAngleDome = value;
+    }
+
     // PARKING
 
     public void SetAzParkingPosition(final double value){
@@ -1378,14 +1393,14 @@ public class TCS {
 
     // motion (slew) to position
 
-    public void CmdStartMotion(final boolean value){ // OK
+    public void CmdMoveToPosition(final boolean value){ // OK
         if (value && xAxisConnection && yAxisConnection){
             try {
-                taskExecutor.runTask(startmotionTask, defaultListener);
+                taskExecutor.runTask(movetopositionTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StartMotionInfo", "FALSE", 0L, 0L, "");
+            setFieldCmd(this.TEL, "MoveToPositionInfo", "FALSE", 0L, 0L, "");
         }
     }
     
@@ -2047,7 +2062,7 @@ public class TCS {
 
 
     //#region T move
-    private final Task<Void> startmotionTask = new Task<Void>() {
+    private final Task<Void> movetopositionTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
         
@@ -2055,17 +2070,18 @@ public class TCS {
         @Override
         public Void call() throws Exception {
             if(listener!=null)
-                listener.onStart("StartMotionInfo");
+                listener.onStart("MoveToPositionInfo");
                 
             StartMotion(true,true);
             
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(10000);
+                Sleep(1000);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
-                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+                //System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+
                 if (!AsseX.isMoving && !AsseY.isMoving)
                     isInterrupted = false;
             }
@@ -2831,6 +2847,8 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(1000);
 
+                TraiettoriaX();
+                TraiettoriaY();
                 Tracking();
 
                 AsseX.IsMoving(X);
@@ -3412,11 +3430,10 @@ public class TCS {
 
     public void GetTelInfo(){
         //double ra;
-        if (TEL.MonType == 0){
-            GetTelInfoX();
-            GetTelInfoY();
-            
-            
+        GetTelInfoX();
+        GetTelInfoY();
+        
+        
             //double[] hadec = AzEl2HaDec(TEL.AZ, TEL.EL, OSS.Latitudine);
             //TEL.H = hadec[0];
             //TEL.DEC = hadec[1];
@@ -3430,7 +3447,7 @@ public class TCS {
             //double[] azel = HaDec2AzEl(TEL.H, TEL.DEC, OSS.Latitudine);
             //TEL.AZ = azel[0];
             //TEL.EL = azel[1];
-        }
+        
     }
 
     public void GetTelInfoX(){
@@ -3440,26 +3457,14 @@ public class TCS {
 
         if (AsseX.CommStatus){
             // caso TelMonTipo = 0
-            if (TEL.MonType == 0){
-                err = AsseX.GetMotEncPos(X);
-                valo = AsseX.VALUECR;
-                PosX = valo/AsseX.CONVFACTOR[0] - CostX[0];
-                TEL.PosX = PosX;
-                PosX = (180*3600.0 - PosX);
-                TEL.AZ = PosX/3600.0;
-            }
             
-            // caso Tel MonTipo = 1
-            else{
-                err = AsseX.GetMotEncPos(X);
-                valo = AsseX.VALUECR;
-                PosX = valo/AsseX.CONVFACTOR[0];
-                TEL.PosX = PosX;
-                TEL.H = PosX/54000.0;
-                if (TEL.H < 0.0)
-                    TEL.H += 24;
-            }
-
+            err = AsseX.GetMotEncPos(X);
+            valo = AsseX.VALUECR;
+            PosX = valo/AsseX.CONVFACTOR[0] - CostX[0];
+            TEL.PosX = PosX;
+            PosX = (180*3600.0 - PosX);
+            TEL.AZ = PosX/3600.0;
+        
             err = AsseX.GetMotVel(X);
             TEL.SlewVelX = AsseX.VelAx[0];
 
@@ -3479,12 +3484,7 @@ public class TCS {
             PosY = valo/AsseY.CONVFACTOR[0] - CostY[0];
             TEL.PosY = PosY;
             PosY = (180*3600 - PosY);
-            if (TEL.MonType == 0){
-                TEL.EL = PosY/3600.0;
-            }
-            else{
-                TEL.DEC = PosY/3600.0;
-            }
+            TEL.EL = PosY/3600.0;
 
             err = AsseY.GetMotVel(X);
             TEL.SlewVelY = AsseY.VelAx[0];

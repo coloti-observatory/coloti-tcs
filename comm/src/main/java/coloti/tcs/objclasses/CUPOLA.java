@@ -13,6 +13,7 @@ public class CUPOLA {
     public int StatusRotazione;
     public double Direzione;
     public double ParkPos;
+    public double TriggerAngleDome;
 
     public String ZeroDomeInfo;
 
