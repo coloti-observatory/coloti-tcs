@@ -3116,6 +3116,9 @@ public class TCS {
         // CALCOLO DELLA POSIZIONE OGGETTO
         // va sempre riletta la posizione per aggiornare Az ed El
 
+        //CostX[2]=1.1;
+		//CostY[2]=1.05;
+
         GetTelInfo();
 
         DPX = (TEL.AZ - TEL.TargetAZ) * 3600;
@@ -3193,8 +3196,6 @@ public class TCS {
                 }
             }
         }
-    
-        // Aggiungere anche lo spostamento della cupola?
     }
 
     

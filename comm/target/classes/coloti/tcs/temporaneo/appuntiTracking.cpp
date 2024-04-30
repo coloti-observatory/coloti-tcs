@@ -47,7 +47,6 @@ if(SetPointY==0){
                 else
                 AsseY.SetMotVel(X, m_telescopeInfo.DirY*OggettoPuntato.ObsVEL*1.1);
             }
-            //AsseY.SetMotVel(X,-2.5*DPY);
         }
         else
             AsseY.SetMotVel(X,OggettoPuntato.ObsVEL);
@@ -55,26 +54,23 @@ if(SetPointY==0){
 }
 else{
     if((SetTrackX==1)){
-    if(fabs(DPY)>=0.5){
-            //if(fabs(DPY)<=m_telescopeInfo.MaxVelY/4.)
+        if(fabs(DPY)>=0.5){
             if(DPY>0. ){
                 if(OggettoPuntato.ObsVEL<0.)
                     AsseY.SetMotVel(X, m_telescopeInfo.DirY*OggettoPuntato.ObsVEL*1.15);
                 else
                     AsseY.SetMotVel(X, m_telescopeInfo.DirY*OggettoPuntato.ObsVEL/1.15);
-                }
-                if(DPY<0. ){
-                    if(OggettoPuntato.ObsVEL<0.)
-                        AsseY.SetMotVel(X, m_telescopeInfo.DirY*OggettoPuntato.ObsVEL/1.15);
-                    else
+            }
+            if(DPY<0. ){
+                if(OggettoPuntato.ObsVEL<0.)
+                    AsseY.SetMotVel(X, m_telescopeInfo.DirY*OggettoPuntato.ObsVEL/1.15);
+                else
                 AsseY.SetMotVel(X, m_telescopeInfo.DirY*OggettoPuntato.ObsVEL*1.15);
             }
-            //AsseY.SetMotVel(X,-2.5*DPY);
         }
-    else{
-            AsseY.SetMotVel(X,OggettoPuntato.ObsVEL);
-            SetPointY=0;
-    }
-    ;
+        else{
+                AsseY.SetMotVel(X,OggettoPuntato.ObsVEL);
+                SetPointY=0;
+        }
     }
 }
