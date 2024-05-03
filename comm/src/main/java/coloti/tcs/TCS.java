@@ -1538,6 +1538,7 @@ public class TCS {
             CmdStopMotion(value);
     }
 
+    // fare il pointing come loop mantenendo un errore di posizione per controllo dopo il primo step (o anche no)
     public void CmdStartPointing(final boolean value){
         /*
         if (value){
@@ -1742,7 +1743,7 @@ public class TCS {
         
     };
     
-//#region T gostandby
+    //#region T gostandby
     private final Task<Void> gostandbyTask = new Task<Void>(){
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -2891,7 +2892,7 @@ public class TCS {
 
     //#region T pointing
 
-
+    // fare il pointing come loop mantenendo un errore di posizione per controllo dopo il primo step (o anche no)
     private final Task<Void> pointingTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
