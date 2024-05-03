@@ -1,4 +1,5 @@
 
+/*
 DPX=(m_telescopeInfo.AZ-OggettoPuntato.ObsAZ)*3600;
 DPY=(m_telescopeInfo.EL-OggettoPuntato.ObsEL)*3600;
 
@@ -74,3 +75,4 @@ else{
         }
     }
 }
+//*/

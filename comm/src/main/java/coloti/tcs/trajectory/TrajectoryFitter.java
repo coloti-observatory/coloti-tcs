@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import astri.astron.Observer;
-import astri.astron.Target;
+import Target; //astri.astron.Target;
 import astri.astron.TimeUtil;
 import astri.astron.Weather;
 
@@ -71,8 +71,6 @@ public class TrajectoryFitter {
         System.out.println(Arrays.toString(coeffEld));
     }
 
-    
-
     public double[] getCoeffAz() {
         return coeffAz;
     }
@@ -129,18 +127,20 @@ public class TrajectoryFitter {
 
     public static void main(String[] args) {
         // Observer
-        Observer obs = new Observer("ASTRI1", 1,
-                28.301025,
-                -16.50796944,
-                2359);
+        Observer obs = new Observer("COLOTI", 1,
+                43.4016667,
+                12.3763888,
+                487);
         // tpoint File - set the full path
-        String BASE_DIR = "/Users/gino/scada/six-telescope-aiv/generator";
-        String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
+        String BASE_DIR = "/home/coloti";  //"/Users/gino/scada/six-telescope-aiv/generator";
+        String tpointFile = BASE_DIR + "/config/tpoint/colotiTraj.json"; //"/config/tpoint/astri1-tp.json";
+
         // Weather
-        double press = 770.;
-        double temp = 15.0;
-        double hum = 0.5;
-        Weather atm = new Weather(press, temp, hum);
+        //double press = 770.;
+        //double temp = 15.0;
+        //double hum = 0.5;
+        //Weather atm = new Weather(press, temp, hum);
+
         // target
         Target target = new Target("Crab");
         target.setUseRefraction(true);
