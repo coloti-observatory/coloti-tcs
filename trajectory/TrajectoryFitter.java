@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import astri.astron.Observer;
-import Target; //astri.astron.Target;
+import astri.astron.Target;
 import astri.astron.TimeUtil;
 import astri.astron.Weather;
 
@@ -161,7 +161,7 @@ public class TrajectoryFitter {
 
         double[] tra = new double[183];
         if (tm.isDay() && tm.isTargetValid()) {
-            JulianDate jd = TimeUtil.getJDNow();
+            JulianDate jd = TimeUtil.getJDNow(); 
             tra = tm.generateTrajectory(jd);
             tm.printTrajectory();
             logger.info("Is Trajectory Valid?:{}", tm.isTrajectoryValid());

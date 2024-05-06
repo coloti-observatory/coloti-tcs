@@ -1195,6 +1195,10 @@ public class TCS {
         this.CUP.TriggerAngleDome = value;
     }
 
+    public void SetTarget(final String name){
+        this.TEL.TargetName = name;
+    }
+
     // PARKING
 
     public void SetAzParkingPosition(final double value){
@@ -1547,6 +1551,7 @@ public class TCS {
         }*/
         if (value && xAxisConnection && yAxisConnection){
             try {
+                taskExecutor.runTask(pointingTask, defaultListener);
                 taskExecutor.runTask(pointingTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
@@ -2062,7 +2067,7 @@ public class TCS {
 
 
 
-    //#region T move
+    //#region T move to pos
     private final Task<Void> movetopositionTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -2890,10 +2895,10 @@ public class TCS {
         
     };
 
-    //#region T pointing
+    //#region T pointing Az
 
     // fare il pointing come loop mantenendo un errore di posizione per controllo dopo il primo step (o anche no)
-    private final Task<Void> pointingTask = new Task<Void>() {
+    private final Task<Void> pointingAzTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
         
@@ -2906,15 +2911,71 @@ public class TCS {
             if (TEL.MotionType != 0)
                 SetPointingMode();
         
-            StartMotion(true,true);
+            StartMotion(true,false);
             
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(10000);
+                Sleep(1000); // da spostare alla fine del while?
                 AsseX.IsMoving(X);
+                if (!AsseX.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    //#region T pointing El
+
+
+    private final Task<Void> pointingElTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StartMotionInfo");
+                
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+        
+            StartMotion(false,true);
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(1000); // da spostare alla fine del while?
                 AsseY.IsMoving(X);
-                //System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
                 if (!AsseX.isMoving && !AsseY.isMoving)
                     isInterrupted = false;
             }
@@ -2978,8 +3039,6 @@ public class TCS {
 
 
 
-
-
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
@@ -3014,6 +3073,8 @@ public class TCS {
         // Oggetto
         // OggettoPuntato.CalcStarPos();
         // CALCOLO DELLA POSIZIONE OGGETTO
+        Trajectory(TEL.TargetName);
+
         Pf = TEL.TargetAZ * 3600;
         Vs = TEL.TargetVelAZ;
         Vf = Vs;
@@ -3058,6 +3119,8 @@ public class TCS {
         // Oggetto
         // OggettoPuntato.CalcStarPos();
         // CALCOLO DELLA POSIZIONE OGGETTO
+        Trajectory(TEL.TargetName);
+
         Pf = TEL.TargetEL * 3600;
         Vf = TEL.TargetVelEL;
     
@@ -3115,6 +3178,7 @@ public class TCS {
 
         //OggettoPuntato.calcStarPos(); 
         // CALCOLO DELLA POSIZIONE OGGETTO
+        Trajectory(TEL.TargetName);
         // va sempre riletta la posizione per aggiornare Az ed El
 
         //CostX[2]=1.1;
@@ -3197,6 +3261,71 @@ public class TCS {
                 }
             }
         }
+    }
+
+    public void Trajectory(String oggetto){
+        Target target = new Target(oggetto);
+        TrajectoryManager tm = new TrajectoryManager();
+        tm.setBaseDir(BASE_DIR);
+        tm.assignToTelescope(ETelescopes.ASTRI1);
+        tm.setAstroObserver(obs);
+        tm.setWeather(atm);
+        tm.setTpointFile(tpointFile);
+        tm.setElevationLimit(10.);
+        tm.setMinMoonDistance(10.);
+        tm.setAcquisitionDuration(300.);
+        tm.init();
+        tm.setTarget(target);
+
+        if (tm.isDay() && tm.isTargetValid()) {
+            JulianDate jd = TimeUtil.getJDNow();
+            tra = tm.generateTrajectory(jd);
+            tm.printTrajectory();
+        }
+
+        this.tf = new TrajectoryFitter(tra);
+        this.tf.fit(5);
+
+        for (int i = 0; i < tra.length; i += 3) {
+            double y = tf.Az(tra[i]);
+            double vy = tf.velocityAz(tra[i]);
+            double yEl = tf.El(tra[i]);
+            double vel = tf.velocityEl(tra[i]);
+        }
+
+    }
+
+    public void TrajectoryUnknown(double az, double el){
+
+    }
+
+    public void InstantTrajectory(){  // serparare la traiettoria dal loop che aggiorna?
+        Target target = new Target(oggetto);
+        TrajectoryManager tm = new TrajectoryManager();
+        //tm.setBaseDir(BASE_DIR);
+        //tm.assignToTelescope(ETelescopes.ASTRI1);
+        //tm.setAstroObserver(obs);
+        //tm.setWeather(atm);
+        //tm.setTpointFile(tpointFile);
+        //tm.setElevationLimit(10.);
+        //tm.setMinMoonDistance(10.);
+        //tm.setAcquisitionDuration(300.);
+        tm.init();
+        tm.setTarget(target);
+
+        if (tm.isDay() && tm.isTargetValid()) {
+            JulianDate jd = TimeUtil.getJDNow();
+            tra = tm.generateTrajectory(jd);
+            tm.printTrajectory();
+        }
+
+        for (int i = 0; i < tra.length; i += 3) {
+            double y = tf.Az(tra[i]);
+            double vy = tf.velocityAz(tra[i]);
+            double yEl = tf.El(tra[i]);
+            double vel = tf.velocityEl(tra[i]);
+        }
+
     }
 
     
