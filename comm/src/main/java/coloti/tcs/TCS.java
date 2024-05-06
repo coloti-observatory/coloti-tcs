@@ -29,6 +29,10 @@ import org.jboss.util.state.StateMachine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
+
+
 //import java.util.concurrent.CompletableFuture;
 
 /*
@@ -70,6 +74,12 @@ public class TCS {
     int SetTrackX;
     int SetPointY;
     int SetTrackY;
+
+    boolean AzPointing = false;
+    boolean ElPointing = false;
+    boolean AzTracking = false;
+    boolean ElTracking = false;
+
     
     double ConversionFactorX;
     double ConversionFactorY;
@@ -1551,8 +1561,8 @@ public class TCS {
         }*/
         if (value && xAxisConnection && yAxisConnection){
             try {
-                taskExecutor.runTask(pointingTask, defaultListener);
-                taskExecutor.runTask(pointingTask, defaultListener);
+                taskExecutor.runTask(pointingAzTask, defaultListener);
+                taskExecutor.runTask(pointingElTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
@@ -2263,7 +2273,7 @@ public class TCS {
                 Sleep(1000);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
-                System.out.println("Az and El are stopping ... ");
+                //System.out.println("Az and El are stopping ... ");
                 if (AsseX.isMoving && AsseY.isMoving)
                     isInterrupted = false;
             }
@@ -2848,6 +2858,9 @@ public class TCS {
                 if (TEL.MotionType != 1)
                     SetTrackingMode();
 
+                IsAzTracking(true);
+                IsElTracking(true);
+
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
@@ -2919,6 +2932,7 @@ public class TCS {
                 Sleep(1000); // da spostare alla fine del while?
                 AsseX.IsMoving(X);
                 if (!AsseX.isMoving)
+                    IsAzPointing(false);
                     isInterrupted = false;
             }
 
@@ -2976,7 +2990,8 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(1000); // da spostare alla fine del while?
                 AsseY.IsMoving(X);
-                if (!AsseX.isMoving && !AsseY.isMoving)
+                if (!AsseY.isMoving)
+                    IsElPointing(false);
                     isInterrupted = false;
             }
 
@@ -3055,6 +3070,19 @@ public class TCS {
     public void InitStar(){}
     public void Puntamento(){}
     public void ComandiTastierino(){}
+    
+    public void IsAzPointing(boolean value){
+        this.AzPointing = value;
+    }
+    public void IsAzTracking(boolean value){
+        this.AzTracking = value;
+    }
+    public void IsElPointing(boolean value){
+        this.ElPointing = value;
+    }
+    public void IsElTracking(boolean value){
+        this.ElTracking = value;
+    }
 
     public void TraiettoriaX(){
         double Vmax, Amax, Tnew = 0, Tmin = 0.1;
@@ -3189,8 +3217,8 @@ public class TCS {
         DPX = (TEL.AZ - TEL.TargetAZ) * 3600;
         DPY = (TEL.EL - TEL.TargetEL) * 3600;
         
-        if (SetPointX == 0) {
-            if (SetTrackX == 1) {
+        if (!AzPointing) { // Az ha finito di puntare
+            if (AzTracking) { // Az è nel tracking
                 if (Math.abs(DPX) > 1.0 && (SetTrackY == 1)) { 
                     if (DPX > 0.)
                         AsseX.SetMotVel(X, (1. * TEL.TargetVelAZ / CostX[2]));
@@ -3201,8 +3229,8 @@ public class TCS {
                     AsseX.SetMotVel(X, MotAZ.JogDirection * TEL.TargetVelAZ);
             }
         }
-        else{ //SetPointX != 0
-            if (SetTrackY == 1) {
+        else{ // Az sta ancora puntando
+            if (ElTracking) { // El è nel tracking
                 if (Math.abs(DPX) >= 1.0) { 
                     if (DPX > 0.0)
                         AsseX.SetMotVel(X, (TEL.TargetVelAZ + DPX/1.5));
@@ -3218,8 +3246,8 @@ public class TCS {
 
 
 
-        if (SetPointY == 0) {
-            if (SetTrackY == 1){
+        if (!ElPointing) { // El ha finito di puntare
+            if (ElTracking){ // El è nel tracking
                 if(Math.abs(DPY) >= 0.5 && (SetTrackX == 1)){
                     if (DPY > 0.0){
                         if(TEL.TargetVelEL<0.)
@@ -3239,8 +3267,8 @@ public class TCS {
                 }
             }
         }
-        else{ // SetPointY != 0
-            if (SetTrackX == 1){
+        else{ // El sta ancora puntando
+            if (AzTracking){ // Az è nel tracking
                 if (Math.abs(DPY) >= 0.5){
                     if (DPY > 0.0){
                         if (TEL.TargetVelEL < 0.0)
@@ -3300,31 +3328,6 @@ public class TCS {
     }
 
     public void InstantTrajectory(){  // serparare la traiettoria dal loop che aggiorna?
-        Target target = new Target(oggetto);
-        TrajectoryManager tm = new TrajectoryManager();
-        //tm.setBaseDir(BASE_DIR);
-        //tm.assignToTelescope(ETelescopes.ASTRI1);
-        //tm.setAstroObserver(obs);
-        //tm.setWeather(atm);
-        //tm.setTpointFile(tpointFile);
-        //tm.setElevationLimit(10.);
-        //tm.setMinMoonDistance(10.);
-        //tm.setAcquisitionDuration(300.);
-        tm.init();
-        tm.setTarget(target);
-
-        if (tm.isDay() && tm.isTargetValid()) {
-            JulianDate jd = TimeUtil.getJDNow();
-            tra = tm.generateTrajectory(jd);
-            tm.printTrajectory();
-        }
-
-        for (int i = 0; i < tra.length; i += 3) {
-            double y = tf.Az(tra[i]);
-            double vy = tf.velocityAz(tra[i]);
-            double yEl = tf.El(tra[i]);
-            double vel = tf.velocityEl(tra[i]);
-        }
 
     }
 
