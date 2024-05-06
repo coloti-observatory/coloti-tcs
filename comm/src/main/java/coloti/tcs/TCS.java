@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 
 
+
 //import java.util.concurrent.CompletableFuture;
 
 /*
@@ -3292,6 +3293,7 @@ public class TCS {
     }
 
     public void Trajectory(String oggetto){
+        /* 
         Target target = new Target(oggetto);
         TrajectoryManager tm = new TrajectoryManager();
         tm.setBaseDir(BASE_DIR);
@@ -3320,7 +3322,7 @@ public class TCS {
             double yEl = tf.El(tra[i]);
             double vel = tf.velocityEl(tra[i]);
         }
-
+        */
     }
 
     public void TrajectoryUnknown(double az, double el){
