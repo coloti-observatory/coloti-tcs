@@ -69,6 +69,11 @@
       <artifactId>jsofa</artifactId>
       <version>20210512</version>
     </dependency>
+    <dependency>
+        <groupId>astri</groupId>
+        <artifactId>astron</artifactId>
+        <version>1.0</version>
+    </dependency>
   </dependencies>
 
   <build>
