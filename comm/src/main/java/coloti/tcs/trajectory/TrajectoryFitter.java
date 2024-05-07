@@ -128,12 +128,15 @@ public class TrajectoryFitter {
     public static void main(String[] args) {
         // Observer
         Observer obs = new Observer("COLOTI", 1,
-                43.4016667,
-                12.3763888,
-                487);
+                28.301025,
+                -16.50796944,
+                2359);
+                //43.4016667,
+                //12.3763888,
+                //487);
         // tpoint File - set the full path
-        String BASE_DIR = "/home/coloti";  //"/Users/gino/scada/six-telescope-aiv/generator";
-        String tpointFile = BASE_DIR + "/config/tpoint/colotiTraj.json"; //"/config/tpoint/astri1-tp.json";
+        String BASE_DIR = "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/";  //"/Users/gino/scada/six-telescope-aiv/generator";
+        String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
 
         // Weather
         //double press = 770.;

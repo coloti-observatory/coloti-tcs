@@ -71,7 +71,7 @@ public class TrajectoryManager {
     }
 
     public void init() {
-        configFile=baseDir+"/config/astrometryConfig";
+        configFile=baseDir+"/config/astrometryConfig"; // "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/config/astrometryConfig"; //
         loadConfig();
         loadTpoint();
         iers = new Iers(this.iersDir);
