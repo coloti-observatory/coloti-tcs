@@ -150,7 +150,7 @@ public class TrajectoryFitter {
         tm.setBaseDir(BASE_DIR);
         tm.assignToTelescope(ETelescopes.ASTRI1);
         tm.setAstroObserver(obs);
-        tm.setWeather(atm);
+        //tm.setWeather(atm);
         tm.setTpointFile(tpointFile);
         tm.setElevationLimit(10.);
         tm.setMinMoonDistance(10.);
