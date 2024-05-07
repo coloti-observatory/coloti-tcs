@@ -1217,8 +1217,16 @@ public class TCS {
         this.CUP.TriggerAngleDome = value;
     }
 
-    public void SetTarget(final String name){
-        this.TEL.TargetName = name;
+    public void SetTarget(final String value){
+        this.TEL.TargetName = value;
+    }
+
+    public void SetTargetAz(final double value){
+        this.TEL.TargetAZ = value;
+    }
+
+    public void SetTargetEl(final double value){
+        this.TEL.TargetEL = value;
     }
 
     // PARKING
@@ -3111,7 +3119,7 @@ public class TCS {
         // Oggetto
         // OggettoPuntato.CalcStarPos();
         // CALCOLO DELLA POSIZIONE OGGETTO
-        Trajectory(TEL.TargetName);
+        Trajectory();
 
         Pf = TEL.TargetAZ * 3600;
         Vs = TEL.TargetVelAZ;
@@ -3157,7 +3165,7 @@ public class TCS {
         // Oggetto
         // OggettoPuntato.CalcStarPos();
         // CALCOLO DELLA POSIZIONE OGGETTO
-        Trajectory(TEL.TargetName);
+        Trajectory();
 
         Pf = TEL.TargetEL * 3600;
         Vf = TEL.TargetVelEL;
@@ -3216,7 +3224,7 @@ public class TCS {
 
         //OggettoPuntato.calcStarPos(); 
         // CALCOLO DELLA POSIZIONE OGGETTO
-        Trajectory(TEL.TargetName);
+        Trajectory();
         // va sempre riletta la posizione per aggiornare Az ed El
 
         //CostX[2]=1.1;
@@ -3301,9 +3309,9 @@ public class TCS {
         }
     }
 
-    public void Trajectory(String oggetto){
+    public void Trajectory(){
         ///* 
-        Target target = new Target(oggetto);
+        Target target = new Target(TEL.TargetName);
         TrajectoryManager tm = new TrajectoryManager();
         String BASE_DIR = "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/";
         String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
@@ -3340,7 +3348,7 @@ public class TCS {
         //*/
     }
 
-    public void TrajectoryUnknown(double az, double el){
+    public void Trajectory(double az, double el){
 
     }
 
