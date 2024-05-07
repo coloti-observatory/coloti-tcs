@@ -10,6 +10,9 @@ import coloti.tcs.objclasses.*;
 import coloti.tcs.task.Task;
 import coloti.tcs.task.TaskExecutor;
 import coloti.tcs.task.TaskListener;
+import coloti.tcs.trajectory.ETelescopes;
+import coloti.tcs.trajectory.TrajectoryFitter;
+import coloti.tcs.trajectory.TrajectoryManager;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -22,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.jastronomy.jsofa.JSOFA.JulianDate;
 //import java.lang.Math.*;
 import org.jboss.util.state.DefaultStateMachineModel;
 import org.jboss.util.state.State;
@@ -308,6 +312,8 @@ public class TCS {
     POSZERO PZ;
     double DPX;
     double DPY;
+
+    TrajectoryFitter tf;
 
     // opcua states
     private StateMachine mcsStateMachine;
@@ -1560,11 +1566,9 @@ public class TCS {
 
     // fare il pointing come loop mantenendo un errore di posizione per controllo dopo il primo step (o anche no)
     public void CmdStartPointing(final boolean value){
-        /*
-        if (value){
+        /*if (value){
             SetMotionType(0);
-            CmdStartMotion(value);
-        }*/
+            CmdStartMotion(value);}*/
         if (value && xAxisConnection && yAxisConnection){
             try {
                 taskExecutor.runTask(pointingAzTask, defaultListener);
@@ -3298,26 +3302,32 @@ public class TCS {
     }
 
     public void Trajectory(String oggetto){
-        /* 
+        ///* 
         Target target = new Target(oggetto);
         TrajectoryManager tm = new TrajectoryManager();
+        String BASE_DIR = "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/";
+        String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
+        Observer obs = new Observer("COLOTI", 1,
+                43.4016667,
+                12.3763888,
+                487);
         tm.setBaseDir(BASE_DIR);
         tm.assignToTelescope(ETelescopes.ASTRI1);
         tm.setAstroObserver(obs);
-        tm.setWeather(atm);
+        //tm.setWeather(atm);
         tm.setTpointFile(tpointFile);
         tm.setElevationLimit(10.);
         tm.setMinMoonDistance(10.);
         tm.setAcquisitionDuration(300.);
         tm.init();
         tm.setTarget(target);
-
+        double[] tra = new double[183];
         if (tm.isDay() && tm.isTargetValid()) {
             JulianDate jd = TimeUtil.getJDNow();
             tra = tm.generateTrajectory(jd);
             tm.printTrajectory();
         }
-
+        
         this.tf = new TrajectoryFitter(tra);
         this.tf.fit(5);
 
@@ -3327,7 +3337,7 @@ public class TCS {
             double yEl = tf.El(tra[i]);
             double vel = tf.velocityEl(tra[i]);
         }
-        */
+        //*/
     }
 
     public void TrajectoryUnknown(double az, double el){

@@ -127,7 +127,7 @@ public class TrajectoryFitter {
 
     public static void main(String[] args) {
         // Observer
-        Observer obs = new Observer("COLOTI", 1,
+        Observer obs = new Observer("ASTRI", 1,
                 28.301025,
                 -16.50796944,
                 2359);
