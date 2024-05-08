@@ -1,5 +1,6 @@
 package coloti.tcs.objclasses;
 import coloti.tcs.ConfigurationClass;
+import astri.astron.Target;
 
 public class TELESCOPIO {
     public String NomeTelescopio;
@@ -101,11 +102,12 @@ public class TELESCOPIO {
     public int TrackingDuration;
     public double TrajectoryNodeArray;
     public boolean Refraction;
+    public Target Target;
     public String TargetName;
     public double TargetPosX;
     public double TargetPosY;
-    public double TargetRA;
-    public double TargetDEC;
+    public double TargetRA = -999;
+    public double TargetDEC = -999;
     public double TargetAZ;
     public double TargetVelAZ;
     public double TargetEL;

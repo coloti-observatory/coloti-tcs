@@ -128,21 +128,21 @@ public class TrajectoryFitter {
     public static void main(String[] args) {
         // Observer
         Observer obs = new Observer("ASTRI", 1,
-                28.301025,
-                -16.50796944,
-                2359);
-                //43.4016667,
-                //12.3763888,
-                //487);
+                //28.301025,
+                //-16.50796944,
+                //2359);
+                43.4016667,
+                12.3763888,
+                487);
         // tpoint File - set the full path
         String BASE_DIR = "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/";  //"/Users/gino/scada/six-telescope-aiv/generator";
         String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
 
         // Weather
-        //double press = 770.;
-        //double temp = 15.0;
-        //double hum = 0.5;
-        //Weather atm = new Weather(press, temp, hum);
+        double press = 770.;
+        double temp = 15.0;
+        double hum = 0.5;
+        Weather atm = new Weather(press, temp, hum);
 
         // target
         Target target = new Target("Crab");
@@ -153,13 +153,12 @@ public class TrajectoryFitter {
         tm.setBaseDir(BASE_DIR);
         tm.assignToTelescope(ETelescopes.ASTRI1);
         tm.setAstroObserver(obs);
-        //tm.setWeather(atm);
+        tm.setWeather(atm);
         tm.setTpointFile(tpointFile);
-        tm.setElevationLimit(10.);
-        tm.setMinMoonDistance(10.);
+        tm.setElevationLimit(10.); 
+        tm.setMinMoonDistance(1.); //10
         tm.setAcquisitionDuration(300.);
         tm.init();
-
         tm.setTarget(target);
 
         double[] tra = new double[183];

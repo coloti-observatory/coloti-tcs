@@ -1220,7 +1220,13 @@ public class TCS {
     // TARGET
 
     public void SetTarget(final String value){
-        this.TEL.TargetName = value;
+        if (value == ""){
+            this.TEL.Target = new Target();
+            this.TEL.Target.setRa(TEL.TargetRA); //setRa2000 ?
+            this.TEL.Target.setDec(TEL.TargetDEC);  //setDec2000 ?
+        }
+        else
+            this.TEL.Target = new Target(value);
     }
 
     public void SetTargetAz(final double value){
@@ -1230,6 +1236,8 @@ public class TCS {
     public void SetTargetEl(final double value){
         this.TEL.TargetEL = value;
     }
+
+
 
 
     // PARKING
@@ -3312,52 +3320,17 @@ public class TCS {
         }
     }
 
-    public void Trajectory(){
-        ///* 
-        Target target = new Target(TEL.TargetName);
-        TrajectoryManager tm = new TrajectoryManager();
-        String BASE_DIR = "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/";
-        String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
-        Observer obs = new Observer("COLOTI", 1,
-                43.4016667,
-                12.3763888,
-                487);
-        tm.setBaseDir(BASE_DIR);
-        tm.assignToTelescope(ETelescopes.ASTRI1);
-        tm.setAstroObserver(obs);
-        //tm.setWeather(atm);
-        tm.setTpointFile(tpointFile);
-        tm.setElevationLimit(10.);
-        tm.setMinMoonDistance(10.);
-        tm.setAcquisitionDuration(300.);
-        tm.init();
-        tm.setTarget(target);
-        double[] tra = new double[183];
-        if (tm.isDay() && tm.isTargetValid()) {
-            JulianDate jd = TimeUtil.getJDNow();
-            tra = tm.generateTrajectory(jd);
-            tm.printTrajectory();
-        }
-        
-        this.tf = new TrajectoryFitter(tra);
-        this.tf.fit(5);
-
-        for (int i = 0; i < tra.length; i += 3) {
-            double y = tf.Az(tra[i]);
-            double vy = tf.velocityAz(tra[i]);
-            double yEl = tf.El(tra[i]);
-            double vel = tf.velocityEl(tra[i]);
-        }
-        //*/
-    }
-
-    public void TrajectoryPosition(double ra, double dec){
-        ///* come impostare questi valori?
+    public void Target(){
+        //this.TEL.Target = new Target(TEL.TargetName);
         double pmRa = 0;
         double pmDec = 0;
         double px = 0;
         double rv = 0;
-        Target target = new Target(ra, dec, pmRa, pmDec, px, rv, "unknown"); //double ra2000, double dec2000, double pmRA, double pmDec, double px, double rv, String name
+        this.TEL.Target = new Target(TEL.TargetRA, TEL.TargetDEC, pmRa, pmDec, px, rv, "unknown"); //double ra2000, double dec2000, double pmRA, double pmDec, double px, double rv, String name
+    }
+
+    public void Trajectory(){
+        ///*
         TrajectoryManager tm = new TrajectoryManager();
         String BASE_DIR = "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/";
         String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
@@ -3365,16 +3338,22 @@ public class TCS {
                 43.4016667,
                 12.3763888,
                 487);
+
+        double press = 770.;
+        double temp = 15.0;
+        double hum = 0.5;
+        Weather atm = new Weather(press, temp, hum);
+
         tm.setBaseDir(BASE_DIR);
         tm.assignToTelescope(ETelescopes.ASTRI1);
         tm.setAstroObserver(obs);
-        //tm.setWeather(atm);
+        tm.setWeather(atm);
         tm.setTpointFile(tpointFile);
         tm.setElevationLimit(10.);
         tm.setMinMoonDistance(10.);
         tm.setAcquisitionDuration(300.);
         tm.init();
-        tm.setTarget(target);
+        tm.setTarget(TEL.Target);
         double[] tra = new double[183];
         if (tm.isDay() && tm.isTargetValid()) {
             JulianDate jd = TimeUtil.getJDNow();

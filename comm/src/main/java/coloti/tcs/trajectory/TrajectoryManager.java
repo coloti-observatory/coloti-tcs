@@ -174,9 +174,7 @@ public class TrajectoryManager {
         skyTarget.setVisibility(sfo);
         visible = sfo.isVisibleNow();
         if (sfo.isVisibleNow() || sfo.getAlwaysVisible()) {
-            final EquatorialObject tar = new EquatorialObject(TimeUtil.getJDNow(), iers, skyTarget, astroObserver,
-                    weather,
-                    logger);
+            final EquatorialObject tar = new EquatorialObject(TimeUtil.getJDNow(), iers, skyTarget, astroObserver, weather, logger);
             final PointingCoord coo = tar.getPointing(TimeUtil.getJDNow());
             logger.info(coo.toString());
             return checkLimits(coo);
