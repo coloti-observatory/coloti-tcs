@@ -1217,6 +1217,8 @@ public class TCS {
         this.CUP.TriggerAngleDome = value;
     }
 
+    // TARGET
+
     public void SetTarget(final String value){
         this.TEL.TargetName = value;
     }
@@ -1228,6 +1230,7 @@ public class TCS {
     public void SetTargetEl(final double value){
         this.TEL.TargetEL = value;
     }
+
 
     // PARKING
 
@@ -3348,8 +3351,47 @@ public class TCS {
         //*/
     }
 
-    public void Trajectory(double az, double el){
+    public void TrajectoryPosition(double ra, double dec){
+        ///* come impostare questi valori?
+        double pmRa = 0;
+        double pmDec = 0;
+        double px = 0;
+        double rv = 0;
+        Target target = new Target(ra, dec, pmRa, pmDec, px, rv, "unknown"); //double ra2000, double dec2000, double pmRA, double pmDec, double px, double rv, String name
+        TrajectoryManager tm = new TrajectoryManager();
+        String BASE_DIR = "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/";
+        String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
+        Observer obs = new Observer("COLOTI", 1,
+                43.4016667,
+                12.3763888,
+                487);
+        tm.setBaseDir(BASE_DIR);
+        tm.assignToTelescope(ETelescopes.ASTRI1);
+        tm.setAstroObserver(obs);
+        //tm.setWeather(atm);
+        tm.setTpointFile(tpointFile);
+        tm.setElevationLimit(10.);
+        tm.setMinMoonDistance(10.);
+        tm.setAcquisitionDuration(300.);
+        tm.init();
+        tm.setTarget(target);
+        double[] tra = new double[183];
+        if (tm.isDay() && tm.isTargetValid()) {
+            JulianDate jd = TimeUtil.getJDNow();
+            tra = tm.generateTrajectory(jd);
+            tm.printTrajectory();
+        }
+        
+        this.tf = new TrajectoryFitter(tra);
+        this.tf.fit(5);
 
+        for (int i = 0; i < tra.length; i += 3) {
+            double y = tf.Az(tra[i]);
+            double vy = tf.velocityAz(tra[i]);
+            double yEl = tf.El(tra[i]);
+            double vel = tf.velocityEl(tra[i]);
+        }
+        //*/
     }
 
     public void InstantTrajectory(){  // serparare la traiettoria dal loop che aggiorna?
