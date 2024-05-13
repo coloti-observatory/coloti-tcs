@@ -10,6 +10,10 @@ public class OSSERVATORIO {
     public int Gps;
     public int Meteo;
 
+    public double Pressure;
+    public double Temperature;
+    public double Humidity;
+
     public OSSERVATORIO(ConfigurationClass cfg) {
         this.NomeOsservatorio = cfg.getNomeOsservatorio();
         this.Latitudine = cfg.getLatitudine();

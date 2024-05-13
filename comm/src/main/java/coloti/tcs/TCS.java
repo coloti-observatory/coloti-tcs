@@ -13,6 +13,7 @@ import coloti.tcs.task.TaskListener;
 import coloti.tcs.trajectory.ETelescopes;
 import coloti.tcs.trajectory.TrajectoryFitter;
 import coloti.tcs.trajectory.TrajectoryManager;
+import coloti.tcs.weather.WeatherData;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -66,6 +67,8 @@ public class TCS {
     
     public final ACS AsseCupola; //= new ACS("serial ID cupola");
     ACS AsseZ;
+
+    public final WeatherData weatherdata;
 
     // Parametri   D = degrees, R = radians, AS = arcseconds, H = hours, S = seconds
     double pi = Math.PI;
@@ -178,7 +181,7 @@ public class TCS {
         }
     };
 
-    // 800 e qualcosa per i Begin Errors, 700 per program, 900 per general
+    // 800 per i Begin Errors, 700 per program, 900 per general
     // 101 settato un modo sbagliato
     private final int[] nEncErr = new int[]{100,101,102,103,104,701,702,703,704,707,708,740,741,742,743,744,750,751,752,753,754,755,756,757,758,759,760,761,762,763,764,765,766,767,768,769,770,771,772,773,774,775,776,777,778,780,781,782,783,784,785,786,787,788,789,790,791,792,793,794,801,809,810,811,812,814,819,820,821,822,823,824,825,890,891,900,901,903,910,912,915,916,917,919,920,921,922,941,944,990,991};
 
@@ -389,6 +392,8 @@ public class TCS {
         AsseX = new ACS(GEN.IdSerialAz);
         AsseY = new ACS(GEN.IdSerialEl);
         AsseCupola = new ACS(GEN.IdSerialDome);
+
+        weatherdata = new WeatherData();
         
         this.CostX[0] = 1;
         this.CostX[1] = 1;
@@ -1604,7 +1609,7 @@ public class TCS {
             CmdStopMotion(value);
     }
 
-    public void CmdHomePos(final boolean value){ // OK 
+    public void CmdHomePos(final boolean value){ // OK   
         if (value && xAxisConnection && yAxisConnection)
             try {
                 taskExecutor.runTask(homeposTask, defaultListener);
@@ -2059,7 +2064,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("HomePosInfo");
                 
-            SettaPosHome();
+            HomePosition();
             
             while(isInterrupted){
                 if(listener!=null)
@@ -2067,7 +2072,7 @@ public class TCS {
                 Sleep(10000);
                 AsseX.IsProgramRunning();
                 AsseY.IsProgramRunning();
-                System.out.println("Az and El are going in home position ... Az: "+AsseX.isRunning+", El: "+AsseY.isRunning);
+                //System.out.println("Az and El are going in home position ... Az: "+AsseX.isRunning+", El: "+AsseY.isRunning);
                 if (!AsseX.isRunning && !AsseY.isRunning)
                     isInterrupted = false;
             }
@@ -3339,10 +3344,19 @@ public class TCS {
                 12.3763888,
                 487);
 
-        double press = 770.;
-        double temp = 15.0;
-        double hum = 0.5;
-        Weather atm = new Weather(press, temp, hum);
+        boolean wheaterconnection = CheckWheater(weatherdata);
+        //double press = 1000.;
+        //double temp = 15.0;
+        //double hum = 0.5;
+        //Weather atm = new Weather(press, temp, hum);
+        Weather atm;
+        if (wheaterconnection){
+            atm = new Weather(OSS.Pressure*1000, OSS.Temperature, OSS.Humidity/100);
+        }
+        else{
+            atm = new Weather(1000, 15, 0.5);
+            System.out.println("Wheather not connected. Standard parameters used");
+        }
 
         tm.setBaseDir(BASE_DIR);
         tm.assignToTelescope(ETelescopes.ASTRI1);
@@ -3377,6 +3391,16 @@ public class TCS {
 
     }
 
+    public boolean CheckWheater(WeatherData wd){
+        boolean connected = wd.connected;
+        if (connected){
+            Object object[] = wd.ExtractAllData();
+            this.OSS.Pressure = (double) object[3];
+            this.OSS.Temperature = (double) object[5];
+            this.OSS.Humidity = (double) object[9];
+        }
+        return connected;
+    }
     
 
     public void CoordinatesConversion(double ra, double dec){
@@ -3400,7 +3424,7 @@ public class TCS {
     public void TelescopioJoystic(){}
     public void TelescopioSettaZeroStar(){}
 
-    // INCOMPLETO
+    // incompleto
     public void TelescopioSetHome(){
         double valAZ, valEL;
         //calcolo astronomico
@@ -3445,8 +3469,8 @@ public class TCS {
         }
     }
 
-    // INCOMPLETO
-    public void SettaPosHome(){
+    
+    public void HomePosition(){ // OK 
         long ValoX = 0, ValoY = 0;
         
         // aprire file Zeri.dat e prendere i valori degli zeri 
@@ -3695,7 +3719,7 @@ public class TCS {
     }
 
 
-    // CUPOLA 
+    // CUPOLA
 
     public int CupolaApertura(){
         int Err;
@@ -3852,6 +3876,8 @@ public class TCS {
         System.out.println("\nHello World\n");
         final TCS tcs = new TCS();
         tcs.connect();
+
+        tcs.Trajectory();
         
         if (tcs.domeAxisConnection){
             double angoloC = tcs.GetCupolaPosition();

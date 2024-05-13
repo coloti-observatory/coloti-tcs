@@ -1,4 +1,5 @@
 package coloti.tcs.weather;
+import java.io.IOException;
 import java.util.*;
 //import java.util.ResourceBundle.Control;
 
@@ -9,20 +10,27 @@ public class WeatherData {
     //private long timestamp;
 
     private CommClass communication;
+    public boolean connected;
 
     public WeatherData() {
-        this.communication = new CommClass();
-        communication.Open(19200);
-        trytest(); 
+        try{
+            this.communication = new CommClass();
+            this.connected = communication.Open(19200);
+            trytest();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            //e.printStackTrace();
+            this.connected = false;
+            //System.out.println("not connected");
+        }
     }
 
     public WeatherData(String PortName) {
         this.communication = new CommClass(PortName);
-        System.out.println("Porta identificata");
+        //System.out.println("Porta identificata");
         communication.Open(19200);
-        System.out.println("Comunicazione Aperta");
+        //System.out.println("Comunicazione Aperta");
         trytest();
-        System.out.println("test funzionante");
+        //System.out.println("test funzionante");
     }
 
 
@@ -436,7 +444,8 @@ public class WeatherData {
 
     public static void main(final String[] a){ 
 
-        WeatherData WD = new WeatherData("/dev/ttyUSB0");
+        //WeatherData WD = new WeatherData("/dev/ttyUSB0");
+        WeatherData WD = new WeatherData();
 
 
     }

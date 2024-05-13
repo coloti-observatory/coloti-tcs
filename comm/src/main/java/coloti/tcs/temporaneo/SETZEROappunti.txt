@@ -1,0 +1,135 @@
+
+// SET ZERO
+
+void CTcsDlg::OnTelescopioSetHome() // setta lo zero sulla base della posizione
+{
+	// TODO: Add your command handler code here
+	double val,val1;
+	double DPX,DPY;
+	GetTelInfo();
+	OggettoPuntato.CalcStarPos();
+	if(Telescopio.m_TelMonTipo==0){
+		val=(180 - OggettoPuntato.ObsAZ)*3600;
+		val1=OggettoPuntato.ObsEL*3600;	
+		DPX=m_telescopeInfo.PosX-val;
+		DPY=m_telescopeInfo.PosY-val1;
+
+	}
+	
+	AsseX.SetAxisZeroPos(X,val);
+	AsseY.SetAxisZeroPos(X,val1);
+	
+	FILE *fp;
+	fp=fopen("Zeri.dat","wt");
+	fprintf(fp,"%ld %ld",(long)(-1.*DPX*AsseX.CONVFACTOR[X]+0.5),(long)(-1.*DPY*AsseY.CONVFACTOR[X]));
+	fclose(fp);
+}
+
+void CTcsDlg::OnTelescopioSettazeroStar() // setta lo zero sulla base della posizione della stella
+{
+	// TODO: Add your command handler code here
+	double val, val1;
+	double DPX,DPY;
+	/*OggettoPuntato.CalcStarPos();
+	val=(OggettoPuntato.ObsAZ-180)*3600;
+	val1=OggettoPuntato.ObsEL*3600;*/
+	SetZeroStar=1;
+	pis.m_iFlagUso=2;
+	if(pis.DoModal()==IDOK){
+		//OggettoPuntato.CalcStarPos();
+		OnTelescopioJoyst();
+			//LEGGO POSIZIONE ASSI E SETTO LA POSIZIONE
+			GetTelInfo();
+			OggettoPuntato.CalcStarPos();
+			if(Telescopio.m_TelMonTipo==0){
+			val=(180 - OggettoPuntato.ObsAZ)*3600;
+			val1=OggettoPuntato.ObsEL*3600;
+			DPX=m_telescopeInfo.PosX-val;
+			DPY=m_telescopeInfo.PosY-val1;
+
+			}
+			else{
+				val=OggettoPuntato.ObsH;
+				if(val>12)val=(val-24)*54000;
+				else val=val*54000;
+				val1=OggettoPuntato.ObsDEC*3600;
+				DPX=m_telescopeInfo.PosX-val;
+				DPY=m_telescopeInfo.PosY-val1;
+			}			
+
+			//AsseX.GetMotPos(X,&val);
+			//if(SetTrackX==1)
+				AsseX.SetAxisZeroPos(X,val);
+			//AsseY.GetMotPos(X,&val1);
+			//if(SetTrackY==1)
+			    AsseY.SetAxisZeroPos(X,val1);
+
+				FILE *fp;
+				fp=fopen("Zeri.dat","wt");
+				fprintf(fp,"%ld %ld",(long)(-1.*DPX*AsseX.CONVFACTOR[X]+0.5),(long)(-1.*DPY*AsseY.CONVFACTOR[X]));
+				fclose(fp);
+	}
+	pis.m_iFlagUso=0;
+	SetZeroStar=0;
+	
+}
+
+void CTcsDlg::OnSettaPosHome() // fa la procedura degli zeri
+{
+	// TODO: Add your command handler code here
+	//double val, val1;
+	//double DPX,DPY;
+
+	long ValoX=0,ValoY=0,ValoZ=0;
+	FILE *fp;
+	///Modificare per tre assi
+	fp=fopen("Zeri.dat","rt");
+	if(fp!=NULL){
+		fscanf(fp,"%ld %ld",&ValoX,&ValoY);
+		fclose(fp);
+	}
+
+	if(Telescopio.m_TelMonTipo==0){
+		ValoX+=(long)(ZeroX*3600*AsseX.CONVFACTOR[X]+0.5-30*AsseX.CONVFACTOR[X]);
+		AsseX.Comando_Array("AVSE",8,&ValoX);
+		AsseX.ExecProg("HOMEX");
+
+		ValoY+=(long)(ZeroY*3600*AsseY.CONVFACTOR[X]-60.*AsseY.CONVFACTOR[X]+0.5);
+		AsseY.Comando_Array("AVSE",8,&ValoY);
+		AsseY.ExecProg("HOMEX");
+	}
+
+	CDStopPunta pos;
+	pos.m_iTipoMoto=1;
+	pos.m_InputString=_T("Ricerca Zero: Attendere");
+	int risp=pos.DoModal();
+	if (risp == IDOK){;
+						}
+	else if (risp == IDCANCEL){
+		AsseX.Comando_Moto("PS");
+		AsseY.Comando_Moto("PS");
+			
+		AsseX.StopMove(X);
+		AsseY.StopMove(X);
+		/*if(Telescopio.m_TelMonTipo==0){
+			AsseZ.Comando_Moto("PS");
+			AsseY.StopMove(X);
+		}*/
+		
+		}
+
+
+}
+
+
+void CTcsDlg::OnSettaZezoTelFile() // setta lo zero sulla base della posizione segnata nel file
+{
+	long valx,valy,valc;
+	ifstream in("lastpos.dat");   // dentro così: 3642129 13339623 527505
+	in>>valx>>valy>>valc;
+	in.close();
+	AsseX.Comando_Set("SXZP",valx);
+	Sleep(100);
+	AsseY.Comando_Set("SXZP",valy);
+	AsseCupola.Comando_Set("SXZP",valc);
+}
