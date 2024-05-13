@@ -98,16 +98,6 @@ void CTcsDlg::OnSettaPosHome() // fa la procedura degli zeri
 		AsseY.Comando_Array("AVSE",8,&ValoY);
 		AsseY.ExecProg("HOMEX");
 	}
-	else
-	{
-		//Valo=(long)(ZeroX*3600*AsseX.CONVFACTOR[X]+0.5);
-		AsseX.Comando_Array("AVSE",8,&ValoX);
-		AsseX.ExecProg("HOMEX");
-
-		//Valo=(long)(ZeroY*3600*AsseY.CONVFACTOR[X]+0.5);
-		AsseY.Comando_Array("AVSE",8,&ValoY);
-		AsseY.ExecProg("HOMEX");
-	}
 
 	CDStopPunta pos;
 	pos.m_iTipoMoto=1;
