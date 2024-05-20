@@ -35,9 +35,9 @@ import astri.astron.Weather;
  *
  */
 public class TrajectoryManager {
-    private static final Logger logger = LoggerFactory.getLogger(TrajectoryManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(TrajectoryManagerOLD.class);
     private ModelTermsManager tPointManager;
-    private TrajectoryGenerator tra = new TrajectoryGenerator();
+    private TrajectoryGeneratorOLD tra = new TrajectoryGeneratorOLD();
     private Weather weather;
     private Iers iers;
     private Observer astroObserver;
@@ -71,7 +71,7 @@ public class TrajectoryManager {
     }
 
     public void init() {
-        configFile=baseDir+"/config/astrometryConfig"; // "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/config/astrometryConfig"; //
+        configFile=baseDir+"/config/astrometryConfig";
         loadConfig();
         loadTpoint();
         iers = new Iers(this.iersDir);
@@ -96,7 +96,7 @@ public class TrajectoryManager {
         return astroObserver;
     }
 
-    public TrajectoryGenerator getTra() {
+    public TrajectoryGeneratorOLD getTra() {
         return tra;
     }
 
@@ -174,7 +174,9 @@ public class TrajectoryManager {
         skyTarget.setVisibility(sfo);
         visible = sfo.isVisibleNow();
         if (sfo.isVisibleNow() || sfo.getAlwaysVisible()) {
-            final EquatorialObject tar = new EquatorialObject(TimeUtil.getJDNow(), iers, skyTarget, astroObserver, weather, logger);
+            final EquatorialObject tar = new EquatorialObject(TimeUtil.getJDNow(), iers, skyTarget, astroObserver,
+                    weather,
+                    logger);
             final PointingCoord coo = tar.getPointing(TimeUtil.getJDNow());
             logger.info(coo.toString());
             return checkLimits(coo);
@@ -261,7 +263,7 @@ public class TrajectoryManager {
 
     public double[] generateTrajectory(final JulianDate start){
         if (isTargetValid) {
-            final TrajectoryGenerator p = new TrajectoryGenerator(iers, astroObserver);
+            final TrajectoryGeneratorOLD p = new TrajectoryGeneratorOLD(iers, astroObserver);
             p.settPointModelManager(tPointManager);
             currentTrajectory = p.startTrajectoryGenerator(skyTarget, weather, start);
             isTrajectoryValid=validateTrajectory();
@@ -345,6 +347,14 @@ public class TrajectoryManager {
 
     public boolean isVisible() {
         return visible;
+    }
+
+    public void showTargetVisibility(){
+            logger.info("isNight?:{}", isDay());
+            logger.info("is target Visible (el>0.)?:{}", isVisible());
+            logger.info("Is Above min elevation?:{}", isAboveMinElevationOk());
+            logger.info("Is Moon Distance Ok?:{}", isMoonSeparationOk());
+            logger.info("Target did not pass visibility criteria");
     }
 
 }

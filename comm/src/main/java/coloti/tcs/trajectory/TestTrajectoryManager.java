@@ -11,7 +11,7 @@ import astri.astron.Weather;
 
 public class TestTrajectoryManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestTrajectoryManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestTrajectoryManagerOLD.class);
 
     public static void main(String[] args) {
         // Observer
@@ -32,6 +32,7 @@ public class TestTrajectoryManager {
         target.setUseRefraction(true);
         target.setUsePointingModel(true);
 
+        
         TrajectoryManager tm = new TrajectoryManager();
         tm.setBaseDir(BASE_DIR);
         tm.assignToTelescope(ETelescopes.ASTRI1);
@@ -42,11 +43,10 @@ public class TestTrajectoryManager {
         tm.setMinMoonDistance(10.);
         tm.setAcquisitionDuration(300.);
         tm.init();
-
         tm.setTarget(target);
 
-        double[] tra = new double[183];
-        if (!tm.isDay() && tm.isTargetValid()) {
+        double[] tra = new double[183]; 
+        if (tm.isDay() && tm.isTargetValid()) {
             JulianDate jd = TimeUtil.getJDNow();
             tra = tm.generateTrajectory(jd);
             tm.printTrajectory();
@@ -58,8 +58,8 @@ public class TestTrajectoryManager {
             logger.info("Is Moon Distance Ok?:{}", tm.isMoonSeparationOk());
             logger.info("Target did not pass visibility criteria");
         }
-        // TelescopeMotionEstimator tme = new TelescopeMotionEstimator();
-        // tme.checkTrajectory(tra,359.88, -90.12);
+         TelescopeMotionEstimator tme = new TelescopeMotionEstimator();
+         tme.checkTrajectory(tra,359.88, -90.12);
         // HorizonCoordinate
         // moon=tm.getMoonHorizonCoordinate(TimeUtil.getCurrentJuliandDay());
         // tm.logger.info("MOON (az,el):{},{}", moon.az,moon.el);

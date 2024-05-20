@@ -64,7 +64,7 @@ public class TrajectoryGenerator implements ITrajectoryGenerator {
     private static double expTime = 3600.;
     private double[] trajectoryArray = new double[numberOfNodes * 3];
 
-    private Logger logger = LoggerFactory.getLogger(TrajectoryGenerator.class);
+    private Logger logger = LoggerFactory.getLogger(TrajectoryGeneratorOLD.class);
     private boolean useOffset=false;
     private CoordOffset cordOff = new CoordOffset(0.0, 0.0);
     private ModelTermsManager tPointModelManager;
@@ -224,7 +224,7 @@ public class TrajectoryGenerator implements ITrajectoryGenerator {
     public void setCordOff(CoordOffset cordOff) {
         this.cordOff = cordOff;
     }
-
+    
     private void generateTrajectory(final Weather atm, final JulianDate startTime) {
 
         this.atm = atm;
@@ -244,6 +244,7 @@ public class TrajectoryGenerator implements ITrajectoryGenerator {
         for (double time = tStart; time <= tStop && i < numberOfNodes; time += tStep) {
             final JulianDate jd = new JulianDate(time, 0.);
             final PointingCoord coo = tar.getPointing(jd);
+            System.out.println(coo.getParallacticAngle()+" "+coo.getParallacticAngleVel());
             tra = getTrajectoryData(jd, coo, target.isUseRefraction(), target.isUsePointingModel());
             trajectoryNodes.add(i, tra);
             //printTrajectoryData(tra);

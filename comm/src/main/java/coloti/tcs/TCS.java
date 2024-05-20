@@ -3376,8 +3376,10 @@ public class TCS {
         }
         
         this.tf = new TrajectoryFitter(tra);
-        this.tf.fit(5);
+        this.tf.fit(5); // posso provare polinomi diversi
 
+
+        // qui dentro al posto di tra[i] posso metterci qualsiasi data juliana (non modificata)
         for (int i = 0; i < tra.length; i += 3) {
             double y = tf.Az(tra[i]);
             double vy = tf.velocityAz(tra[i]);
@@ -3409,83 +3411,6 @@ public class TCS {
         SetElTelPosition(ra*conversione);
     }
     
-
-    public void Controllore(){} // vari, utilizza funzione consolle
-    public void PuntamentoCoordinate(){}
-    public void PuntamentoMinimo(){}
-    public void UpdateTime(){}
-    public void UpdatePos(){}
-    public void Inizializzazione(){}
-    public void SettaTempo(){}
-    public void SettaMeteo(){}
-    public void FormatCoord(){}
-    public void VerificaVisibilitaAstro(){}
-    public void PuntamentoCatalogo(){}
-    public void TelescopioJoystic(){}
-    public void TelescopioSettaZeroStar(){}
-
-    // incompleto
-    public void TelescopioSetHome(){
-        double valAZ, valEL;
-        //calcolo astronomico
-        //if (TEL.MonType == 0){}
-        valAZ = (180 - TEL.TargetAZ)*3600;
-        valEL = TEL.TargetEL*3600;
-        this.DPX = TEL.PosX - valAZ; //desired position x
-        this.DPY = TEL.PosY - valEL;
-
-        AsseX.SetAxisZeroPos(X, valAZ);
-        AsseY.SetAxisZeroPos(X, valEL);
-
-        //modifica zeri dat file
-    }
-
-    public void EseguiPuntamento(){
-        final int setTrackCup = 0;
-        final int setTrackY = 0;
-        final int setTracX = 0;
-        final int noCentered = 0;
-        if (AsseX.CommStatus && AsseY.CommStatus){
-            // killertimer (2)
-            AsseX.StopMove(X);
-            if (AsseX.IsMoving(X) == 1)
-                Sleep(200) ;
-            AsseY.StopMove(X);
-            if (AsseY.IsMoving(X) == 1)
-                Sleep(200) ;
-
-            AsseX.SetSlewMode(X);
-            AsseY.SetSlewMode(X);
-            AsseX.SetMotAcc(X, MotAZ.MaxAcc);
-            AsseX.SetMotDec(X, MotAZ.MaxAcc);
-            AsseY.SetMotAcc(X, MotEL.MaxAcc);
-            AsseY.SetMotDec(X, MotEL.MaxAcc);
-            AsseX.Move(X, TEL.TargetPosX, TEL.SlewVelX);
-            AsseY.Move(X, TEL.TargetPosY, TEL.SlewVelY);
-
-            Sleep(300);
-            PuntaCupola();
-
-        }
-    }
-
-    
-    public void HomePosition(){ // OK 
-        long ValoX = 0, ValoY = 0;
-        
-        // aprire file Zeri.dat e prendere i valori degli zeri 
-        final long ZeroX=0, ZeroY=0; // non sono assegnati, vengono dal file?
-
-        ValoX += (long) (ZeroX*3600*AsseX.CONVFACTOR[0] + 0.5 - 30*AsseX.CONVFACTOR[0]);
-        AsseX.CommandArray("AVSE", 8, (int) ValoX);
-        ValoX = AsseX.VALUECR;
-        Error(AsseX.ExecProg("HOMEX"),1192);
-
-        ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
-        AsseY.CommandArray("AVSE", 8, (int) ValoY);
-        ValoY = AsseY.VALUECR;
-        Error(AsseY.ExecProg("HOMEX"),1291);
-    }
 
     public void FermaMoto(){  // era dentro setta pos home
         AsseX.CommandMot("PS");
@@ -3533,12 +3458,98 @@ public class TCS {
         }*/
     }
 
-    //public void Timer(){}
 
-    // INCOMPLETO
+
+
+
+
+    public void Controllore(){} // vari, utilizza funzione consolle
+    public void PuntamentoCoordinate(){}
+    public void PuntamentoMinimo(){}
+    public void UpdateTime(){}
+    public void UpdatePos(){}
+    public void Inizializzazione(){}
+    public void SettaTempo(){}
+    public void SettaMeteo(){}
+    public void FormatCoord(){}
+    public void VerificaVisibilitaAstro(){}
+    public void PuntamentoCatalogo(){}
+    public void TelescopioJoystic(){}
+    public void TelescopioSettaZeroStar(){}
+
+    public void VecchioEseguiPuntamento(){ 
+        final int setTrackCup = 0;
+        final int setTrackY = 0;
+        final int setTracX = 0;
+        final int noCentered = 0;
+        if (AsseX.CommStatus && AsseY.CommStatus){
+            // killertimer (2)
+            AsseX.StopMove(X);
+            if (AsseX.IsMoving(X) == 1)
+                Sleep(200) ;
+            AsseY.StopMove(X);
+            if (AsseY.IsMoving(X) == 1)
+                Sleep(200) ;
+
+            AsseX.SetSlewMode(X);
+            AsseY.SetSlewMode(X);
+            AsseX.SetMotAcc(X, MotAZ.MaxAcc);
+            AsseX.SetMotDec(X, MotAZ.MaxAcc);
+            AsseY.SetMotAcc(X, MotEL.MaxAcc);
+            AsseY.SetMotDec(X, MotEL.MaxAcc);
+            AsseX.Move(X, TEL.TargetPosX, TEL.SlewVelX);
+            AsseY.Move(X, TEL.TargetPosY, TEL.SlewVelY);
+
+            Sleep(300);
+            PuntaCupola();
+
+        }
+    }
+
+
+
+    // incompleto
+    public void SetZeri(){
+        double valAZ, valEL;
+        //calcolo astronomico
+        Trajectory();
+        //if (TEL.MonType == 0){}
+        valAZ = (180 - TEL.TargetAZ)*3600;
+        valEL = TEL.TargetEL*3600;
+        this.DPX = TEL.PosX - valAZ; //desired position x
+        this.DPY = TEL.PosY - valEL;
+
+        AsseX.SetAxisZeroPos(X, valAZ);
+        AsseY.SetAxisZeroPos(X, valEL);
+
+        //modifica zeri dat file
+    }
+
+    // Inizializzazione assi
+    public void HomePosition(){ // OK
+        long ValoX = 0, ValoY = 0;
+        
+        // aprire file Zeri.dat e prendere ValoX e ValoY
+
+
+        final long ZeroX=this.PZ.ZeroX;
+        final long ZeroY=this.PZ.ZeroY; // non sono assegnati, vengono dal file?
+
+        ValoX += (long) (ZeroX*3600*AsseX.CONVFACTOR[0] + 0.5 - 30*AsseX.CONVFACTOR[0]);
+        AsseX.CommandArray("AVSE", 8, (int) ValoX);
+        ValoX = AsseX.VALUECR;
+        Error(AsseX.ExecProg("HOMEX"),1192);
+
+        ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
+        AsseY.CommandArray("AVSE", 8, (int) ValoY);
+        ValoY = AsseY.VALUECR;
+        Error(AsseY.ExecProg("HOMEX"),1291);
+    }
+
+
     public void SetZeroFromFile(){
         final int valx = 1, valy = 1, valc = 1;
-        // assegnati da file lastpos.dat
+        // input da file lastpos.dat
         final byte[] istruzione = AsseX.sbld("SXZP");
         AsseX.CommandSet(istruzione,valx);
         Sleep(100);

@@ -1,6 +1,11 @@
 
 // SET ZERO
 
+
+
+
+SET HOME
+
 void CTcsDlg::OnTelescopioSetHome() // setta lo zero sulla base della posizione
 {
 	// TODO: Add your command handler code here
@@ -13,7 +18,6 @@ void CTcsDlg::OnTelescopioSetHome() // setta lo zero sulla base della posizione
 		val1=OggettoPuntato.ObsEL*3600;	
 		DPX=m_telescopeInfo.PosX-val;
 		DPY=m_telescopeInfo.PosY-val1;
-
 	}
 	
 	AsseX.SetAxisZeroPos(X,val);
@@ -24,6 +28,15 @@ void CTcsDlg::OnTelescopioSetHome() // setta lo zero sulla base della posizione
 	fprintf(fp,"%ld %ld",(long)(-1.*DPX*AsseX.CONVFACTOR[X]+0.5),(long)(-1.*DPY*AsseY.CONVFACTOR[X]));
 	fclose(fp);
 }
+
+
+
+
+
+
+
+
+SET ZERO STAR
 
 void CTcsDlg::OnTelescopioSettazeroStar() // setta lo zero sulla base della posizione della stella
 {
@@ -42,21 +55,11 @@ void CTcsDlg::OnTelescopioSettazeroStar() // setta lo zero sulla base della posi
 			GetTelInfo();
 			OggettoPuntato.CalcStarPos();
 			if(Telescopio.m_TelMonTipo==0){
-			val=(180 - OggettoPuntato.ObsAZ)*3600;
-			val1=OggettoPuntato.ObsEL*3600;
-			DPX=m_telescopeInfo.PosX-val;
-			DPY=m_telescopeInfo.PosY-val1;
-
-			}
-			else{
-				val=OggettoPuntato.ObsH;
-				if(val>12)val=(val-24)*54000;
-				else val=val*54000;
-				val1=OggettoPuntato.ObsDEC*3600;
+				val=(180 - OggettoPuntato.ObsAZ)*3600;
+				val1=OggettoPuntato.ObsEL*3600;
 				DPX=m_telescopeInfo.PosX-val;
 				DPY=m_telescopeInfo.PosY-val1;
-			}			
-
+			}
 			//AsseX.GetMotPos(X,&val);
 			//if(SetTrackX==1)
 				AsseX.SetAxisZeroPos(X,val);
@@ -73,6 +76,16 @@ void CTcsDlg::OnTelescopioSettazeroStar() // setta lo zero sulla base della posi
 	SetZeroStar=0;
 	
 }
+
+
+
+
+
+
+
+
+
+SET POS HOME
 
 void CTcsDlg::OnSettaPosHome() // fa la procedura degli zeri
 {
@@ -121,6 +134,14 @@ void CTcsDlg::OnSettaPosHome() // fa la procedura degli zeri
 
 }
 
+
+
+
+
+
+
+
+SET ZERO FILE
 
 void CTcsDlg::OnSettaZezoTelFile() // setta lo zero sulla base della posizione segnata nel file
 {
