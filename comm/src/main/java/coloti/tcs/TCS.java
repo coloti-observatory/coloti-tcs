@@ -2895,13 +2895,16 @@ public class TCS {
                 IsAzTracking(true);
                 IsElTracking(true);
 
+                TraiettoriaX();
+                TraiettoriaY();
+                Trajectory();
+
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
                 Sleep(1000);
 
-                TraiettoriaX();
-                TraiettoriaY();
+                UpdateInfoTarget();
                 Tracking();
 
                 AsseX.IsMoving(X);
@@ -3240,7 +3243,7 @@ public class TCS {
 
         //OggettoPuntato.calcStarPos(); 
         // CALCOLO DELLA POSIZIONE OGGETTO
-        Trajectory();
+        
         // va sempre riletta la posizione per aggiornare Az ed El
 
         //CostX[2]=1.1;
@@ -3325,6 +3328,14 @@ public class TCS {
         }
     }
 
+    public void UpdateInfoTarget(){
+        double timeJDnow = TimeUtil.getCurrentJuliandDay();
+        this.TEL.TargetAZ = tf.Az(timeJDnow);
+        this.TEL.TargetVelAZ = tf.velocityAz(timeJDnow);
+        this.TEL.TargetEL = tf.El(timeJDnow);
+        this.TEL.TargetVelEL = tf.velocityEl(timeJDnow);
+    }
+
     public void Target(){
         //this.TEL.Target = new Target(TEL.TargetName);
         double pmRa = 0;
@@ -3378,14 +3389,8 @@ public class TCS {
         this.tf = new TrajectoryFitter(tra);
         this.tf.fit(5); // posso provare polinomi diversi
 
+        // TimeUtil.getCurrentJuliandDay()
 
-        // qui dentro al posto di tra[i] posso metterci qualsiasi data juliana (non modificata)
-        for (int i = 0; i < tra.length; i += 3) {
-            double y = tf.Az(tra[i]);
-            double vy = tf.velocityAz(tra[i]);
-            double yEl = tf.El(tra[i]);
-            double vel = tf.velocityEl(tra[i]);
-        }
         //*/
     }
 
@@ -3506,8 +3511,6 @@ public class TCS {
         }
     }
 
-
-
     // incompleto
     public void SetZeri(){
         double valAZ, valEL;
@@ -3557,7 +3560,6 @@ public class TCS {
         Sleep(100);
         AsseCupola.CommandSet(istruzione,valc);
     }
-
 
 
 

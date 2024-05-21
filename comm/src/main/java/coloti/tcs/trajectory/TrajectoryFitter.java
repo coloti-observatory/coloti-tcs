@@ -182,7 +182,7 @@ public class TrajectoryFitter {
         Weather atm = new Weather(press, temp, hum);
 
         // target
-        Target target = new Target("HIP5447");
+        Target target = new Target("HIP54061");
         target.setUseRefraction(true);
         target.setUsePointingModel(true);
 
@@ -215,27 +215,32 @@ public class TrajectoryFitter {
         TrajectoryFitter tf = new TrajectoryFitter(tra);
         tf.fit(5);
 
-        double[] timeJD = new double[tra.length];
-        double[] theoryAz = new double[tra.length];
-        double[] theoryEl = new double[tra.length];
+        double[] timeJD = new double[tra.length/3];
+        double[] theoryAz = new double[tra.length/3];
+        double[] theoryEl = new double[tra.length/3];
 
-        double[] y = new double[tra.length];
-        double[] vy = new double[tra.length];
-        double[] yEl = new double[tra.length];
-        double[] vel = new double[tra.length];
+        double[] y = new double[tra.length/3];
+        double[] vy = new double[tra.length/3];
+        double[] yEl = new double[tra.length/3];
+        double[] vel = new double[tra.length/3];
 
 
+        int j = 0;
 
         for (int i = 0; i < tra.length; i+=3) { // i+=3
 
-            timeJD[i] = tra[i]; 
-            y[i] = tf.Az(tra[i]);
-            vy[i] = tf.velocityAz(tra[i]);
-            yEl[i] = tf.El(tra[i]);
-            vel[i] = tf.velocityEl(tra[i]);
+            //System.out.println(TimeUtil.getCurrentJuliandDay());
+            double ora = TimeUtil.getCurrentJuliandDay(); //tra[i];
+            timeJD[j] = ora; 
+            y[j] = tf.Az(ora);
+            vy[j] = tf.velocityAz(ora);
+            yEl[j] = tf.El(ora);
+            vel[j] = tf.velocityEl(ora);
 
-            theoryAz[i] = tra[i + 1];
-            theoryEl[i] = tra[i + 2];
+            theoryAz[j] = tra[i + 1];
+            theoryEl[j] = tra[i + 2];
+
+            j++;
 
             //System.out.println("AZ:"+tra[i] + " " + (y) + " " + tra[i + 1] + " " + (tra[i + 1] - y) * 3600 + " " + vy );
             //System.out.println("El:"+tra[i] + " " + (yEl) + " " + tra[i + 2] + " " + (tra[i + 2] - yEl) * 3600 + " " + vel);
