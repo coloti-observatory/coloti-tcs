@@ -1,5 +1,8 @@
 package coloti.tcs.trajectory;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -125,6 +128,40 @@ public class TrajectoryFitter {
         return -999;
     }
 
+    public static void saveArraysToCSV(double[] array1, double[] array2, double[] array3, double[] array4, double[] array5, double[] array6, double[] array7, String filename) {
+        // Ensure all arrays are of the same length
+        String path = "/home/coloti/Python/"; 
+        int length = array1.length;
+        if (array2.length != length || array3.length != length || array4.length != length || array5.length != length || array6.length != length || array7.length != length) {
+            throw new IllegalArgumentException("All arrays must have the same length");
+        }
+
+        // StringBuilder to construct the CSV content
+        StringBuilder csvContent = new StringBuilder();
+
+        // Append header (optional)
+        //csvContent.append("Time,Az,TheoryAz, vAz,El, TheroyEl, vEl\n");
+
+        // Append array values row by row
+        for (int i = 0; i < length; i++) {
+            csvContent.append(array1[i]).append(',')
+                      .append(array2[i]).append(',')
+                      .append(array3[i]).append(',')
+                      .append(array4[i]).append(',')
+                      .append(array5[i]).append(',')
+                      .append(array6[i]).append(',')
+                      .append(array7[i]).append('\n');
+        }
+
+        // Write to CSV file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path+filename))) {
+            writer.write(csvContent.toString());
+            //System.out.println("CSV file created successfully: " + filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         // Observer
         Observer obs = new Observer("ASTRI", 1,
@@ -145,7 +182,7 @@ public class TrajectoryFitter {
         Weather atm = new Weather(press, temp, hum);
 
         // target
-        Target target = new Target("Crab");
+        Target target = new Target("HIP5447");
         target.setUseRefraction(true);
         target.setUsePointingModel(true);
 
@@ -178,16 +215,38 @@ public class TrajectoryFitter {
         TrajectoryFitter tf = new TrajectoryFitter(tra);
         tf.fit(5);
 
-        for (int i = 0; i < tra.length; i += 3) {
-            double y = tf.Az(tra[i]);
-            double vy = tf.velocityAz(tra[i]);
-            double yEl = tf.El(tra[i]);
-            double vel = tf.velocityEl(tra[i]);
+        double[] timeJD = new double[tra.length];
+        double[] theoryAz = new double[tra.length];
+        double[] theoryEl = new double[tra.length];
 
-            System.out.println("AZ:"+tra[i] + " " + (y) + " " + tra[i + 1] + " " + (tra[i + 1] - y) * 3600 + " " + vy );
-            System.out.println("El:"+
-                    tra[i] + " " + (yEl) + " " + tra[i + 2] + " " + (tra[i + 2] - yEl) * 3600 + " " + vel);
+        double[] y = new double[tra.length];
+        double[] vy = new double[tra.length];
+        double[] yEl = new double[tra.length];
+        double[] vel = new double[tra.length];
+
+
+
+        for (int i = 0; i < tra.length; i+=3) { // i+=3
+
+            timeJD[i] = tra[i]; 
+            y[i] = tf.Az(tra[i]);
+            vy[i] = tf.velocityAz(tra[i]);
+            yEl[i] = tf.El(tra[i]);
+            vel[i] = tf.velocityEl(tra[i]);
+
+            theoryAz[i] = tra[i + 1];
+            theoryEl[i] = tra[i + 2];
+
+            //System.out.println("AZ:"+tra[i] + " " + (y) + " " + tra[i + 1] + " " + (tra[i + 1] - y) * 3600 + " " + vy );
+            //System.out.println("El:"+tra[i] + " " + (yEl) + " " + tra[i + 2] + " " + (tra[i + 2] - yEl) * 3600 + " " + vel);
         }
+
+        
+
+
+        saveArraysToCSV(timeJD, y, theoryAz, vy, yEl, theoryEl ,vel, "TrajectoryData.csv");
+
+        
     }
 
 }
