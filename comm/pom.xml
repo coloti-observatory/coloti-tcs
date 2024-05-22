@@ -70,9 +70,9 @@
       <version>20210512</version>
     </dependency>
     <dependency>
-        <groupId>astri</groupId>
-        <artifactId>astron</artifactId>
-        <version>1.5</version>
+      <groupId>astri.astron</groupId>
+      <artifactId>astrotools</artifactId>
+      <version>0.5</version>
     </dependency>
     <dependency>
         <groupId>javax</groupId>
@@ -83,6 +83,11 @@
       <groupId>com.fathzer</groupId>
       <artifactId>javaluator</artifactId>
       <version>3.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>astri.astron</groupId>
+      <artifactId>skymap</artifactId>
+      <version>1.0</version>
     </dependency>
   </dependencies>
 

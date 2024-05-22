@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math3.analysis.solvers.LaguerreSolver;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
@@ -14,13 +16,18 @@ import org.jastronomy.jsofa.JSOFA.JulianDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import astri.astron.AstronomicalObject;
 import astri.astron.Observer;
+import astri.astron.SkyMap;
+import astri.astron.SkyMapListener;
+import astri.astron.SphericalCoord;
 import astri.astron.Target;
 import astri.astron.TimeUtil;
 import astri.astron.Weather;
 
 public class TrajectoryFitter {
     private static final Logger logger = LoggerFactory.getLogger(TrajectoryFitter.class);
+    
     private PolynomialCurveFitter fitter;
     private double[] coeffAz;
     private double[] coeffEl;
@@ -35,8 +42,66 @@ public class TrajectoryFitter {
     private int size;
     private final double DAYSEC=86400.;
     private int polDegree;
+    private SkyMap sk;
+
+    private Observer obs = new Observer("ASTRI", 1,
+                43.4016667,
+                12.3763888,
+                487);
+
+
+    public Observer getObs() {
+        return obs;
+    }
+
+    private SkyMapListener sklstnr = new  SkyMapListener() {
+
+    @Override
+    public void notifyMoonPosition(SphericalCoord arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void notifyObj(AstronomicalObject arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void notifySkyPosition(SphericalCoord arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void notifySkyTarget(Target arg0) {
+        // TODO Auto-generated method stub
+        System.out.println(arg0);        
+        runMain(arg0);
+    }
+
+    @Override
+    public void notifySunPosition(SphericalCoord arg0) {
+        // TODO Auto-generated method stub
+        System.out.println(arg0);        
+
+    }
+    
+    };
+
+
+    public SkyMapListener getSklstnr() {
+        return sklstnr;
+    }
 
     public TrajectoryFitter(double[] trajectory) {
+        this.tra = trajectory;
+        size = trajectory.length;
+    }
+
+    public TrajectoryFitter(){
+        sk = new SkyMap(getObs()); 
+    }
+
+    public void SetTrajectoryFitter(double[] trajectory){
         this.tra = trajectory;
         size = trajectory.length;
     }
@@ -162,7 +227,7 @@ public class TrajectoryFitter {
         }
     }
 
-    public static void main(String[] args) {
+    public void runMain(Target target){
         // Observer
         Observer obs = new Observer("ASTRI", 1,
                 //28.301025,
@@ -180,11 +245,6 @@ public class TrajectoryFitter {
         double temp = 15.0;
         double hum = 0.5;
         Weather atm = new Weather(press, temp, hum);
-
-        // target
-        Target target = new Target("HIP54061");
-        target.setUseRefraction(true);
-        target.setUsePointingModel(true);
 
         TrajectoryManager tm = new TrajectoryManager();
         tm.setBaseDir(BASE_DIR);
@@ -212,8 +272,8 @@ public class TrajectoryFitter {
             logger.info("Target did not pass visibility criteria");
         }
 
-        TrajectoryFitter tf = new TrajectoryFitter(tra);
-        tf.fit(5);
+        SetTrajectoryFitter(tra);
+        fit(5);
 
         double[] timeJD = new double[tra.length/3];
         double[] theoryAz = new double[tra.length/3];
@@ -224,32 +284,69 @@ public class TrajectoryFitter {
         double[] yEl = new double[tra.length/3];
         double[] vel = new double[tra.length/3];
 
-
         int j = 0;
 
         for (int i = 0; i < tra.length; i+=3) { // i+=3
+            /* 
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            */
+
 
             //System.out.println(TimeUtil.getCurrentJuliandDay());
-            double ora = TimeUtil.getCurrentJuliandDay(); //tra[i];
+            double ora = tra[i]; //TimeUtil.getCurrentJuliandDay(); //tra[i];
             timeJD[j] = ora; 
-            y[j] = tf.Az(ora);
-            vy[j] = tf.velocityAz(ora);
-            yEl[j] = tf.El(ora);
-            vel[j] = tf.velocityEl(ora);
+            y[j] = Az(ora);
+            vy[j] = velocityAz(ora);
+            yEl[j] = El(ora);
+            vel[j] = velocityEl(ora);
 
             theoryAz[j] = tra[i + 1];
             theoryEl[j] = tra[i + 2];
 
-            j++;
+            //sk.getMap().moveTel(y[j], yEl[j]);
+            
 
-            //System.out.println("AZ:"+tra[i] + " " + (y) + " " + tra[i + 1] + " " + (tra[i + 1] - y) * 3600 + " " + vy );
-            //System.out.println("El:"+tra[i] + " " + (yEl) + " " + tra[i + 2] + " " + (tra[i + 2] - yEl) * 3600 + " " + vel);
+            //System.out.println("AZ:"+tra[i] + " " + (y[j]) + " " + tra[i + 1] + " " + (tra[i + 1] - y[j]) * 3600 + " " + vy[j] );
+            //System.out.println("El:"+tra[i] + " " + (yEl[j]) + " " + tra[i + 2] + " " + (tra[i + 2] - yEl[j]) * 3600 + " " + vel[j]);
+
+            j++;
         }
 
         
 
-
         saveArraysToCSV(timeJD, y, theoryAz, vy, yEl, theoryEl ,vel, "TrajectoryData.csv");
+    }
+
+    public void showMap(){
+        sk.getMap().setSkyMapListener(getSklstnr());
+        //sk.getMap().moveTel(190, 70); // spostare il telescopio graficamente nella skymap
+        sk.showMap();
+    }
+
+    public static void main(String[] args) {
+
+        TrajectoryFitter trafit = new TrajectoryFitter();
+
+        trafit.showMap();
+
+        // "/Users/gino/scada/aiv-mount/");
+
+        
+
+        
+
+        // target
+        //Target target = 
+
+
+        //new Target("HIP1067");
+        //target.setUseRefraction(true);
+        //target.setUsePointingModel(true);
 
         
     }
