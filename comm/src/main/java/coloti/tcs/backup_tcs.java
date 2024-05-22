@@ -60,7 +60,7 @@ import javax.lang.model.util.ElementScanner6;
 //import coloti.tcs.ACSv5;
 
 
-public class TCS {
+public class backup_tcs {
     
     public final ACS AsseX;
     public final ACS AsseY;
@@ -383,7 +383,7 @@ public class TCS {
     };
 
 
-    public TCS(){//boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome){
+    public backup_tcs(){//boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome){
         Configure();
         this.xAxisConnection = GEN.ConnessioneAz;
         this.yAxisConnection = GEN.ConnessioneEl;
@@ -3889,7 +3889,7 @@ public class TCS {
 
     public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
         System.out.println("\nHello World\n");
-        final TCS tcs = new TCS();
+        final backup_tcs tcs = new backup_tcs();
         tcs.connect();
 
         tcs.Trajectory();
