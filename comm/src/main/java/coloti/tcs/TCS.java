@@ -3920,9 +3920,10 @@ public class TCS {
         tcs.CmdOpenCupola(true); 
 
         // home position di telescopio e cupola
-        tcs.CmdHome(true);
+        tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
 
         // settare una stella luminosa target per poi fare gli zeri
+        tcs.SetTarget(null);
 
         // muoversi al target
 
