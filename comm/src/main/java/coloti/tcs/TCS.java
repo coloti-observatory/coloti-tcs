@@ -25,6 +25,9 @@ import java.util.concurrent.ExecutionException;
 //import coloti.tcs.ConfigurationClass;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 import org.jastronomy.jsofa.JSOFA.JulianDate;
 //import java.lang.Math.*;
@@ -872,8 +875,8 @@ public class TCS {
         return TEL.DomeEastInfo;
     }
     
-    public String GetHomePosInfo(){
-        return TEL.HomePosInfo;
+    public String GetHomeTelInfo(){
+        return TEL.HomeTelInfo;
     }
 
     // ultimo errore o numero totale di errori? Se lo metto come stringa posso avere entrambi
@@ -1606,11 +1609,11 @@ public class TCS {
     public void CmdHomeTel(final boolean value){ // OK   
         if (value && xAxisConnection && yAxisConnection)
             try {
-                taskExecutor.runTask(homeposTask, defaultListener);
+                taskExecutor.runTask(hometelTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "HomePosInfo", "FALSE", 0L, 0L, "");
+            setFieldCmd(this.TEL, "HomeTelInfo", "FALSE", 0L, 0L, "");
     }
 
     public void CmdStopPointMotion(final boolean value){
@@ -2010,8 +2013,8 @@ public class TCS {
                     isInterrupted = false;
             }
 
-            CUP.StatusRotazione = 0;
-            CUP.Direzione = 0;
+            //CUP.StatusRotazione = 0;
+            //CUP.Direzione = 0;
 
             if(listener!=null)
                 listener.onDone(null);
@@ -2049,7 +2052,7 @@ public class TCS {
 
 
     //#region T homepos
-    private final Task<Void> homeposTask = new Task<Void>() {
+    private final Task<Void> hometelTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
         
@@ -2057,7 +2060,7 @@ public class TCS {
         @Override
         public Void call() throws Exception {
             if(listener!=null)
-                listener.onStart("HomePosInfo");
+                listener.onStart("HomeTelInfo");
                 
             HomePosition();
             
@@ -3534,12 +3537,25 @@ public class TCS {
         //modifica zeri dat file
     }
 
-    // Inizializzazione assi
+    // Inizializzazione assi, procedura home telescope position
     public void HomePosition(){ // OK
         long ValoX = 0, ValoY = 0;
         
         // aprire file Zeri.dat e prendere ValoX e ValoY
+        String filezeri = "zeri.txt";
 
+        try (BufferedReader br = new BufferedReader(new FileReader(filezeri))) {
+            String line = br.readLine();
+            if (line != null) {
+                ValoX = Integer.parseInt(line.trim()); // Double.parseDouble
+            }
+            line = br.readLine();
+            if (line != null) {
+                ValoY = Integer.parseInt(line.trim()); // Double.parseDouble
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         final long ZeroX=this.PZ.ZeroX;
         final long ZeroY=this.PZ.ZeroY; // non sono assegnati, vengono dal file?

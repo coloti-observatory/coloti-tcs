@@ -878,8 +878,8 @@ public class backup_tcs {
         return TEL.DomeEastInfo;
     }
     
-    public String GetHomePosInfo(){
-        return TEL.HomePosInfo;
+    public String GetHomeTelInfo(){
+        return TEL.HomeTelInfo;
     }
 
     // ultimo errore o numero totale di errori? Se lo metto come stringa posso avere entrambi
