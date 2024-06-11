@@ -64,7 +64,7 @@ public class TELESCOPIO {
     public String StartPointingInfo;
     public String StopPointingInfo;
 
-    public String ZeroDomeInfo;
+    public String HomeDomeInfo;
     public String OpenDomeInfo;
     public String CloseDomeInfo;
     public String StartPointingDomeInfo;

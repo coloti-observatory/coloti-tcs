@@ -39,11 +39,6 @@ import astri.astron.Target;
 import astri.astron.TimeUtil;
 import astri.astron.Weather;
 
-
-
-
-
-
 //import java.util.concurrent.CompletableFuture;
 
 /*
@@ -58,7 +53,6 @@ import javax.lang.model.util.ElementScanner6;
 */
 
 //import coloti.tcs.ACSv5;
-
 
 public class TCS {
     
@@ -846,8 +840,8 @@ public class TCS {
         return TEL.EmergencyStopInfo;
     }
 
-    public String GetZeroDomeInfo(){
-        return TEL.ZeroDomeInfo;
+    public String GetHomeDomeInfo(){
+        return TEL.HomeDomeInfo;
     }
 
     public String GetOpenDomeInfo(){
@@ -1609,7 +1603,7 @@ public class TCS {
             CmdStopMotion(value);
     }
 
-    public void CmdHomePos(final boolean value){ // OK   
+    public void CmdHomeTel(final boolean value){ // OK   
         if (value && xAxisConnection && yAxisConnection)
             try {
                 taskExecutor.runTask(homeposTask, defaultListener);
@@ -1676,17 +1670,15 @@ public class TCS {
             setFieldCmd(this.TEL, "StopDomeInfo", "FALSE", 0L, 0L, "");
     }
 
-    public void CmdSetZeroCupola(final boolean value){ // OK 
+    public void CmdHomeCupola(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(zerodomeTask, defaultListener);
+                taskExecutor.runTask(homedomeTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.TEL.ZeroDomeInfo = "commandname: ZeroDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
-            setFieldCmd(this.TEL, "ZeroDomeInfo", "FALSE", 0L, 0L, "");
-
-            //CupolaSetZero();
+            this.TEL.HomeDomeInfo = "commandname: HomeDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
+            setFieldCmd(this.TEL, "HomeDomeInfo", "FALSE", 0L, 0L, "");
     }
 
     public void CmdCupolaOvest(final boolean value){ // OK 
@@ -1709,7 +1701,10 @@ public class TCS {
             setFieldCmd(this.TEL, "DomeEastInfo", "FALSE", 0L, 0L, "");
     }
 
-
+    public void CmdHome(final boolean value){
+        CmdHomeCupola(value);
+        CmdHomeTel(value);
+    }
 
 
 
@@ -1993,7 +1988,7 @@ public class TCS {
 
 
     //#region T zerodome
-    private final Task<Void> zerodomeTask = new Task<Void>() {
+    private final Task<Void> homedomeTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
         
@@ -2001,7 +1996,7 @@ public class TCS {
         @Override
         public Void call() throws Exception {
             if(listener!=null)
-                listener.onStart("ZeroDomeInfo");
+                listener.onStart("HomeDomeInfo");
                 
             Error(AsseCupola.ExecProg("HOMECUP"),1387);
             
@@ -2010,7 +2005,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(5000);
                 AsseCupola.IsProgramRunning();
-                System.out.println("The dome going in zero position ... "+AsseCupola.isRunning);
+                //System.out.println("The dome going in Home position ... "+AsseCupola.isRunning);
                 if (!AsseCupola.isRunning)
                     isInterrupted = false;
             }
@@ -2478,7 +2473,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(3000);
                 AsseCupola.IsProgramRunning();
-                System.out.println("Dome is opening ... ");
+                //System.out.println("Dome is opening ... ");
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
             }
@@ -3224,6 +3219,15 @@ public class TCS {
         this.TEL.Target = new Target(TEL.TargetRA, TEL.TargetDEC, pmRa, pmDec, px, rv, "unknown"); //double ra2000, double dec2000, double pmRA, double pmDec, double px, double rv, String name
     }
 
+    public void Target(double tRA, double tDec){
+        //this.TEL.Target = new Target(TEL.TargetName);
+        double pmRa = 0;
+        double pmDec = 0;
+        double px = 0;
+        double rv = 0;
+        this.TEL.Target = new Target(tRA, tDec, pmRa, pmDec, px, rv, "unknown"); //double ra2000, double dec2000, double pmRA, double pmDec, double px, double rv, String name
+    }
+
     public void Trajectory(){
         ///*
         TrajectoryManager tm = new TrajectoryManager();
@@ -3889,16 +3893,59 @@ public class TCS {
 
     public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
         System.out.println("\nHello World\n");
+
+        // inizializzazione
         final TCS tcs = new TCS();
         tcs.connect();
+        
+        // settare orario (in automatico?)
+
+        // apertura cupola
+        tcs.CmdOpenCupola(true); 
+
+        // home position di telescopio e cupola
+        tcs.CmdHome(true);
+
+        // settare una stella luminosa target per poi fare gli zeri
+
+        // muoversi al target
+
+        // centrare il target con il tastierino
+
+        // settare gli zeri
+
+        // settare un target per l'osservazione
+
+        // arrivare al target e iniziare il tracking per l'osservazione
+
+        // iniziare a seguire un nuovo target
+
+        // interrompere il moto
+
+        // parcheggiare il telescopio nella park position
+
+        // spegnere tutto
+
+
+
+
+
+
+
+
 
         tcs.Trajectory();
         
+
+
+
+        /*
+
         if (tcs.domeAxisConnection){
             double angoloC = tcs.GetCupolaPosition();
             System.out.println("Posizione cupola: "+angoloC);
 
-        //tcs.CmdSetZeroCupola(true);
+        //tcs.CmdHomeCupola(true);
         }
         //tcs.CmdGoStandby(true);
 
@@ -3917,6 +3964,9 @@ public class TCS {
             double angoloEL = tcs.GetElTelPos();
             System.out.println("Posizione Elevazione: "+angoloEL);
         }
+
+
+        */
 
 
         //tcs.CmdSetHomePos(true);

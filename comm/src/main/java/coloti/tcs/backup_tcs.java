@@ -847,7 +847,7 @@ public class backup_tcs {
     }
 
     public String GetZeroDomeInfo(){
-        return TEL.ZeroDomeInfo;
+        return TEL.HomeDomeInfo;
     }
 
     public String GetOpenDomeInfo(){
@@ -1683,7 +1683,7 @@ public class backup_tcs {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.TEL.ZeroDomeInfo = "commandname: ZeroDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
+            this.TEL.HomeDomeInfo = "commandname: ZeroDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
             setFieldCmd(this.TEL, "ZeroDomeInfo", "FALSE", 0L, 0L, "");
 
             //CupolaSetZero();
