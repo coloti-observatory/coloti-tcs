@@ -258,6 +258,14 @@ public class TrajectoryFitter {
         tm.init();
         tm.setTarget(target);
 
+        System.out.println("vvvvvvvvvvvvvvvvvvvvvvvvvv");
+        
+        System.out.println(target);
+        System.out.println(target.getRa());
+        System.out.println(target.getDec());
+
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA");
+
         double[] tra = new double[183];
         if (tm.isDay() && tm.isTargetValid()) {
             JulianDate jd = TimeUtil.getJDNow(); 
@@ -332,7 +340,12 @@ public class TrajectoryFitter {
 
         TrajectoryFitter trafit = new TrajectoryFitter();
 
-        trafit.showMap();
+        //trafit.showMap();
+
+        //Target targhetta = new Target("Crab");
+
+        //trafit.runMain(targhetta);
+
 
         // "/Users/gino/scada/aiv-mount/");
 

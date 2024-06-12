@@ -1229,6 +1229,12 @@ public class TCS {
         }
         else
             this.TEL.Target = new Target(value);
+            this.TEL.Target.setRa(21); //setRa2000 ?
+            this.TEL.Target.setDec(13);  //setDec2000 ?
+            this.TEL.TargetRA = TEL.Target.getRa(); // getRa2000()
+            this.TEL.TargetDEC = TEL.Target.getDec(); // getDec2000()
+            //System.out.println(TEL.TargetRA);
+            //System.out.println(TEL.TargetDEC);
     }
 
     public void SetTargetAz(final double value){
@@ -3912,18 +3918,19 @@ public class TCS {
 
         // inizializzazione
         final TCS tcs = new TCS();
-        tcs.connect();
+        //tcs.connect();
+        tcs.SetTarget("Vega");
         
         // settare orario (in automatico?)
 
         // apertura cupola
-        tcs.CmdOpenCupola(true); 
+        //tcs.CmdOpenCupola(true); 
 
         // home position di telescopio e cupola
-        tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
+        //tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
 
         // settare una stella luminosa target per poi fare gli zeri
-        tcs.SetTarget(null);
+        //tcs.SetTarget("Vega"); 
 
         // muoversi al target
 
@@ -3951,7 +3958,7 @@ public class TCS {
 
 
 
-        tcs.Trajectory();
+        //tcs.Trajectory();
         
 
 
