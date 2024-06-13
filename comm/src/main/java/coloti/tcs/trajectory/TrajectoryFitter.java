@@ -229,6 +229,10 @@ public class TrajectoryFitter {
 
     public void runMain(Target target){
         // Observer
+        System.out.println("-------------------------");
+        System.out.println(target);
+        System.out.println("-------------------------");
+
         Observer obs = new Observer("ASTRI", 1,
                 //28.301025,
                 //-16.50796944,
@@ -261,8 +265,8 @@ public class TrajectoryFitter {
         System.out.println("vvvvvvvvvvvvvvvvvvvvvvvvvv");
         
         System.out.println(target);
-        System.out.println(target.getRa());
-        System.out.println(target.getDec());
+        System.out.println(target.getRa2000());
+        System.out.println(target.getDec2000());
 
         System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA");
 
@@ -340,7 +344,7 @@ public class TrajectoryFitter {
 
         TrajectoryFitter trafit = new TrajectoryFitter();
 
-        //trafit.showMap();
+        trafit.showMap();
 
         //Target targhetta = new Target("Crab");
 

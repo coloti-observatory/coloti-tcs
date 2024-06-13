@@ -1224,17 +1224,27 @@ public class TCS {
     public void SetTarget(final String value){
         if (value == ""){
             this.TEL.Target = new Target();
-            this.TEL.Target.setRa(TEL.TargetRA); //setRa2000 ?
-            this.TEL.Target.setDec(TEL.TargetDEC);  //setDec2000 ?
+            this.TEL.Target.setRa2000(TEL.TargetRA); //setRa2000 ?
+            this.TEL.Target.setDec2000(TEL.TargetDEC);  //setDec2000 ?
         }
-        else
+        else{
             this.TEL.Target = new Target(value);
-            this.TEL.Target.setRa(21); //setRa2000 ?
-            this.TEL.Target.setDec(13);  //setDec2000 ?
-            this.TEL.TargetRA = TEL.Target.getRa(); // getRa2000()
-            this.TEL.TargetDEC = TEL.Target.getDec(); // getDec2000()
+            this.TEL.TargetName = value;
+            //this.TEL.Target.setRa(21); //setRa2000 ?
+            //this.TEL.Target.setDec(13);  //setDec2000 ?
+            this.TEL.TargetRA = TEL.Target.getRa2000(); // getRa2000()
+            this.TEL.TargetDEC = TEL.Target.getDec2000(); // getDec2000()
             //System.out.println(TEL.TargetRA);
             //System.out.println(TEL.TargetDEC);
+        }
+    }
+
+    public void SetTarget(final double ra, final double dec){
+        this.TEL.Target = new Target();
+        this.TEL.Target.setRa2000(ra); //setRa2000 ?
+        this.TEL.Target.setDec2000(dec);  //setDec2000 ?
+        this.TEL.TargetRA = ra; // getRa2000()
+        this.TEL.TargetDEC = dec;
     }
 
     public void SetTargetAz(final double value){
@@ -1996,7 +2006,7 @@ public class TCS {
     };
 
 
-    //#region T zerodome
+    //#region T homedome
     private final Task<Void> homedomeTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -2057,7 +2067,7 @@ public class TCS {
     
 
 
-    //#region T homepos
+    //#region T hometel
     private final Task<Void> hometelTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener = defaultListener;
@@ -3918,19 +3928,23 @@ public class TCS {
 
         // inizializzazione
         final TCS tcs = new TCS();
-        //tcs.connect();
-        tcs.SetTarget("Vega");
+        tcs.connect();
         
         // settare orario (in automatico?)
 
         // apertura cupola
-        //tcs.CmdOpenCupola(true); 
+        tcs.CmdOpenCupola(true);
 
         // home position di telescopio e cupola
-        //tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
+        tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
 
         // settare una stella luminosa target per poi fare gli zeri
-        //tcs.SetTarget("Vega"); 
+        tcs.SetTarget("Vega");
+        System.out.println(tcs.TEL.TargetName);
+        System.out.println(tcs.TEL.TargetRA);
+        System.out.println(tcs.TEL.TargetDEC);
+
+        
 
         // muoversi al target
 
