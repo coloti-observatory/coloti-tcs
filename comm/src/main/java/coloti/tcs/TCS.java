@@ -2136,6 +2136,10 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("MoveToPositionInfo");
                 
+
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+
             StartMotion(true,true);
             
             while(isInterrupted){
@@ -2196,6 +2200,9 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("StartAzMotionInfo");
                 
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+
             StartMotion(true, false);
             
             while(isInterrupted){
@@ -2252,7 +2259,10 @@ public class TCS {
         public Void call() throws Exception {
             if(listener!=null)
                 listener.onStart("StartElMotionInfo");
-                
+
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+
             StartMotion(false, true);
             
             while(isInterrupted){
@@ -3944,13 +3954,14 @@ public class TCS {
         System.out.println(tcs.TEL.TargetRA);
         System.out.println(tcs.TEL.TargetDEC);
 
-        
-
         // muoversi al target
+        tcs.CmdMoveToPosition(true);
+
+        // controllare che sia arrivato
 
         // centrare il target con il tastierino
 
-        // settare gli zeri
+        // settare gli zeri sulla stella nota 
 
         // settare un target per l'osservazione
 
