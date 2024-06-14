@@ -1224,16 +1224,17 @@ public class TCS {
     public void SetTarget(final String value){
         if (value == ""){
             this.TEL.Target = new Target();
-            this.TEL.Target.setRa2000(TEL.TargetRA); //setRa2000 ?
-            this.TEL.Target.setDec2000(TEL.TargetDEC);  //setDec2000 ?
+            this.TEL.Target.setRa(TEL.TargetRA); //setRa2000 ?
+            this.TEL.Target.setDec(TEL.TargetDEC);  //setDec2000 ?
+            this.TEL.Target.setEpoch(0);
         }
         else{
             this.TEL.Target = new Target(value);
             this.TEL.TargetName = value;
             //this.TEL.Target.setRa(21); //setRa2000 ?
             //this.TEL.Target.setDec(13);  //setDec2000 ?
-            this.TEL.TargetRA = TEL.Target.getRa2000(); // getRa2000()
-            this.TEL.TargetDEC = TEL.Target.getDec2000(); // getDec2000()
+            this.TEL.TargetRA2000 = TEL.Target.getRa2000(); // getRa2000()
+            this.TEL.TargetDEC2000 = TEL.Target.getDec2000(); // getDec2000()
             //System.out.println(TEL.TargetRA);
             //System.out.println(TEL.TargetDEC);
         }
@@ -1243,8 +1244,8 @@ public class TCS {
         this.TEL.Target = new Target();
         this.TEL.Target.setRa2000(ra); //setRa2000 ?
         this.TEL.Target.setDec2000(dec);  //setDec2000 ?
-        this.TEL.TargetRA = ra; // getRa2000()
-        this.TEL.TargetDEC = dec;
+        this.TEL.TargetRA2000 = ra; // getRa2000()
+        this.TEL.TargetDEC2000 = dec;
     }
 
     public void SetTargetAz(final double value){
@@ -3951,8 +3952,8 @@ public class TCS {
         // settare una stella luminosa target per poi fare gli zeri
         tcs.SetTarget("Vega");
         System.out.println(tcs.TEL.TargetName);
-        System.out.println(tcs.TEL.TargetRA);
-        System.out.println(tcs.TEL.TargetDEC);
+        System.out.println(tcs.TEL.TargetRA2000);
+        System.out.println(tcs.TEL.TargetDEC2000);
 
         // muoversi al target
         tcs.CmdMoveToPosition(true);
