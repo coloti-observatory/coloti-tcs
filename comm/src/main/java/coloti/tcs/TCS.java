@@ -3513,8 +3513,12 @@ public class TCS {
         this.TEL.TelIsMoving = false;
     }
 
-
-
+    public void WaitMovement(){
+        while(TEL.TelIsMoving){
+            Sleep(1000);
+        }
+        System.out.println("Telescopio arrivato");
+    }
 
     public void Controllore(){} // vari, utilizza funzione consolle
     public void PuntamentoCoordinate(){}
@@ -3560,18 +3564,23 @@ public class TCS {
     }
 
     // incompleto
-    public void SetZeri(){
+    public void SetZeroStar(){
         double valAZ, valEL;
         //calcolo astronomico
         Trajectory();
         //if (TEL.MonType == 0){}
         valAZ = (180 - TEL.TargetAZ)*3600;
         valEL = TEL.TargetEL*3600;
+        AsseX.GetMotEncPos(X);
+        AsseY.GetMotEncPos(X);
+        this.TEL.PosX = AsseX.EncoderPos[0];
+        this.TEL.PosY = AsseY.EncoderPos[0];
         this.DPX = TEL.PosX - valAZ; //desired position x
         this.DPY = TEL.PosY - valEL;
 
         AsseX.SetAxisZeroPos(X, valAZ);
         AsseY.SetAxisZeroPos(X, valEL);
+        //AsseCupola.SetAxisZeroPos(X, valAZ);
 
         //modifica zeri dat file
     }
@@ -3945,6 +3954,7 @@ public class TCS {
 
     }
 
+    //#region MAIN
 
     public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
         System.out.println("\nHello World\n");
@@ -3976,14 +3986,16 @@ public class TCS {
         */
 
         // controllare che sia arrivato
-        while(tcs.TEL.TelIsMoving){
-            tcs.Sleep(1000);
-        }
-        System.out.println("Telescopio arrivato");
+        tcs.WaitMovement();
+
+        // aggiustamento posizione
+        tcs.CmdMoveToPosition(true); 
+        tcs.WaitMovement();
 
         // centrare il target con il tastierino
 
         // settare gli zeri sulla stella nota 
+        tcs.SetZeroStar();
 
         // settare un target per l'osservazione
 

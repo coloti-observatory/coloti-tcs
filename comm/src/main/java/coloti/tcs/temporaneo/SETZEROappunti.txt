@@ -43,9 +43,11 @@ void CTcsDlg::OnTelescopioSettazeroStar() // setta lo zero sulla base della posi
 	// TODO: Add your command handler code here
 	double val, val1;
 	double DPX,DPY;
+	
 	/*OggettoPuntato.CalcStarPos();
 	val=(OggettoPuntato.ObsAZ-180)*3600;
 	val1=OggettoPuntato.ObsEL*3600;*/
+
 	SetZeroStar=1;
 	pis.m_iFlagUso=2;
 	if(pis.DoModal()==IDOK){
