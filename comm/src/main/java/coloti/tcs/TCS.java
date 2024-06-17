@@ -608,9 +608,9 @@ public class TCS {
     public double GetAzCommandedPos(){
         if (xAxisConnection){
             Error(AsseX.GetAbsTargPos(X), 1154);
-            this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
+            this.TEL.TargetAZ = AsseX.AbsTargPosAx[0];
         }
-        return MotAZ.TelPosition;
+        return TEL.TargetAZ;
     }
 
     public double GetAzCommandedVel(){
@@ -668,9 +668,9 @@ public class TCS {
     public double GetElCommandedPos(){
         if (yAxisConnection){
             Error(AsseY.GetAbsTargPos(X),1254);
-            this.MotEL.TelPosition = AsseY.AbsTargPosAx[0];
+            this.TEL.TargetAZ = AsseY.AbsTargPosAx[0];
         }
-        return MotEL.TelPosition;
+        return TEL.TargetAZ;
     }
     
     public double GetElCommandedVel(){
@@ -961,7 +961,7 @@ public class TCS {
         if (xAxisConnection){
             Error(AsseX.SetAbsTargPos(X, value),1160);
             Error(AsseX.GetAbsTargPos(X),1154);
-            this.MotAZ.TelPosition = AsseX.AbsTargPosAx[0];
+            this.TEL.TargetAZ = AsseX.AbsTargPosAx[0];
         }
     }
 
@@ -989,7 +989,7 @@ public class TCS {
         if (yAxisConnection){
             Error(AsseY.SetAbsTargPos(X, value),1260);
             Error(AsseY.GetAbsTargPos(X),1254);
-            this.MotEL.TelPosition = AsseY.AbsTargPosAx[0];
+            this.TEL.TargetEL = AsseY.AbsTargPosAx[0];
         }
     }
 
@@ -1227,6 +1227,7 @@ public class TCS {
             this.TEL.Target.setRa(TEL.TargetRA); //setRa2000 ?
             this.TEL.Target.setDec(TEL.TargetDEC);  //setDec2000 ?
             this.TEL.Target.setEpoch(0);
+            Trajectory();
         }
         else{
             this.TEL.Target = new Target(value);
@@ -1235,6 +1236,9 @@ public class TCS {
             //this.TEL.Target.setDec(13);  //setDec2000 ?
             this.TEL.TargetRA2000 = TEL.Target.getRa2000(); // getRa2000()
             this.TEL.TargetDEC2000 = TEL.Target.getDec2000(); // getDec2000()
+
+            Trajectory();
+            
             //System.out.println(TEL.TargetRA);
             //System.out.println(TEL.TargetDEC);
         }
@@ -1246,6 +1250,7 @@ public class TCS {
         this.TEL.Target.setDec2000(dec);  //setDec2000 ?
         this.TEL.TargetRA2000 = ra; // getRa2000()
         this.TEL.TargetDEC2000 = dec;
+        Trajectory();
     }
 
     public void SetTargetAz(final double value){
@@ -2611,7 +2616,7 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("StartPointingDomeInfo");
                 
-            PuntaCupola(MotAZ.TelPosition);
+            PuntaCupola(TEL.TargetAZ);
                 
             while(isInterrupted){
                 if(listener!=null)
@@ -3302,6 +3307,8 @@ public class TCS {
         this.tf = new TrajectoryFitter(tra);
         this.tf.fit(5); // posso provare polinomi diversi
 
+        UpdateInfoTarget();
+
         // TimeUtil.getCurrentJuliandDay()
 
         //*/
@@ -3481,10 +3488,10 @@ public class TCS {
             }
 
             if (AzAxis){
-                Error(AsseX.Move(X, MotAZ.TelPosition, MotAZ.SlewVelocity),1190); // TEL.SlewVelX
+                Error(AsseX.Move(X, TEL.TargetAZ, MotAZ.SlewVelocity),1190); // TEL.SlewVelX
             }
             if (ElAxis){
-                Error(AsseY.Move(X, MotEL.TelPosition, MotEL.SlewVelocity),1290); // TEL.SlewVelY
+                Error(AsseY.Move(X, TEL.TargetEL, MotEL.SlewVelocity),1290); // TEL.SlewVelY
             }
         }
         
@@ -3950,13 +3957,18 @@ public class TCS {
         tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
 
         // settare una stella luminosa target per poi fare gli zeri
-        tcs.SetTarget("Vega");
+        tcs.SetTarget("Vega"); // prende le coordinate in J2000
         System.out.println(tcs.TEL.TargetName);
         System.out.println(tcs.TEL.TargetRA2000);
         System.out.println(tcs.TEL.TargetDEC2000);
 
         // muoversi al target
-        tcs.CmdMoveToPosition(true);
+        tcs.CmdMoveToPosition(true); 
+        /*
+         * manda il task (movetopositionTask) che muove azimuth ed elevazione,
+         * dove viene utilizzata la funzione StartMotion.
+         * In input vuole Azimuth ed Elevazione, quindi bisogna prima settarle trasformando da J2000
+        */
 
         // controllare che sia arrivato
 
