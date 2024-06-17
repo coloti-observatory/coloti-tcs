@@ -122,6 +122,7 @@ public class TELESCOPIO {
     public double TargetEpoch;
     public int TargetCoordFrame;
     public int TargetCoordType;
+    public boolean TelIsMoving;
 
 
 

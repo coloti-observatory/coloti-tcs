@@ -2148,6 +2148,7 @@ public class TCS {
 
             StartMotion(true,true);
             
+            
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
@@ -2157,6 +2158,7 @@ public class TCS {
                 //System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
 
                 if (!AsseX.isMoving && !AsseY.isMoving)
+                    MovementDone();
                     isInterrupted = false;
             }
 
@@ -3469,6 +3471,7 @@ public class TCS {
     }
     
     public void StartMotion(boolean AzAxis, boolean ElAxis){
+        this.TEL.TelIsMoving = true;
         if(AzAxis && AsseX.IsMoving(X) == 1){
             Error(AsseX.StopMove(X),1171);
             Sleep(100);
@@ -3506,7 +3509,9 @@ public class TCS {
         }*/
     }
 
-
+    public void MovementDone(){
+        this.TEL.TelIsMoving = false;
+    }
 
 
 
@@ -3971,6 +3976,10 @@ public class TCS {
         */
 
         // controllare che sia arrivato
+        while(tcs.TEL.TelIsMoving){
+            tcs.Sleep(1000);
+        }
+        System.out.println("Telescopio arrivato");
 
         // centrare il target con il tastierino
 
