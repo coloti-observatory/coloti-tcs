@@ -2284,7 +2284,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(10000);
                 AsseX.IsMoving(X);
-                System.out.println("Az is moving ... Az: "+AsseX.isMoving);
+                //System.out.println("Az is moving ... Az: "+AsseX.isMoving);
                 if (!AsseX.isMoving)
                     isInterrupted = false;
             }
@@ -2344,7 +2344,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(10000);
                 AsseY.IsMoving(X);
-                System.out.println("El is moving ... El: "+AsseY.isMoving);
+                //System.out.println("El is moving ... El: "+AsseY.isMoving);
                 if (!AsseY.isMoving)
                     isInterrupted = false;
             }
@@ -2402,7 +2402,7 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(1000);
+                Sleep(100);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
                 //System.out.println("Az and El are stopping ... ");
@@ -2460,9 +2460,9 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(1000);
+                Sleep(100);
                 AsseX.IsMoving(X);
-                System.out.println("Az is stopping ... ");
+                //System.out.println("Az is stopping ... ");
                 if (AsseX.isMoving)
                     isInterrupted = false;
             }
@@ -2518,9 +2518,9 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(1000);
+                Sleep(100);
                 AsseY.IsMoving(X);
-                System.out.println("El is stopping ... ");
+                //System.out.println("El is stopping ... ");
                 if (AsseY.isMoving)
                     isInterrupted = false;
             }
@@ -3173,6 +3173,9 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("ElMoveUpInfo");
                 
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+
             AsseY.ExecProg("MUOVIDX");
 
             while(isInterrupted){
@@ -3227,6 +3230,9 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("ElMoveDownInfo");
                 
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+
             AsseY.ExecProg("MUOVISX");
 
             while(isInterrupted){
@@ -3280,7 +3286,10 @@ public class TCS {
         public Void call() throws Exception {
             if(listener!=null)
                 listener.onStart("AzMoveRightInfo");
-                
+            
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+
             AsseX.ExecProg("MUOVIDX");
 
             while(isInterrupted){
@@ -3336,6 +3345,9 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("AzMoveLeftInfo");
                 
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+
             AsseX.ExecProg("MUOVISX");
 
             while(isInterrupted){
@@ -4268,7 +4280,7 @@ public class TCS {
     ActionListener actionMoveDOWN = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Going up...");
+            testprint("Going down...");
             //CmdElMoveDown(true);
         }
     };
@@ -4276,7 +4288,7 @@ public class TCS {
     ActionListener actionMoveLEFT = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Going up...");
+            testprint("Going left...");
             //CmdElMoveLeft(true);
         }
     };
@@ -4284,14 +4296,31 @@ public class TCS {
     ActionListener actionMoveRIGHT = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Going up...");
+            testprint("Going right...");
             //CmdElMoveRight(true);
         }
     };
 
-    ActionListener actionstop = new ActionListener() {
+    ActionListener actionstopEL = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
+            //CmdStopElMotion(true);
+            testprint("done.");
+        }
+    };
+
+    ActionListener actionstopAZ = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //CmdStopAzMotion(true);
+            testprint("done.");
+        }
+    };
+
+    ActionListener actionSTOP = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            CmdEmergencyStop(true);
             testprint("done.");
         }
     };
@@ -4351,10 +4380,11 @@ public class TCS {
         // centrare il target con il tastierino
 
         ArrowPadFrame apframe = new ArrowPadFrame();
-        apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstop);
-        apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstop);
-        apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstop);
-        apframe.SetButtonRIGHT(tcs.actionMoveRIGHT, tcs.actionstop);
+        apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
+        apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
+        apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);
+        apframe.SetButtonRIGHT(tcs.actionMoveRIGHT, tcs.actionstopAZ);
+        apframe.SetButtonSTOP(tcs.actionSTOP);
         apframe.Show();
 
 

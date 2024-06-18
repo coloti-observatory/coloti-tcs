@@ -12,6 +12,7 @@ public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implement
   JButton buttonDOWN;
   JButton buttonLEFT;
   JButton buttonRIGHT;
+  JButton buttonSTOP;
 
   ArrowPadFrame() {
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -33,6 +34,11 @@ public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implement
     buttonRIGHT = new JButton("RIGHT");
     buttonRIGHT.setBounds(300, 200, 100, 100);
     this.add(buttonRIGHT);
+
+    buttonSTOP = new JButton("STOP");
+    buttonSTOP.setBounds(380, 400, 80, 30);
+    buttonSTOP.setBackground(Color.RED);
+    this.add(buttonSTOP);
     
   }
 
@@ -92,6 +98,21 @@ public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implement
         @Override
         public void mouseReleased(MouseEvent e) {
             StopAction.actionPerformed(null);
+        }
+        });
+  }
+
+
+  public void SetButtonSTOP(ActionListener StartAction){
+    this.buttonUP.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            StartAction.actionPerformed(null);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            
         }
         });
   }
