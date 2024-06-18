@@ -95,6 +95,11 @@ public class TELESCOPIO {
     public String StopElParkingInfo; 
     public String ResetElAxisInfo;
 
+    public String ElMoveUpInfo;
+    public String ElMoveDownInfo;
+    public String AzMoveRightInfo;
+    public String AzMoveLeftInfo;
+
 
     public int MotionType;
     public int TrajectoryGenerationMode;

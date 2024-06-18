@@ -842,6 +842,22 @@ public class TCS {
         return TEL.StopElMotionInfo;
     }
 
+    public String GetElMoveUpInfo(){
+        return TEL.ElMoveUpInfo;
+    }
+
+    public String GetElMoveDownInfo(){
+        return TEL.ElMoveUpInfo;
+    }
+
+    public String GetAzMoveRightInfo(){
+        return TEL.AzMoveRightInfo;
+    }
+
+    public String GetAzMoveLeftInfo(){
+        return TEL.AzMoveLeftInfo;
+    }
+
     public String GetEmergencyStopInfo(){
         return TEL.EmergencyStopInfo;
     }
@@ -1536,6 +1552,53 @@ public class TCS {
             setFieldCmd(this.TEL, "StopElMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
+
+    public void CmdElMoveUp(final boolean value){
+        if (value && yAxisConnection){
+            try {
+                taskExecutor.runTask(elMoveUpTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "ElMoveUpInfo", "FALSE", 0L, 0L, "");
+        }
+    }
+
+    public void CmdElMoveDown(final boolean value){
+        if (value && yAxisConnection){
+            try {
+                taskExecutor.runTask(elMoveDownTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "ElMoveDownInfo", "FALSE", 0L, 0L, "");
+        }
+    }
+
+    public void CmdAzMoveRight(final boolean value){
+        if (value && yAxisConnection){
+            try {
+                taskExecutor.runTask(azMoveRightTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "AzMoveRightInfo", "FALSE", 0L, 0L, "");
+        }
+    }
+
+    public void CmdAzMoveLeft(final boolean value){
+        if (value && yAxisConnection){
+            try {
+                taskExecutor.runTask(azMoveLeftTask, defaultListener);
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            setFieldCmd(this.TEL, "AzMoveLeftInfo", "FALSE", 0L, 0L, "");
+        }
+    }
+
+
+
 
 
     public void CmdEmergencyStop(final boolean value){
@@ -3099,6 +3162,225 @@ public class TCS {
     };
 
 
+    //#region T El Up
+    private final Task<Void> elMoveUpTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("ElMoveUpInfo");
+                
+            AsseY.ExecProg("MUOVIDX");
+
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(100);
+                AsseY.IsProgramRunning();
+                if (AsseY.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    //#region T El Down
+    private final Task<Void> elMoveDownTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("ElMoveDownInfo");
+                
+            AsseY.ExecProg("MUOVISX");
+
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(100);
+                AsseY.IsProgramRunning();
+                if (AsseY.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+    //#region T Az Right
+    private final Task<Void> azMoveRightTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("AzMoveRightInfo");
+                
+            AsseX.ExecProg("MUOVIDX");
+
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(100);
+                AsseX.IsProgramRunning();
+                if (AsseX.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+    //#region T Az Left
+    private final Task<Void> azMoveLeftTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener = defaultListener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("AzMoveLeftInfo");
+                
+            AsseX.ExecProg("MUOVISX");
+
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(100);
+                AsseX.IsProgramRunning();
+                if (AsseX.isRunning)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+
 
 
 
@@ -3975,10 +4257,35 @@ public class TCS {
         System.out.println(string);
     }
 
-    ActionListener actionstart = new ActionListener() {
+    ActionListener actionMoveUP = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Going up...");
+            //CmdElMoveUp(true);
+        }
+    };
+
+    ActionListener actionMoveDOWN = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            testprint("Going up...");
+            //CmdElMoveDown(true);
+        }
+    };
+
+    ActionListener actionMoveLEFT = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            testprint("Going up...");
+            //CmdElMoveLeft(true);
+        }
+    };
+
+    ActionListener actionMoveRIGHT = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            testprint("Going up...");
+            //CmdElMoveRight(true);
         }
     };
 
@@ -3998,21 +4305,25 @@ public class TCS {
 
 
 
-    
+
     public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
         System.out.println("\nHello World\n");
 
         // inizializzazione
         final TCS tcs = new TCS();
-        tcs.connect();
+        boolean connecting = false;
+
+        if (connecting){ // connect and initialization
+            tcs.connect();
         
         // settare orario (in automatico?)
 
         // apertura cupola
-        tcs.CmdOpenCupola(true);
+            tcs.CmdOpenCupola(true);
 
         // home position di telescopio e cupola
-        tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
+            tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
+        }
 
         // settare una stella luminosa target per poi fare gli zeri
         tcs.SetTarget("Vega"); // prende le coordinate in J2000
@@ -4021,7 +4332,8 @@ public class TCS {
         System.out.println(tcs.TEL.TargetDEC2000);
 
         // muoversi al target
-        tcs.CmdMoveToPosition(true); 
+        if (connecting){
+            tcs.CmdMoveToPosition(true); 
         /*
          * manda il task (movetopositionTask) che muove azimuth ed elevazione,
          * dove viene utilizzata la funzione StartMotion.
@@ -4029,25 +4341,27 @@ public class TCS {
         */
 
         // controllare che sia arrivato
-        tcs.WaitMovement();
+            tcs.WaitMovement();
 
         // aggiustamento posizione
-        tcs.CmdMoveToPosition(true); 
-        tcs.WaitMovement();
+            tcs.CmdMoveToPosition(true); 
+            tcs.WaitMovement();
+        }
 
         // centrare il target con il tastierino
 
         ArrowPadFrame apframe = new ArrowPadFrame();
-        apframe.SetButtonUP(tcs.actionstart, tcs.actionstop);
-        apframe.SetButtonDOWN(tcs.actionstart, tcs.actionstop);
-        apframe.SetButtonLEFT(tcs.actionstart, tcs.actionstop);
-        apframe.SetButtonRIGHT(tcs.actionstart, tcs.actionstop);
+        apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstop);
+        apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstop);
+        apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstop);
+        apframe.SetButtonRIGHT(tcs.actionMoveRIGHT, tcs.actionstop);
         apframe.Show();
 
 
 
         // settare gli zeri sulla stella nota 
-        tcs.SetZeroStar();
+        if (connecting)
+            tcs.SetZeroStar();
 
         // settare un target per l'osservazione
 
@@ -4127,9 +4441,11 @@ public class TCS {
         //tcs.Sleep(5000);
         //*/
         System.out.println("tutto okay");
-        tcs.Sleep(5000);
-        
-        tcs.disconnect();
+
+        if (connecting){
+            tcs.Sleep(5000);
+            tcs.disconnect();
+        }
 
 
 
