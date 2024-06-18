@@ -40,16 +40,58 @@ public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implement
   //  this.timerUP = new 
   // }
 
-  public void SetButtonUP(ActionListener action){
+  public void SetButtonUP(ActionListener StartAction, ActionListener StopAction){
     this.buttonUP.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
-            action.actionPerformed(null);
+            StartAction.actionPerformed(null);
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            System.out.println("done");
+            StopAction.actionPerformed(null);
+        }
+        });
+  }
+
+  public void SetButtonDOWN(ActionListener StartAction, ActionListener StopAction){
+    this.buttonDOWN.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            StartAction.actionPerformed(null);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            StopAction.actionPerformed(null);
+        }
+        });
+  }
+
+  public void SetButtonLEFT(ActionListener StartAction, ActionListener StopAction){
+    this.buttonLEFT.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            StartAction.actionPerformed(null);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            StopAction.actionPerformed(null);
+        }
+        });
+  }
+
+  public void SetButtonRIGHT(ActionListener StartAction, ActionListener StopAction){
+    this.buttonRIGHT.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            StartAction.actionPerformed(null);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            StopAction.actionPerformed(null);
         }
         });
   }

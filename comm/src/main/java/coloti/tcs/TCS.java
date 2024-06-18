@@ -42,6 +42,9 @@ import astri.astron.Target;
 import astri.astron.TimeUtil;
 import astri.astron.Weather;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 //import java.util.concurrent.CompletableFuture;
 
 /*
@@ -3954,12 +3957,48 @@ public class TCS {
 
     }
 
+
+
+
+
+
+    //#region TASTIERINO
+
+
+
+
     public void TestAzioneTastierino(){
         System.out.println(3);
     }
 
+    public void testprint(String string){
+        System.out.println(string);
+    }
+
+    ActionListener actionstart = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            testprint("Going up...");
+        }
+    };
+
+    ActionListener actionstop = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            testprint("done.");
+        }
+    };
+
+
+
+
+
+
     //#region MAIN
 
+
+
+    
     public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
         System.out.println("\nHello World\n");
 
@@ -3997,6 +4036,15 @@ public class TCS {
         tcs.WaitMovement();
 
         // centrare il target con il tastierino
+
+        ArrowPadFrame apframe = new ArrowPadFrame();
+        apframe.SetButtonUP(tcs.actionstart, tcs.actionstop);
+        apframe.SetButtonDOWN(tcs.actionstart, tcs.actionstop);
+        apframe.SetButtonLEFT(tcs.actionstart, tcs.actionstop);
+        apframe.SetButtonRIGHT(tcs.actionstart, tcs.actionstop);
+        apframe.Show();
+
+
 
         // settare gli zeri sulla stella nota 
         tcs.SetZeroStar();

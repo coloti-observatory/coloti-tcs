@@ -10,10 +10,17 @@ public class TestGui {
     }
 
 
-    ActionListener action = new ActionListener() {
+    ActionListener actionstart = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             print("Going up...");
+        }
+    };
+
+    ActionListener actionstop = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            print("done.");
         }
     };
 
@@ -21,7 +28,10 @@ public class TestGui {
         TestGui tg = new TestGui();
 
         ArrowPadFrame apframe = new ArrowPadFrame();
-        apframe.SetButtonUP(tg.action);
+        apframe.SetButtonUP(tg.actionstart, tg.actionstop);
+        apframe.SetButtonDOWN(tg.actionstart, tg.actionstop);
+        apframe.SetButtonLEFT(tg.actionstart, tg.actionstop);
+        apframe.SetButtonRIGHT(tg.actionstart, tg.actionstop);
         apframe.Show();
 
 
