@@ -3,6 +3,8 @@ package coloti.tcs;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JFrame;
+
 public class TestGui {
 
     public void print(String string){
@@ -34,7 +36,13 @@ public class TestGui {
     public static void main(String[] args) {
         TestGui tg = new TestGui();
 
-        ArrowPadFrame apframe = new ArrowPadFrame();
+        JFrame parentframe = new JFrame("Parent Frame");
+        parentframe.setSize(400, 300);
+        parentframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        parentframe.setVisible(true);
+
+       
+        ArrowPadFrame apframe = new ArrowPadFrame(parentframe);
         apframe.SetButtonUP(tg.actionstart, tg.actionstop);
         apframe.SetButtonDOWN(tg.actionstart, tg.actionstop);
         apframe.SetButtonLEFT(tg.actionstart, tg.actionstop);

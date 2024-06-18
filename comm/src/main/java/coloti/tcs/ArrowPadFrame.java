@@ -5,7 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 
-public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implements ButtonModel
+public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implements ButtonModel    JFrame
   
   //Timer timerUP, timerDOWN, timerLEFT, timerRIGHT;
   JButton buttonUP;
@@ -17,8 +17,9 @@ public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implement
   JRadioButton mediumButton;
   JRadioButton fastButton;
 
-  ArrowPadFrame() {
-    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  ArrowPadFrame(JFrame parentFrame) {
+    super(parentFrame, "Speed Selector", true);
+    this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     this.setSize(500, 500);
     this.setLayout(null);
 
@@ -60,7 +61,7 @@ public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implement
     this.add(mediumButton);
     this.add(fastButton);
 
-
+    parentFrame.dispose();
     
   }
 

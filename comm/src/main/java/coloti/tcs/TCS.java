@@ -25,6 +25,9 @@ import java.util.concurrent.ExecutionException;
 //import coloti.tcs.ConfigurationClass;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import javax.swing.JFrame;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -4379,7 +4382,12 @@ public class TCS {
 
         // centrare il target con il tastierino
 
-        ArrowPadFrame apframe = new ArrowPadFrame();
+        JFrame parentframe = new JFrame("Parent Frame");
+        parentframe.setSize(400, 300);
+        parentframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        parentframe.setVisible(true);
+
+        ArrowPadFrame apframe = new ArrowPadFrame(parentframe);
         apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
         apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
         apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);
