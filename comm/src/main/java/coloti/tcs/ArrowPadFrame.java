@@ -1,0 +1,68 @@
+package coloti.tcs;
+
+import java.awt.Color;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.ChangeListener;
+
+public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implements ButtonModel
+  
+  //Timer timerUP, timerDOWN, timerLEFT, timerRIGHT;
+  JButton buttonUP;
+  JButton buttonDOWN;
+  JButton buttonLEFT;
+  JButton buttonRIGHT;
+
+  ArrowPadFrame() {
+    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    this.setSize(500, 500);
+    this.setLayout(null);
+
+    buttonUP = new JButton("UP");
+    buttonUP.setBounds(200, 100, 100, 100);
+    this.add(buttonUP);
+
+    buttonDOWN = new JButton("DOWN");
+    buttonDOWN.setBounds(200, 300, 100, 100);
+    this.add(buttonDOWN);
+
+    buttonLEFT = new JButton("LEFT");
+    buttonLEFT.setBounds(100, 200, 100, 100);
+    this.add(buttonLEFT);
+
+    buttonRIGHT = new JButton("RIGHT");
+    buttonRIGHT.setBounds(300, 200, 100, 100);
+    this.add(buttonRIGHT);
+    
+  }
+
+  //public void SetTimer(ActionListener action){
+  //  this.timerUP = new 
+  // }
+
+  public void SetButtonUP(ActionListener action){
+    this.buttonUP.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            action.actionPerformed(null);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            System.out.println("done");
+        }
+        });
+  }
+
+
+
+
+
+  public void Show(){
+    this.setVisible(true);
+  }
+
+
+  
+
+}

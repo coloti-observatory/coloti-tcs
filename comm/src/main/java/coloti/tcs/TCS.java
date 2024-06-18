@@ -3954,6 +3954,10 @@ public class TCS {
 
     }
 
+    public void TestAzioneTastierino(){
+        System.out.println(3);
+    }
+
     //#region MAIN
 
     public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
