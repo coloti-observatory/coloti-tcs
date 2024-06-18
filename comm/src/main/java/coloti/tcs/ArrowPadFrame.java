@@ -13,6 +13,9 @@ public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implement
   JButton buttonLEFT;
   JButton buttonRIGHT;
   JButton buttonSTOP;
+  JRadioButton slowButton;
+  JRadioButton mediumButton;
+  JRadioButton fastButton;
 
   ArrowPadFrame() {
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -39,6 +42,25 @@ public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implement
     buttonSTOP.setBounds(380, 400, 80, 30);
     buttonSTOP.setBackground(Color.RED);
     this.add(buttonSTOP);
+
+    slowButton = new JRadioButton("Slow");
+    slowButton.setBounds(50, 30, 100, 30);
+    mediumButton = new JRadioButton("Medium");
+    mediumButton.setBounds(50, 70, 100, 30);
+    fastButton = new JRadioButton("Fast");
+    fastButton.setBounds(50, 110, 100, 30);
+
+    // Group the radio buttons
+    ButtonGroup group = new ButtonGroup();
+    group.add(slowButton);
+    group.add(mediumButton);
+    group.add(fastButton);
+
+    this.add(slowButton);
+    this.add(mediumButton);
+    this.add(fastButton);
+
+
     
   }
 
@@ -116,6 +138,28 @@ public class ArrowPadFrame extends JFrame{ //  implements KeyListener  implement
         }
         });
   }
+
+  /* 
+  new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        System.out.println("Speed set to Slow");
+        // Set speed logic here
+    }
+};*/
+
+  public void setSlowSpeed(ActionListener action){
+    this.slowButton.addActionListener(action);
+  }
+
+  public void setMediumSpeed(ActionListener action){
+    this.mediumButton.addActionListener(action);
+  }
+
+  public void setFastSpeed(ActionListener action){
+    this.fastButton.addActionListener(action);
+  }
+
 
 
 

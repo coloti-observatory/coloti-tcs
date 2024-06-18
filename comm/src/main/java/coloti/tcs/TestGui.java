@@ -13,7 +13,7 @@ public class TestGui {
     ActionListener actionstart = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            print("Going up...");
+            print("Moving...");
         }
     };
 
@@ -21,6 +21,13 @@ public class TestGui {
         @Override
         public void actionPerformed(ActionEvent e) {
             print("done.");
+        }
+    };
+
+    ActionListener actionspeed = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Speed set");
         }
     };
 
@@ -32,8 +39,13 @@ public class TestGui {
         apframe.SetButtonDOWN(tg.actionstart, tg.actionstop);
         apframe.SetButtonLEFT(tg.actionstart, tg.actionstop);
         apframe.SetButtonRIGHT(tg.actionstart, tg.actionstop);
+        apframe.setSlowSpeed(tg.actionspeed);
+        apframe.setMediumSpeed(tg.actionspeed);
+        apframe.setFastSpeed(tg.actionspeed);
         apframe.Show();
 
+
+        System.out.println("fine");
 
 
 
