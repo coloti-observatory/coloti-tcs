@@ -1,4 +1,4 @@
-package coloti.tcs;
+package coloti.tcs.temporaneo;
 
 import java.awt.Color;
 import java.awt.event.*;
