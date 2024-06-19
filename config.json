@@ -8,10 +8,10 @@
 "NumeroControllori":3,
 "ConnessioneAz":false,
 "ConnessioneEl":false,
-"ConnessioneDome":false,
+"ConnessioneDome":true,
 "IdSerialAz":"",
 "IdSerialEl":"",
-"IdSerialDome":""
+"IdSerialDome":"ttyUSB0"
 },
 "OSSERVATORIO":{
 "Nome":"Osservatorio Astronomico di Coloti",

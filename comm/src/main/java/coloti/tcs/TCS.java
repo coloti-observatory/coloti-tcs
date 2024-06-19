@@ -68,7 +68,7 @@ public class TCS {
     public final ACS AsseX;
     public final ACS AsseY;
     
-    public final ACS AsseCupola; //= new ACS("serial ID cupola");
+    ACS AsseCupola; //= new ACS("serial ID cupola");
     ACS AsseZ;
 
     public final WeatherData weatherdata;
@@ -102,8 +102,8 @@ public class TCS {
     static final int RAD = 0, GRAD = 1, HOUR = 2, ENC = 3, ARCSECS = 4;
     int UnitMeasure = ARCSECS;
     
-    boolean xAxisConnection = true;
-    boolean yAxisConnection = true;
+    boolean xAxisConnection = false;
+    boolean yAxisConnection = false;
     boolean domeAxisConnection = true;
 
     boolean tcsConnection = false;
@@ -119,6 +119,263 @@ public class TCS {
     public String errorText = "";
 
     
+
+    // FIRST THINGS TO DO
+    String X = "X";
+    String Y = "Y";
+    String Z = "Z";
+    int NumAxes = 2;
+
+    ConfigurationClass CFG;
+
+    GENERALE GEN;
+    OSSERVATORIO OSS;
+    CUPOLA CUP;
+    TELESCOPIO TEL;
+    MOTOREARAZ MotAZ;
+    MOTOREDECAL MotEL;
+    SB129X SB;
+    PADDLE PAD;
+    POSZERO PZ;
+    double DPX;
+    double DPY;
+
+    TrajectoryFitter tf;
+
+    // opcua states
+    private StateMachine mcsStateMachine;
+    public State OFF = new State(0, "OFF");
+    public State LOADED = new State(1, "LOADED");
+    public State STANDBY = new State(2, "STANDBY");
+    public State ONLINE = new State(3, "ONLINE");
+    public State MAINTENANCE = new State(4, "MAINTENANCE");
+    public State FAULT = new State(5, "FAULT");
+
+    public Field fieldcmd;
+
+    public TCS(){//boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome){
+        Configure();
+        this.xAxisConnection = GEN.ConnessioneAz;
+        this.yAxisConnection = GEN.ConnessioneEl;
+        //this.domeAxisConnection = GEN.ConnessioneDome;
+
+        //this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
+
+        AsseX = new ACS(GEN.IdSerialAz);
+        AsseY = new ACS(GEN.IdSerialEl);
+        //AsseCupola = new ACS(GEN.IdSerialDome,1);
+        AsseCupola = new ACS("/dev/ttyUSB0",1);
+        System.out.println(GEN.IdSerialDome);
+
+        weatherdata = new WeatherData();
+        
+        this.CostX[0] = 1;
+        this.CostX[1] = 1;
+        this.CostX[2] = 1;
+        this.CostY[0] = 1;
+        this.CostY[1] = 1;
+        this.CostY[2] = 1;
+
+        /*
+        this.xAxisConnection = connectX;
+        this.yAxisConnection = connectY;
+        this.domeAxisConnection = connectDome;
+
+        AsseX = new ACS(IDserX);
+        AsseY = new ACS(IDserY);
+        AsseCupola = new ACS(IDserDome);*/
+    }
+
+    public void Error(final int err, final int IdErr){
+        this.error = -1;
+        this.errorBuffer = "none";
+        this.TemporaryErr = err;
+        if(err != -1){
+            this.nErrors += 1;
+            // se stringa: inizializzazione come String errorstring = "Least recent call: "
+            //  this.errorstring += IdErr+", ";
+            this.error = IdErr;
+            this.errorBuffer = errorMap.get(IdErr);
+            //logger.warn(errorBuffer);
+            this.errorText += "Error "+IdErr+": "+errorBuffer;
+            if (check(nEncErr, err))
+                this.errorText += ", ("+err+")"+errEncMap.get(err)+";";
+            else
+                this.errorText += ";";
+        }
+    }
+    
+    public final boolean connect(){
+        // AZIMUTH
+        if (xAxisConnection){
+            this.xAxisConnection = AsseX.SetSimpleStart(0);
+            Sleep(500);
+            Error(AsseX.InitAxes(), 1100);
+        }
+        final double gearratioX = TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
+        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
+
+
+        // ELEVATION
+        if (yAxisConnection){
+            this.yAxisConnection = AsseY.SetSimpleStart(0);
+            Sleep(500);
+            Error(AsseY.InitAxes(), 1200);
+        }
+        final double gearratioY = TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
+        this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
+
+
+
+        // DOME
+        if(true){
+            this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
+            Sleep(3000);
+            //Error(AsseCupola.InitAxes(), 1300);
+        }
+
+        //this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
+
+        // machine state
+        if (xAxisConnection || yAxisConnection || domeAxisConnection){
+            initHwStateMachine(OFF);
+            TEL.MachineState = mcsStateMachine.getCurrentState().value;
+            TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
+            return true;
+        }
+        else
+            return false;
+    }
+
+    private void disconnect() {
+        boolean status = true;
+        if (xAxisConnection)
+            status = AsseX.CloseComm();
+            if (status)
+                Error(0,1101);
+        if (yAxisConnection)
+            status = AsseY.CloseComm();
+            if (status)
+                Error(0,1201);
+        if (domeAxisConnection)
+            status = AsseCupola.CloseComm();
+            if (status)
+                Error(0,1301);
+
+        taskExecutor.shutdown();
+    }
+    
+    public void Configure(){ // CambiaConfig SalvaConfig ReadConfig
+        this.CFG = new ConfigurationClass();
+        this.GEN = new GENERALE(CFG);
+        this.OSS = new OSSERVATORIO(CFG);
+        this.CUP = new CUPOLA(CFG);
+        this.TEL = new TELESCOPIO(CFG);
+        this.MotAZ = new MOTOREARAZ(CFG);
+        this.MotEL = new MOTOREDECAL(CFG);
+        this.SB = new SB129X(CFG);
+        this.PAD = new PADDLE(CFG);
+        this.PZ = new POSZERO(CFG);
+
+        // Sole
+        // Luna
+    }
+
+    public void Sleep(final int millisecondsTime) { // VERIFICATO 
+        try {
+          TimeUnit.MILLISECONDS.sleep(millisecondsTime);
+        } catch (final InterruptedException e) {
+          e.printStackTrace();
+        }
+    }
+
+    public StateMachine getMcsStateMachine() {
+        return mcsStateMachine;
+    }
+
+    public void initHwStateMachine(final State init) {
+        final StateMachine.Model model = new DefaultStateMachineModel();
+        model.addState(OFF, new State[] { LOADED, MAINTENANCE, FAULT });
+        model.addState(LOADED, new State[] { STANDBY, MAINTENANCE, FAULT });
+        model.addState(STANDBY, new State[] { LOADED, ONLINE, MAINTENANCE, FAULT });
+        model.addState(ONLINE, new State[] { STANDBY, MAINTENANCE, FAULT });
+        model.addState(MAINTENANCE, new State[] { STANDBY });
+        model.addState(FAULT, new State[] { MAINTENANCE });
+        // Set the initial state
+        model.setInitialState(init);
+        mcsStateMachine = new StateMachine(model);
+    }
+
+    public void setFieldCmd(TELESCOPIO tel, String name, String state, long start, long stop, String err){
+        try {
+            fieldcmd = tel.getClass().getDeclaredField(name);
+        } catch (NoSuchFieldException | SecurityException e) {
+            e.printStackTrace();
+        }
+        /*try {
+            fieldcmd.set(tel.getClass(),"commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }*/
+    }
+
+
+    private final TaskExecutor<Void> taskExecutor = new TaskExecutor<>();
+
+    
+    private final TaskListener defaultListener = new TaskListener() {
+        long tStart = 0L;
+        long tStop = 0L;
+        String commandName = "";
+        Field field;
+        public void setField(String name, String state, long start, long stop, String err){
+            try {
+                field = TEL.getClass().getDeclaredField(name);
+            } catch (NoSuchFieldException | SecurityException e) {
+                e.printStackTrace();
+            }
+            try {
+                field.set(TEL.getClass(),"commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onStart(final Object in) {
+            commandName = String.valueOf(in);
+            System.out.println("Task Started");
+            tStart = System.currentTimeMillis();
+            setField(commandName, "TRUE", tStart, 0L, "");
+        }
+
+        @Override
+        public void onWorking(final Object... v) {
+            System.out.println("Task Working");
+            tStop = System.currentTimeMillis();
+            setField(commandName, "TRUE", tStart, tStop, "none");
+        }
+
+        @Override
+        public void onDone(final Object out) {
+            System.out.println("Task Done");
+            tStop = System.currentTimeMillis();
+            setField(commandName, "FALSE", tStart, tStop, "none");
+        }
+
+        @Override
+        public void onError(final Object output) {
+            tStop = System.currentTimeMillis();
+            setField(commandName, "FALSE", tStart, tStop, String.valueOf(output));
+        }
+
+    };
+
+
+
+
+    //#region Errors
+
     public Map <Integer, String> errorMap = new HashMap <>(){ // mappa da completare
         {
             put(1100, "Az axis connection issue during initialization");
@@ -301,258 +558,6 @@ public class TCS {
         }
     };
 
-    // FIRST THINGS TO DO
-    String X = "X";
-    String Y = "Y";
-    String Z = "Z";
-    int NumAxes = 2;
-
-    ConfigurationClass CFG;
-
-    GENERALE GEN;
-    OSSERVATORIO OSS;
-    CUPOLA CUP;
-    TELESCOPIO TEL;
-    MOTOREARAZ MotAZ;
-    MOTOREDECAL MotEL;
-    SB129X SB;
-    PADDLE PAD;
-    POSZERO PZ;
-    double DPX;
-    double DPY;
-
-    TrajectoryFitter tf;
-
-    // opcua states
-    private StateMachine mcsStateMachine;
-    public State OFF = new State(0, "OFF");
-    public State LOADED = new State(1, "LOADED");
-    public State STANDBY = new State(2, "STANDBY");
-    public State ONLINE = new State(3, "ONLINE");
-    public State MAINTENANCE = new State(4, "MAINTENANCE");
-    public State FAULT = new State(5, "FAULT");
-
-    public Field fieldcmd;
-    
-
-
-    private final TaskExecutor<Void> taskExecutor = new TaskExecutor<>();
-
-    
-    private final TaskListener defaultListener = new TaskListener() {
-        long tStart = 0L;
-        long tStop = 0L;
-        String commandName = "";
-        Field field;
-        public void setField(String name, String state, long start, long stop, String err){
-            try {
-                field = TEL.getClass().getDeclaredField(name);
-            } catch (NoSuchFieldException | SecurityException e) {
-                e.printStackTrace();
-            }
-            try {
-                field.set(TEL.getClass(),"commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onStart(final Object in) {
-            commandName = String.valueOf(in);
-            System.out.println("Task Started");
-            tStart = System.currentTimeMillis();
-            setField(commandName, "TRUE", tStart, 0L, "");
-        }
-
-        @Override
-        public void onWorking(final Object... v) {
-            System.out.println("Task Working");
-            tStop = System.currentTimeMillis();
-            setField(commandName, "TRUE", tStart, tStop, "none");
-        }
-
-        @Override
-        public void onDone(final Object out) {
-            System.out.println("Task Done");
-            tStop = System.currentTimeMillis();
-            setField(commandName, "FALSE", tStart, tStop, "none");
-        }
-
-        @Override
-        public void onError(final Object output) {
-            tStop = System.currentTimeMillis();
-            setField(commandName, "FALSE", tStart, tStop, String.valueOf(output));
-        }
-
-    };
-
-
-    public TCS(){//boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome){
-        Configure();
-        this.xAxisConnection = GEN.ConnessioneAz;
-        this.yAxisConnection = GEN.ConnessioneEl;
-        this.domeAxisConnection = GEN.ConnessioneDome;
-
-        this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
-
-        AsseX = new ACS(GEN.IdSerialAz);
-        AsseY = new ACS(GEN.IdSerialEl);
-        AsseCupola = new ACS(GEN.IdSerialDome);
-
-        weatherdata = new WeatherData();
-        
-        this.CostX[0] = 1;
-        this.CostX[1] = 1;
-        this.CostX[2] = 1;
-        this.CostY[0] = 1;
-        this.CostY[1] = 1;
-        this.CostY[2] = 1;
-
-        /*
-        this.xAxisConnection = connectX;
-        this.yAxisConnection = connectY;
-        this.domeAxisConnection = connectDome;
-
-        AsseX = new ACS(IDserX);
-        AsseY = new ACS(IDserY);
-        AsseCupola = new ACS(IDserDome);*/
-    }
-
-    public void Error(final int err, final int IdErr){
-        this.error = -1;
-        this.errorBuffer = "none";
-        this.TemporaryErr = err;
-        if(err != -1){
-            this.nErrors += 1;
-            // se stringa: inizializzazione come String errorstring = "Least recent call: "
-            //  this.errorstring += IdErr+", ";
-            this.error = IdErr;
-            this.errorBuffer = errorMap.get(IdErr);
-            //logger.warn(errorBuffer);
-            this.errorText += "Error "+IdErr+": "+errorBuffer;
-            if (check(nEncErr, err))
-                this.errorText += ", ("+err+")"+errEncMap.get(err)+";";
-            else
-                this.errorText += ";";
-        }
-    }
-    
-    public final boolean connect(){
-        // AZIMUTH
-        if (xAxisConnection){
-            this.xAxisConnection = AsseX.SetSimpleStart(0);
-            Sleep(500);
-            Error(AsseX.InitAxes(), 1100);
-        }
-        final double gearratioX = TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
-        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
-
-
-        // ELEVATION
-        if (yAxisConnection){
-            this.yAxisConnection = AsseY.SetSimpleStart(0);
-            Sleep(500);
-            Error(AsseY.InitAxes(), 1200);
-        }
-        final double gearratioY = TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
-        this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
-
-
-
-        // DOME
-        if(domeAxisConnection){
-            this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
-            Sleep(500);
-            Error(AsseCupola.InitAxes(), 1300);
-        }
-
-        this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
-
-        // machine state
-        if (xAxisConnection || yAxisConnection || domeAxisConnection){
-            initHwStateMachine(OFF);
-            TEL.MachineState = mcsStateMachine.getCurrentState().value;
-            TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
-            return true;
-        }
-        else
-            return false;
-    }
-
-    private void disconnect() {
-        boolean status = true;
-        if (xAxisConnection)
-            status = AsseX.CloseComm();
-            if (status)
-                Error(0,1101);
-        if (yAxisConnection)
-            status = AsseY.CloseComm();
-            if (status)
-                Error(0,1201);
-        if (domeAxisConnection)
-            status = AsseCupola.CloseComm();
-            if (status)
-                Error(0,1301);
-
-        taskExecutor.shutdown();
-    }
-    
-    public void Configure(){ // CambiaConfig SalvaConfig ReadConfig
-        this.CFG = new ConfigurationClass();
-        this.GEN = new GENERALE(CFG);
-        this.OSS = new OSSERVATORIO(CFG);
-        this.CUP = new CUPOLA(CFG);
-        this.TEL = new TELESCOPIO(CFG);
-        this.MotAZ = new MOTOREARAZ(CFG);
-        this.MotEL = new MOTOREDECAL(CFG);
-        this.SB = new SB129X(CFG);
-        this.PAD = new PADDLE(CFG);
-        this.PZ = new POSZERO(CFG);
-
-        // Sole
-        // Luna
-    }
-
-    public void Sleep(final int millisecondsTime) { // VERIFICATO 
-        try {
-          TimeUnit.MILLISECONDS.sleep(millisecondsTime);
-        } catch (final InterruptedException e) {
-          e.printStackTrace();
-        }
-    }
-
-    public StateMachine getMcsStateMachine() {
-        return mcsStateMachine;
-    }
-
-    public void initHwStateMachine(final State init) {
-        final StateMachine.Model model = new DefaultStateMachineModel();
-        model.addState(OFF, new State[] { LOADED, MAINTENANCE, FAULT });
-        model.addState(LOADED, new State[] { STANDBY, MAINTENANCE, FAULT });
-        model.addState(STANDBY, new State[] { LOADED, ONLINE, MAINTENANCE, FAULT });
-        model.addState(ONLINE, new State[] { STANDBY, MAINTENANCE, FAULT });
-        model.addState(MAINTENANCE, new State[] { STANDBY });
-        model.addState(FAULT, new State[] { MAINTENANCE });
-        // Set the initial state
-        model.setInitialState(init);
-        mcsStateMachine = new StateMachine(model);
-    }
-
-    public void setFieldCmd(TELESCOPIO tel, String name, String state, long start, long stop, String err){
-        try {
-            fieldcmd = tel.getClass().getDeclaredField(name);
-        } catch (NoSuchFieldException | SecurityException e) {
-            e.printStackTrace();
-        }
-        try {
-            fieldcmd.set(tel.getClass(),"commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
-
 
 
     
@@ -640,12 +645,16 @@ public class TCS {
     }
 
     public double GetCupolaPosition(){
+        
         long valo;
-        if (domeAxisConnection){
+        if (true){
+            System.out.println("00000000000000000000");
             //GetCupolaInfo();
-            if (AsseCupola.CommStatus){
+            if (true){
                 Error(AsseCupola.GetMotEncPos(X),1351);
                 valo = AsseCupola.VALUECR;
+                System.out.println("vvvvvvvvvvvvvvvvvvvvv");
+                System.out.println(valo);
                 this.CUP.Pos = valo/AsseCupola.CONVFACTOR[0];
                 this.CUP.AZ = CUP.Pos/3600.0;
                 if (CUP.AZ >= 360.0)
@@ -4415,29 +4424,42 @@ public class TCS {
         System.out.println("\nHello World\n");
 
         // inizializzazione
-        final TCS tcs = new TCS();
-        boolean connecting = false;
+        TCS tcs = new TCS();
 
-        if (connecting){ // connect and initialization
-            tcs.connect();
+        //if (connecting){ // connect and initialization
+        tcs.connect();
+
+        tcs.Sleep(3000);
+
+        //tcs.AsseCupola.SetSimpleStart(0);
+        //tcs.AsseCupola.GetMotEncPos("X");
+        //long valo = tcs.AsseCupola.VALUECR;
+        //System.out.println("---------------dome position-------");
+        //System.out.println(valo);
         
         // settare orario (in automatico?)
 
         // apertura cupola
-            tcs.CmdOpenCupola(true);
+            //tcs.CmdCloseCupola(true);
+
+            System.out.println("----------------dome position-------------------");
+            System.out.println(tcs.GetCupolaPosition());
+            System.out.println("------------------------------------");
 
         // home position di telescopio e cupola
-            tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
-        }
+            //tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
+        //}
 
         // settare una stella luminosa target per poi fare gli zeri
-        tcs.SetTarget("HIP69673"); // prende le coordinate in J2000
-        System.out.println(tcs.TEL.TargetName);
-        System.out.println(tcs.TEL.TargetRA2000);
-        System.out.println(tcs.TEL.TargetDEC2000);
+        if (false){
+            tcs.SetTarget("HIP69673"); // prende le coordinate in J2000
+            System.out.println(tcs.TEL.TargetName);
+            System.out.println(tcs.TEL.TargetRA2000);
+            System.out.println(tcs.TEL.TargetDEC2000);
+        }
 
         // muoversi al target
-        if (connecting){
+        if (false){
             tcs.CmdMoveToPosition(true); 
         /*
          * manda il task (movetopositionTask) che muove azimuth ed elevazione,
@@ -4454,34 +4476,36 @@ public class TCS {
         }
 
         // centrare il target con il tastierino
-
-        ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
-        apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
-        apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
-        apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);
-        apframe.SetButtonRIGHT(tcs.actionMoveRIGHT, tcs.actionstopAZ);
-        apframe.SetButtonDomeEAST(tcs.actionDomeEAST, tcs.actionDomeStop);
-        apframe.SetButtonDomeWEST(tcs.actionDomeWEST, tcs.actionDomeStop);
-        apframe.SetButtonSTOP(tcs.actionSTOP);
-        apframe.SetSlowSpeed(tcs.actionSlowSpeed);
-        apframe.SetMediumSpeed(tcs.actionMediumSpeed);
-        apframe.SetFastSpeed(tcs.actionFastSpeed);
-        apframe.Show();
-
+        if (false){
+            ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
+            apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
+            apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
+            apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);
+            apframe.SetButtonRIGHT(tcs.actionMoveRIGHT, tcs.actionstopAZ);
+            apframe.SetButtonDomeEAST(tcs.actionDomeEAST, tcs.actionDomeStop);
+            apframe.SetButtonDomeWEST(tcs.actionDomeWEST, tcs.actionDomeStop);
+            apframe.SetButtonSTOP(tcs.actionSTOP);
+            apframe.SetSlowSpeed(tcs.actionSlowSpeed);
+            apframe.SetMediumSpeed(tcs.actionMediumSpeed);
+            apframe.SetFastSpeed(tcs.actionFastSpeed);
+            apframe.Show();
+        }
 
 
         // settare gli zeri sulla stella nota 
-        if (connecting)
+        if (false)
             tcs.SetZeroStar();
 
         // settare un target per l'osservazione
+        if (false){
         tcs.SetTarget("M5");
-        System.out.println(tcs.TEL.TargetName);
-        System.out.println(tcs.TEL.TargetRA2000);
-        System.out.println(tcs.TEL.TargetDEC2000);
+            System.out.println(tcs.TEL.TargetName);
+            System.out.println(tcs.TEL.TargetRA2000);
+            System.out.println(tcs.TEL.TargetDEC2000);
+        }
 
         // arrivare al target e iniziare il tracking per l'osservazione
-        if (connecting){
+        if (false){
             tcs.CmdMoveToPosition(true);
             tcs.WaitMovement(); 
             tcs.CmdMoveToPosition(true); 
@@ -4489,7 +4513,7 @@ public class TCS {
         }
 
         // iniziare a seguire un nuovo target
-        if (connecting){
+        if (false){
             tcs.CmdStartTracking(true);
         }
 
@@ -4566,10 +4590,10 @@ public class TCS {
         //*/
         System.out.println("tutto okay");
 
-        if (connecting){
-            tcs.Sleep(5000);
-            tcs.disconnect();
-        }
+        //if (connecting){
+            tcs.Sleep(20000);
+            //tcs.disconnect();
+        
 
 
 

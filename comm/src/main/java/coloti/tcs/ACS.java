@@ -1734,23 +1734,38 @@ public class ACS {
     
 
     ///* 
-    ACS acs = new ACS("/dev/ttyUSB2",1);
-    acs.SetSimpleStart(1);
+    ACS acs = new ACS("/dev/ttyUSB0",1);
+    acs.SetSimpleStart(0);
     //acs.IsProgramRunning();
     //System.out.println(acs.isRunning);
+
+    acs.GetMotEncPos("X");
+    long valo = acs.VALUECR;
+
+    System.out.println("---------------dome position-------");
+    System.out.println(valo);
+
+    //acs.Sleep(5000);
+
+    //acs.ExecProg("CHIUDCUP");
+
+
+    acs.Sleep(5000);
+
+
 
   
 
 
     //if (!acs.HostStatus){
-    boolean acceptInput = true;
+    //boolean acceptInput = true;
     // boolean connected = false;
     // textIO = TextIoFactory.getTextIO();
     // TextTerminal<?> terminal = textIO.getTextTerminal();
-    String cmd = "";
-    Scanner myObj = new Scanner(System.in);  // Create a Scanner object
+    //String cmd = "";
+    //Scanner myObj = new Scanner(System.in);  // Create a Scanner object
 
-    while (acceptInput) {
+    /*while (acceptInput) {
       System.out.print("cmd>");
       cmd=myObj.nextLine();
       
@@ -1765,14 +1780,14 @@ public class ACS {
         acs.CommandReport(acs.sbld(cmd), true);
         acs.PrintArray(acs.serialAnswer);
         System.out.println(acs.VALUECR);
-      }*/
+      }/
         
           
 
         
         
       
-      }
+      }*/
     
     //acs.GetEncoderRes("X");
 
