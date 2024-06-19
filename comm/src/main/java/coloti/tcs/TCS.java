@@ -106,6 +106,8 @@ public class TCS {
     boolean yAxisConnection = true;
     boolean domeAxisConnection = true;
 
+    boolean tcsConnection = false;
+
     private EHardwareStatePhase statePhase;
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
@@ -392,6 +394,8 @@ public class TCS {
         this.yAxisConnection = GEN.ConnessioneEl;
         this.domeAxisConnection = GEN.ConnessioneDome;
 
+        this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
+
         AsseX = new ACS(GEN.IdSerialAz);
         AsseY = new ACS(GEN.IdSerialEl);
         AsseCupola = new ACS(GEN.IdSerialDome);
@@ -437,7 +441,7 @@ public class TCS {
     public final boolean connect(){
         // AZIMUTH
         if (xAxisConnection){
-            this.xAxisConnection= AsseX.SetSimpleStart(0);
+            this.xAxisConnection = AsseX.SetSimpleStart(0);
             Sleep(500);
             Error(AsseX.InitAxes(), 1100);
         }
@@ -463,7 +467,7 @@ public class TCS {
             Error(AsseCupola.InitAxes(), 1300);
         }
 
-
+        this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
 
         // machine state
         if (xAxisConnection || yAxisConnection || domeAxisConnection){
@@ -4277,7 +4281,8 @@ public class TCS {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Going up...");
-            //CmdElMoveUp(true);
+            if (tcsConnection)
+                CmdElMoveUp(true);
         }
     };
 
@@ -4285,7 +4290,8 @@ public class TCS {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Going down...");
-            //CmdElMoveDown(true);
+            if (tcsConnection)
+                CmdElMoveDown(true);
         }
     };
 
@@ -4293,7 +4299,8 @@ public class TCS {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Going left...");
-            //CmdElMoveLeft(true);
+            if (tcsConnection)
+                CmdAzMoveLeft(true);
         }
     };
 
@@ -4301,14 +4308,16 @@ public class TCS {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Going right...");
-            //CmdElMoveRight(true);
+            if (tcsConnection)
+                CmdAzMoveRight(true);
         }
     };
 
     ActionListener actionstopEL = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            //CmdStopElMotion(true);
+            if (tcsConnection)
+                CmdStopElMotion(true);
             testprint("done.");
         }
     };
@@ -4316,7 +4325,8 @@ public class TCS {
     ActionListener actionstopAZ = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            //CmdStopAzMotion(true);
+            if (tcsConnection)
+                CmdStopAzMotion(true);
             testprint("done.");
         }
     };
@@ -4324,8 +4334,9 @@ public class TCS {
     ActionListener actionSTOP = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            //CmdEmergencyStop(true);
-            testprint("done.");
+            testprint("Stop movements...");
+            if (tcsConnection)
+                CmdEmergencyStop(true);
         }
     };
 
@@ -4336,21 +4347,24 @@ public class TCS {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Set slow speed");
-            SetAzSlewVelocity(60);
+            if (tcsConnection)
+                SetAzSlewVelocity(60);
         }
     };
     ActionListener actionMediumSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Set medium speed");
-            SetAzSlewVelocity(150);
+            if (tcsConnection)
+                SetAzSlewVelocity(150);
         }
     };
     ActionListener actionFastSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Set fast speed");
-            SetAzSlewVelocity(180);
+            if (tcsConnection)
+                SetAzSlewVelocity(180);
         }
     };
 
@@ -4363,7 +4377,8 @@ public class TCS {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Dome going east...");
-            //CmdCupolaEst(true);
+            if (tcsConnection)
+                CmdCupolaEst(true);
         }
     };
 
@@ -4371,14 +4386,16 @@ public class TCS {
         @Override
         public void actionPerformed(ActionEvent e) {
             testprint("Dome going west...");
-            //CmdCupolaOvest(true);
+            if (tcsConnection)
+                CmdCupolaOvest(true);
         }
     };
 
     ActionListener actionDomeStop = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            //CmdStopCupola(true);
+            if (tcsConnection)
+                CmdStopCupola(true);
             testprint("done.");
         }
     };

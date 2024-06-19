@@ -6,9 +6,9 @@
 "TipoControlloreAssi":1,
 "NumeroAssi":3,
 "NumeroControllori":3,
-"ConnessioneAz":true,
-"ConnessioneEl":true,
-"ConnessioneDome":true,
+"ConnessioneAz":false,
+"ConnessioneEl":false,
+"ConnessioneDome":false,
 "IdSerialAz":"",
 "IdSerialEl":"",
 "IdSerialDome":""

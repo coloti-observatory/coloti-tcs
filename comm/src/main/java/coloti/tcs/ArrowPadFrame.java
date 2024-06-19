@@ -147,7 +147,7 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
 
 
   public void SetButtonSTOP(ActionListener StartAction){
-    this.buttonUP.addMouseListener(new MouseAdapter() {
+    this.buttonSTOP.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
             StartAction.actionPerformed(null);
@@ -155,7 +155,6 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            
         }
         });
   }
