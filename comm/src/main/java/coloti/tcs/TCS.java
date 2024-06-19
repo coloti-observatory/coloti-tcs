@@ -4323,8 +4323,15 @@ public class TCS {
     ActionListener actionSTOP = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            CmdEmergencyStop(true);
+            //CmdEmergencyStop(true);
             testprint("done.");
+        }
+    };
+
+    ActionListener actionspeed = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Speed set");
         }
     };
 
@@ -4382,17 +4389,15 @@ public class TCS {
 
         // centrare il target con il tastierino
 
-        JFrame parentframe = new JFrame("Parent Frame");
-        parentframe.setSize(400, 300);
-        parentframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        parentframe.setVisible(true);
-
-        ArrowPadFrame apframe = new ArrowPadFrame(parentframe);
+        ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
         apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
         apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
         apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);
         apframe.SetButtonRIGHT(tcs.actionMoveRIGHT, tcs.actionstopAZ);
         apframe.SetButtonSTOP(tcs.actionSTOP);
+        apframe.setSlowSpeed(tcs.actionspeed);
+        apframe.setMediumSpeed(tcs.actionspeed);
+        apframe.setFastSpeed(tcs.actionspeed);
         apframe.Show();
 
 

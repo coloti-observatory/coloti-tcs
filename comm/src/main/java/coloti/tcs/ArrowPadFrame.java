@@ -19,6 +19,7 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
 
   ArrowPadFrame(JFrame parentFrame) {
     super(parentFrame, "Speed Selector", true);
+    parentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     this.setSize(500, 500);
     this.setLayout(null);
