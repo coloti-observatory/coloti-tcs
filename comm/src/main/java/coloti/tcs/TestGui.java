@@ -47,9 +47,9 @@ public class TestGui {
         apframe.SetButtonDOWN(tg.actionstart, tg.actionstop);
         apframe.SetButtonLEFT(tg.actionstart, tg.actionstop);
         apframe.SetButtonRIGHT(tg.actionstart, tg.actionstop);
-        apframe.setSlowSpeed(tg.actionspeed);
-        apframe.setMediumSpeed(tg.actionspeed);
-        apframe.setFastSpeed(tg.actionspeed);
+        apframe.SetSlowSpeed(tg.actionspeed);
+        apframe.SetMediumSpeed(tg.actionspeed);
+        apframe.SetFastSpeed(tg.actionspeed);
         apframe.Show();
 
 

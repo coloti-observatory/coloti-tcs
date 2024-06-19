@@ -3741,6 +3741,7 @@ public class TCS {
         this.TEL.TargetVelAZ = tf.velocityAz(timeJDnow);
         this.TEL.TargetEL = tf.El(timeJDnow);
         this.TEL.TargetVelEL = tf.velocityEl(timeJDnow);
+        System.out.println("Target Az and El setted");
     }
 
     public boolean CheckWheater(WeatherData wd){
@@ -4328,12 +4329,60 @@ public class TCS {
         }
     };
 
-    ActionListener actionspeed = new ActionListener() {
+
+
+
+    ActionListener actionSlowSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Speed set");
+            testprint("Set slow speed");
+            SetAzSlewVelocity(60);
         }
     };
+    ActionListener actionMediumSpeed = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            testprint("Set medium speed");
+            SetAzSlewVelocity(150);
+        }
+    };
+    ActionListener actionFastSpeed = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            testprint("Set fast speed");
+            SetAzSlewVelocity(180);
+        }
+    };
+
+
+
+
+
+
+    ActionListener actionDomeEAST = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            testprint("Dome going east...");
+            //CmdCupolaEst(true);
+        }
+    };
+
+    ActionListener actionDomeWEST = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            testprint("Dome going west...");
+            //CmdCupolaOvest(true);
+        }
+    };
+
+    ActionListener actionDomeStop = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //CmdStopCupola(true);
+            testprint("done.");
+        }
+    };
+    
 
 
 
@@ -4365,7 +4414,7 @@ public class TCS {
         }
 
         // settare una stella luminosa target per poi fare gli zeri
-        tcs.SetTarget("Vega"); // prende le coordinate in J2000
+        tcs.SetTarget("HIP69673"); // prende le coordinate in J2000
         System.out.println(tcs.TEL.TargetName);
         System.out.println(tcs.TEL.TargetRA2000);
         System.out.println(tcs.TEL.TargetDEC2000);
@@ -4394,10 +4443,12 @@ public class TCS {
         apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
         apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);
         apframe.SetButtonRIGHT(tcs.actionMoveRIGHT, tcs.actionstopAZ);
+        apframe.SetButtonDomeEAST(tcs.actionDomeEAST, tcs.actionDomeStop);
+        apframe.SetButtonDomeWEST(tcs.actionDomeWEST, tcs.actionDomeStop);
         apframe.SetButtonSTOP(tcs.actionSTOP);
-        apframe.setSlowSpeed(tcs.actionspeed);
-        apframe.setMediumSpeed(tcs.actionspeed);
-        apframe.setFastSpeed(tcs.actionspeed);
+        apframe.SetSlowSpeed(tcs.actionSlowSpeed);
+        apframe.SetMediumSpeed(tcs.actionMediumSpeed);
+        apframe.SetFastSpeed(tcs.actionFastSpeed);
         apframe.Show();
 
 
@@ -4407,10 +4458,23 @@ public class TCS {
             tcs.SetZeroStar();
 
         // settare un target per l'osservazione
+        tcs.SetTarget("M5");
+        System.out.println(tcs.TEL.TargetName);
+        System.out.println(tcs.TEL.TargetRA2000);
+        System.out.println(tcs.TEL.TargetDEC2000);
 
         // arrivare al target e iniziare il tracking per l'osservazione
+        if (connecting){
+            tcs.CmdMoveToPosition(true);
+            tcs.WaitMovement(); 
+            tcs.CmdMoveToPosition(true); 
+            tcs.WaitMovement(); 
+        }
 
         // iniziare a seguire un nuovo target
+        if (connecting){
+            tcs.CmdStartTracking(true);
+        }
 
         // interrompere il moto
 

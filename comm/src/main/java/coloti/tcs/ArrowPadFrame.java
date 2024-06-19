@@ -13,6 +13,10 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
   JButton buttonLEFT;
   JButton buttonRIGHT;
   JButton buttonSTOP;
+  JButton buttonDomeEAST;
+  JButton buttonDomeWEST;
+  JLabel l1;
+
   JRadioButton slowButton;
   JRadioButton mediumButton;
   JRadioButton fastButton;
@@ -44,6 +48,21 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
     buttonSTOP.setBounds(380, 400, 80, 30);
     buttonSTOP.setBackground(Color.RED);
     this.add(buttonSTOP);
+
+    buttonDomeEAST = new JButton("East");
+    buttonDomeEAST.setBounds(300, 50, 80, 30);
+    buttonDomeEAST.setBackground(Color.LIGHT_GRAY);
+    this.add(buttonDomeEAST);
+
+    buttonDomeWEST = new JButton("West");
+    buttonDomeWEST.setBounds(390, 50, 80, 30);
+    buttonDomeWEST.setBackground(Color.LIGHT_GRAY);
+    this.add(buttonDomeWEST);
+
+      
+    l1 = new JLabel("Dome");  
+    l1.setBounds(360, 20, 100, 30);
+    this.add(l1);
 
     slowButton = new JRadioButton("Slow");
     slowButton.setBounds(50, 30, 100, 30);
@@ -141,6 +160,34 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
         });
   }
 
+  public void SetButtonDomeEAST(ActionListener StartAction, ActionListener StopAction){
+    this.buttonDomeEAST.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            StartAction.actionPerformed(null);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            StopAction.actionPerformed(null);
+        }
+        });
+  }
+  
+  public void SetButtonDomeWEST(ActionListener StartAction, ActionListener StopAction){
+    this.buttonDomeWEST.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            StartAction.actionPerformed(null);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            StopAction.actionPerformed(null);
+        }
+        });
+  }
+
   /* 
   new ActionListener() {
     @Override
@@ -150,15 +197,15 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
     }
 };*/
 
-  public void setSlowSpeed(ActionListener action){
+  public void SetSlowSpeed(ActionListener action){
     this.slowButton.addActionListener(action);
   }
 
-  public void setMediumSpeed(ActionListener action){
+  public void SetMediumSpeed(ActionListener action){
     this.mediumButton.addActionListener(action);
   }
 
-  public void setFastSpeed(ActionListener action){
+  public void SetFastSpeed(ActionListener action){
     this.fastButton.addActionListener(action);
   }
 
