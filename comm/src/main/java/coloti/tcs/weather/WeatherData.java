@@ -33,6 +33,10 @@ public class WeatherData {
         //System.out.println("test funzionante");
     }
 
+    public WeatherData(int mario) {
+        
+    }
+
 
     public Map <String, int[]> mapWeather = new HashMap <>(){
         {

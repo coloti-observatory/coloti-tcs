@@ -71,6 +71,7 @@ public class ACS {
   public boolean isRunning;
   public boolean isMoving;
 
+  int VARIABILETEST;
 
 
   //public ACS(){}
@@ -160,7 +161,9 @@ public class ACS {
     this.MaxPos = new double[nax];
     this.MinPos = new double[nax];
     
+    this.VARIABILETEST = 123456789;
     this.communication = new CommClass(SerialID);
+    System.out.println("+++++++++++"+SerialID);
   }
 
   //#region STARTING
@@ -941,9 +944,11 @@ public class ACS {
   }
 
   public int GetMotEncPos(String ax) { // VERIFICATO 
+    System.out.println(">>>>>>>>>>>>>  INIZIO");
     byte[] command = sbld("R%sCP", ax);
     int Err = CommandReport(command, false);
     this.EncoderPos[AxesNumber(ax)] = this.VALUECR;
+    System.out.println(">>>>>>>>>>>>>  FINE");
     return Err;
   }
 
@@ -1738,13 +1743,14 @@ public class ACS {
     acs.SetSimpleStart(0);
     //acs.IsProgramRunning();
     //System.out.println(acs.isRunning);
+    System.out.println(acs.CommStatus);
 
     acs.GetMotEncPos("X");
     long valo = acs.VALUECR;
-
+    System.out.println(acs.CommStatus);
     System.out.println("---------------dome position-------");
     System.out.println(valo);
-
+    System.out.println(acs.CommStatus);
     //acs.Sleep(5000);
 
     //acs.ExecProg("CHIUDCUP");
@@ -1754,6 +1760,9 @@ public class ACS {
 
 
 
+    acs.CloseComm();
+
+    System.out.println(acs.CommStatus);
   
 
 

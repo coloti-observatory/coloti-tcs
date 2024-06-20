@@ -11,7 +11,7 @@
 "ConnessioneDome":true,
 "IdSerialAz":"",
 "IdSerialEl":"",
-"IdSerialDome":"ttyUSB0"
+"IdSerialDome":"/dev/ttyUSB0"
 },
 "OSSERVATORIO":{
 "Nome":"Osservatorio Astronomico di Coloti",

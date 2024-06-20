@@ -40,6 +40,8 @@ import org.jboss.util.state.StateMachine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fazecast.jSerialComm.SerialPort;
+
 import astri.astron.Observer;
 import astri.astron.Target;
 import astri.astron.TimeUtil;
@@ -160,15 +162,16 @@ public class TCS {
         //this.domeAxisConnection = GEN.ConnessioneDome;
 
         //this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
-
-        AsseX = new ACS(GEN.IdSerialAz);
-        AsseY = new ACS(GEN.IdSerialEl);
-        //AsseCupola = new ACS(GEN.IdSerialDome,1);
         AsseCupola = new ACS("/dev/ttyUSB0",1);
-        System.out.println(GEN.IdSerialDome);
 
-        weatherdata = new WeatherData();
+        AsseX = new ACS();
+        AsseY = new ACS();
+        //AsseCupola = new ACS(GEN.IdSerialDome,1);
         
+        System.out.println(GEN.IdSerialDome);
+        System.out.println("ciao");
+        weatherdata = new WeatherData(1);
+        System.out.println("ciao");
         this.CostX[0] = 1;
         this.CostX[1] = 1;
         this.CostX[2] = 1;
@@ -245,6 +248,18 @@ public class TCS {
         }
         else
             return false;
+    }
+
+    public final boolean connect2(){
+        // DOME
+        this.domeAxisConnection = this.AsseCupola.SetSimpleStart(0);
+        Sleep(3000);
+        //Error(AsseCupola.InitAxes(), 1300);
+        System.out.println("oooooooooo    "+domeAxisConnection);
+
+        //this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
+
+        return domeAxisConnection;
     }
 
     private void disconnect() {
@@ -4427,9 +4442,11 @@ public class TCS {
         TCS tcs = new TCS();
 
         //if (connecting){ // connect and initialization
-        tcs.connect();
+        tcs.connect2();
 
         tcs.Sleep(3000);
+        
+        System.out.println(tcs.AsseCupola.CommStatus);
 
         //tcs.AsseCupola.SetSimpleStart(0);
         //tcs.AsseCupola.GetMotEncPos("X");
@@ -4442,9 +4459,11 @@ public class TCS {
         // apertura cupola
             //tcs.CmdCloseCupola(true);
 
-            System.out.println("----------------dome position-------------------");
-            System.out.println(tcs.GetCupolaPosition());
-            System.out.println("------------------------------------");
+        System.out.println("----------------TCS dome position-------------------");
+        System.out.println(tcs.GetCupolaPosition());
+        System.out.println("------------------------------------");
+
+        System.out.println(tcs.AsseCupola.CommStatus);
 
         // home position di telescopio e cupola
             //tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
@@ -4591,7 +4610,7 @@ public class TCS {
         System.out.println("tutto okay");
 
         //if (connecting){
-            tcs.Sleep(20000);
+            tcs.Sleep(2000);
             //tcs.disconnect();
         
 
