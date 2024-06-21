@@ -53,6 +53,9 @@ public class ConfigurationClass {
     public boolean getConnessioneDome(){
         return this.global.getGenerale().getConnessioneDome();
     }
+    public boolean getConnessioneMeteo(){
+        return this.global.getGenerale().getConnessioneMeteo();
+    }
 
     public String getIdSerialAz(){
         return this.global.getGenerale().getIdSerialAz();
@@ -62,6 +65,9 @@ public class ConfigurationClass {
     }
     public String getIdSerialDome(){
         return this.global.getGenerale().getIdSerialDome();
+    }
+    public String getIdSerialWeather(){
+        return this.global.getGenerale().getIdSerialWeather();
     }
 
         // set

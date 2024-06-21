@@ -159,19 +159,16 @@ public class TCS {
         Configure();
         this.xAxisConnection = GEN.ConnessioneAz;
         this.yAxisConnection = GEN.ConnessioneEl;
-        //this.domeAxisConnection = GEN.ConnessioneDome;
+        this.domeAxisConnection = GEN.ConnessioneDome;
 
         //this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
-        AsseCupola = new ACS("/dev/ttyUSB0",1);
-
-        AsseX = new ACS();
-        AsseY = new ACS();
-        //AsseCupola = new ACS(GEN.IdSerialDome,1);
+        //AsseCupola = new ACS("/dev/ttyUSB0",1);
+        AsseX = new ACS(GEN.IdSerialAz);
+        AsseY = new ACS(GEN.IdSerialEl);
+        AsseCupola = new ACS(GEN.IdSerialDome,1);
         
-        System.out.println(GEN.IdSerialDome);
-        System.out.println("ciao");
-        weatherdata = new WeatherData(1);
-        System.out.println("ciao");
+        weatherdata = new WeatherData(GEN.IdSerialWeather);
+        
         this.CostX[0] = 1;
         this.CostX[1] = 1;
         this.CostX[2] = 1;
@@ -231,9 +228,9 @@ public class TCS {
 
 
         // DOME
-        if(true){
+        if(domeAxisConnection){
             this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
-            Sleep(3000);
+            Sleep(500);
             //Error(AsseCupola.InitAxes(), 1300);
         }
 
@@ -248,18 +245,6 @@ public class TCS {
         }
         else
             return false;
-    }
-
-    public final boolean connect2(){
-        // DOME
-        this.domeAxisConnection = this.AsseCupola.SetSimpleStart(0);
-        Sleep(3000);
-        //Error(AsseCupola.InitAxes(), 1300);
-        System.out.println("oooooooooo    "+domeAxisConnection);
-
-        //this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
-
-        return domeAxisConnection;
     }
 
     private void disconnect() {
@@ -4442,7 +4427,7 @@ public class TCS {
         TCS tcs = new TCS();
 
         //if (connecting){ // connect and initialization
-        tcs.connect2();
+        tcs.connect();
 
         tcs.Sleep(3000);
         
@@ -4464,6 +4449,11 @@ public class TCS {
         System.out.println("------------------------------------");
 
         System.out.println(tcs.AsseCupola.CommStatus);
+        tcs.Sleep(1000);
+        tcs.disconnect();
+        tcs.Sleep(1000);
+        System.out.println(tcs.AsseCupola.CommStatus);
+
 
         // home position di telescopio e cupola
             //tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio

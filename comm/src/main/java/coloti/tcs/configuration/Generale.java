@@ -16,9 +16,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "ConnessioneAz",
     "ConnessioneEl",
     "ConnessioneDome",
+    "ConnessioneMeteo",
     "IdSerialAz",
     "IdSerialEl",
-    "IdSerialDome"
+    "IdSerialDome",
+    "IdSerialWeather"
 })
 public class Generale {
 
@@ -40,12 +42,16 @@ public class Generale {
     private Boolean connessioneEl;
     @JsonProperty("ConnessioneDome")
     private Boolean connessioneDome;
+    @JsonProperty("ConnessioneMeteo")
+    private Boolean connessioneMeteo;
     @JsonProperty("IdSerialAz")
     private String idSerialAz;
     @JsonProperty("IdSerialEl")
     private String idSerialEl;
     @JsonProperty("IdSerialDome")
     private String idSerialDome;
+    @JsonProperty("IdSerialWeather")
+    private String idSerialWeather;
     /**
      * No args constructor for use in serialization
      * 
@@ -64,11 +70,13 @@ public class Generale {
      * @param connessioneAz
      * @param connessioneEl
      * @param connessioneDome
+     * @param connessioneMeteo
      * @param idSerialAz
      * @param idSerialEl
      * @param idSerialDome
+     * @param idSerialWeather
      */
-    public Generale(Integer tipoCupola, Integer tipoTelescopio, Integer montatura, Integer tipoControlloreAssi, Integer numeroAssi, Integer numeroControllori, Boolean connessioneAz, Boolean connessioneEl, Boolean connessioneDome ,String idSerialAz, String idSerialEl, String idSerialDome) {
+    public Generale(Integer tipoCupola, Integer tipoTelescopio, Integer montatura, Integer tipoControlloreAssi, Integer numeroAssi, Integer numeroControllori, Boolean connessioneAz, Boolean connessioneEl, Boolean connessioneDome, Boolean connessioneMeteo ,String idSerialAz, String idSerialEl, String idSerialDome, String idSerialWeather) {
         super();
         this.tipoCupola = tipoCupola;
         this.tipoTelescopio = tipoTelescopio;
@@ -79,9 +87,11 @@ public class Generale {
         this.connessioneAz = connessioneAz;
         this.connessioneEl = connessioneEl;
         this.connessioneDome = connessioneDome;
+        this.connessioneMeteo = connessioneMeteo;
         this.idSerialAz = idSerialAz;
         this.idSerialEl = idSerialEl;
         this.idSerialDome = idSerialDome;
+        this.idSerialWeather = idSerialWeather;
     }
 
     @JsonProperty("TipoCupola")
@@ -219,6 +229,21 @@ public class Generale {
         return this;
     }
 
+    @JsonProperty("ConnessioneMeteo")
+    public Boolean getConnessioneMeteo() {
+        return connessioneMeteo;
+    }
+
+    @JsonProperty("ConnessioneMeteo")
+    public void setConnessioneMeteo(Boolean connessioneMeteo) {
+        this.connessioneMeteo = connessioneMeteo;
+    }
+
+    public Generale withConnessioneMeteo(Boolean connessioneMeteo) {
+        this.connessioneMeteo = connessioneMeteo;
+        return this;
+    }
+
     @JsonProperty("IdSerialAz")
     public String getIdSerialAz() {
         return idSerialAz;
@@ -261,6 +286,21 @@ public class Generale {
 
     public Generale withIdSerialDome(String idSerialDome) {
         this.idSerialDome = idSerialDome;
+        return this;
+    }
+
+    @JsonProperty("IdSerialWeather")
+    public String getIdSerialWeather() {
+        return idSerialWeather;
+    }
+
+    @JsonProperty("IdSerialWeather")
+    public void setIdSerialWeather(String idSerialWeather) {
+        this.idSerialWeather = idSerialWeather;
+    }
+
+    public Generale withIdSerialWeather(String idSerialWeather) {
+        this.idSerialWeather = idSerialWeather;
         return this;
     }
 

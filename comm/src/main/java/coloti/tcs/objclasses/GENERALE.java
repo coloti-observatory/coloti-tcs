@@ -72,9 +72,11 @@ public class GENERALE {
     public boolean ConnessioneAz;
     public boolean ConnessioneEl;
     public boolean ConnessioneDome;
+    public boolean ConnessioneMeteo;
     public String IdSerialAz;
     public String IdSerialEl;
     public String IdSerialDome;
+    public String IdSerialWeather;
 
 
     public GENERALE(ConfigurationClass cfg){
@@ -87,9 +89,11 @@ public class GENERALE {
         this.ConnessioneAz = cfg.getConnessioneAz();
         this.ConnessioneEl = cfg.getConnessioneEl();
         this.ConnessioneDome = cfg.getConnessioneDome();
+        this.ConnessioneMeteo = cfg.getConnessioneMeteo();
         this.IdSerialAz = cfg.getIdSerialAz();
         this.IdSerialEl = cfg.getIdSerialEl();
         this.IdSerialDome = cfg.getIdSerialDome();
+        this.IdSerialWeather = cfg.getIdSerialWeather();
 
     }
 

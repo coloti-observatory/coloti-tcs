@@ -163,7 +163,6 @@ public class ACS {
     
     this.VARIABILETEST = 123456789;
     this.communication = new CommClass(SerialID);
-    System.out.println("+++++++++++"+SerialID);
   }
 
   //#region STARTING
@@ -519,12 +518,14 @@ public class ACS {
     this.HostStatus = this.answerString.equals("00\r");
 
     if (this.HostStatus){
-      System.out.println("You are in Host Mode (0)");
+      if (PRINT)
+        System.out.println("You are in Host Mode (0)"); // PRINT
       if (Value == 1)
         Err = 101;
     }
     else{
-      System.out.println("You are in Terminal Mode (1)");
+      if (PRINT)
+        System.out.println("You are in Terminal Mode (1)"); // PRINT
       if (Value == 0)
         Err = 101;
     }
@@ -944,11 +945,9 @@ public class ACS {
   }
 
   public int GetMotEncPos(String ax) { // VERIFICATO 
-    System.out.println(">>>>>>>>>>>>>  INIZIO");
     byte[] command = sbld("R%sCP", ax);
     int Err = CommandReport(command, false);
     this.EncoderPos[AxesNumber(ax)] = this.VALUECR;
-    System.out.println(">>>>>>>>>>>>>  FINE");
     return Err;
   }
 
@@ -965,7 +964,8 @@ public class ACS {
     byte[] command = sbld("R%sLV", ax);
     int Err = CommandReport(command, PRINT);
     this.VelAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
-    System.out.println(VelAx[AxesNumber(ax)]);
+    if (PRINT)
+      System.out.println(VelAx[AxesNumber(ax)]);
     return Err;
   }
 

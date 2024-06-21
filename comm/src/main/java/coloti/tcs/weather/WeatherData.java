@@ -27,14 +27,18 @@ public class WeatherData {
     public WeatherData(String PortName) {
         this.communication = new CommClass(PortName);
         //System.out.println("Porta identificata");
-        communication.Open(19200);
+        //communication.Open(19200);
         //System.out.println("Comunicazione Aperta");
-        trytest();
+        //trytest();
         //System.out.println("test funzionante");
     }
 
-    public WeatherData(int mario) {
-        
+    public boolean OpenCommunications(){
+        boolean status = this.communication.GetStatus();
+        if (!this.communication.GetStatus())
+            status = communication.Open(19200);
+        this.connected = status;
+        return status;
     }
 
 
@@ -450,6 +454,8 @@ public class WeatherData {
 
         //WeatherData WD = new WeatherData("/dev/ttyUSB0");
         WeatherData WD = new WeatherData();
+        WD.OpenCommunications();
+        WD.trytest();
 
 
     }
