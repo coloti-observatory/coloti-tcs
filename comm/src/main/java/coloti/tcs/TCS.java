@@ -106,7 +106,8 @@ public class TCS {
     
     boolean xAxisConnection = false;
     boolean yAxisConnection = false;
-    boolean domeAxisConnection = true;
+    boolean domeAxisConnection = false;
+    boolean weatherConnection = false;
 
     boolean tcsConnection = false;
 
@@ -160,6 +161,7 @@ public class TCS {
         this.xAxisConnection = GEN.ConnessioneAz;
         this.yAxisConnection = GEN.ConnessioneEl;
         this.domeAxisConnection = GEN.ConnessioneDome;
+        this.weatherConnection = GEN.ConnessioneMeteo;
 
         //this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection;
         //AsseCupola = new ACS("/dev/ttyUSB0",1);
@@ -230,6 +232,13 @@ public class TCS {
         // DOME
         if(domeAxisConnection){
             this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
+            Sleep(500);
+            //Error(AsseCupola.InitAxes(), 1300);
+        }
+
+
+        if(weatherConnection){
+            weatherdata.OpenCommunications();
             Sleep(500);
             //Error(AsseCupola.InitAxes(), 1300);
         }
@@ -648,13 +657,10 @@ public class TCS {
         
         long valo;
         if (true){
-            System.out.println("00000000000000000000");
             //GetCupolaInfo();
             if (true){
                 Error(AsseCupola.GetMotEncPos(X),1351);
                 valo = AsseCupola.VALUECR;
-                System.out.println("vvvvvvvvvvvvvvvvvvvvv");
-                System.out.println(valo);
                 this.CUP.Pos = valo/AsseCupola.CONVFACTOR[0];
                 this.CUP.AZ = CUP.Pos/3600.0;
                 if (CUP.AZ >= 360.0)
@@ -4421,18 +4427,21 @@ public class TCS {
 
 
     public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
-        System.out.println("\nHello World\n");
+        //System.out.println("\nHello World\n");
+
+        boolean conditionTest = false;
 
         // inizializzazione
         TCS tcs = new TCS();
 
         //if (connecting){ // connect and initialization
-        tcs.connect();
+        if (conditionTest){
+            tcs.connect();
 
-        tcs.Sleep(3000);
-        
-        System.out.println(tcs.AsseCupola.CommStatus);
-
+            tcs.Sleep(3000);
+            
+            System.out.println(tcs.AsseCupola.CommStatus);
+        }
         //tcs.AsseCupola.SetSimpleStart(0);
         //tcs.AsseCupola.GetMotEncPos("X");
         //long valo = tcs.AsseCupola.VALUECR;
@@ -4460,7 +4469,7 @@ public class TCS {
         //}
 
         // settare una stella luminosa target per poi fare gli zeri
-        if (false){
+        if (conditionTest){
             tcs.SetTarget("HIP69673"); // prende le coordinate in J2000
             System.out.println(tcs.TEL.TargetName);
             System.out.println(tcs.TEL.TargetRA2000);
@@ -4468,7 +4477,7 @@ public class TCS {
         }
 
         // muoversi al target
-        if (false){
+        if (conditionTest){
             tcs.CmdMoveToPosition(true); 
         /*
          * manda il task (movetopositionTask) che muove azimuth ed elevazione,
@@ -4485,7 +4494,7 @@ public class TCS {
         }
 
         // centrare il target con il tastierino
-        if (false){
+        if (conditionTest){
             ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
             apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
             apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
@@ -4502,11 +4511,11 @@ public class TCS {
 
 
         // settare gli zeri sulla stella nota 
-        if (false)
+        if (conditionTest)
             tcs.SetZeroStar();
 
         // settare un target per l'osservazione
-        if (false){
+        if (conditionTest){
         tcs.SetTarget("M5");
             System.out.println(tcs.TEL.TargetName);
             System.out.println(tcs.TEL.TargetRA2000);
@@ -4514,7 +4523,7 @@ public class TCS {
         }
 
         // arrivare al target e iniziare il tracking per l'osservazione
-        if (false){
+        if (conditionTest){
             tcs.CmdMoveToPosition(true);
             tcs.WaitMovement(); 
             tcs.CmdMoveToPosition(true); 
@@ -4522,7 +4531,7 @@ public class TCS {
         }
 
         // iniziare a seguire un nuovo target
-        if (false){
+        if (conditionTest){
             tcs.CmdStartTracking(true);
         }
 
