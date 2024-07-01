@@ -33,6 +33,14 @@ public class TestGui {
         }
     };
 
+
+    ActionListener actionTarget = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Target set");
+        }
+    };
+
     public static void main(String[] args) {
         TestGui tg = new TestGui();
 
@@ -45,6 +53,8 @@ public class TestGui {
 
        
         ArrowPadFrame apframe = new ArrowPadFrame(parentframe);
+        apframe.SetButtonTarget(tg.actionTarget);
+        apframe.SetButtonHome(tg.actionstart);
         apframe.SetButtonUP(tg.actionstart, tg.actionstop);
         apframe.SetButtonDOWN(tg.actionstart, tg.actionstop);
         apframe.SetButtonLEFT(tg.actionstart, tg.actionstop);
@@ -52,6 +62,7 @@ public class TestGui {
         apframe.SetSlowSpeed(tg.actionspeed);
         apframe.SetMediumSpeed(tg.actionspeed);
         apframe.SetFastSpeed(tg.actionspeed);
+        apframe.SetButtonSTOP(tg.actionstop);
         apframe.Show();
 
 

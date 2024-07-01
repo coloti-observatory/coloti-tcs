@@ -49,6 +49,8 @@ import astri.astron.Weather;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.*;
+import javax.swing.*;
 
 //import java.util.concurrent.CompletableFuture;
 
@@ -4422,6 +4424,14 @@ public class TCS {
             print("done.");
         }
     };
+
+    ActionListener actionHome = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            CmdHome(true);
+            print("Home position procedure...");
+        }
+    };
     
 
 
@@ -4504,6 +4514,7 @@ public class TCS {
         // centrare il target con il tastierino
         if (true){
             ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
+            apframe.SetButtonHome(tcs.actionHome);;
             apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
             apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
             apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);
