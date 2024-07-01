@@ -17,7 +17,7 @@ public class ACS {
 
   private CommClass communication;
   public int ERROR;
-  boolean PRINT = false;
+  boolean PRINT = true;
   int ACSOK = -1;
   int ACSposoverflow = 104;
   int[] MOTORSTATUS = { 0, 0, 0 };
@@ -618,8 +618,10 @@ public class ACS {
       int ErroreCode = CommandSet(command, 1);
       if (ErroreCode == -1) {
         this.MOTORSTATUS[AxesNumber(ax)] = 1;
+        System.out.println("OKAY");
         return ACSOK;
       } else {
+        System.out.println("NO");
         return ErroreCode;
       }
     } else {
@@ -1745,7 +1747,35 @@ public class ACS {
     //System.out.println(acs.isRunning);
     System.out.println(acs.CommStatus);
 
-    acs.SetMotorOn("X");
+    //acs.SetMotorOn("X");
+
+    acs.SetSlewMode("X");
+
+
+    acs.GetMoveInfo();
+
+    acs.GetMotPos("X");
+    System.out.println(acs.PositionAx[0]);
+
+
+    acs.GetMotVel("X");
+    System.out.println(acs.VelAx[0]);
+
+    acs.SetAbsTargPos("X", 1000);
+
+    acs.GetAbsTargPos("X");
+    System.out.println(acs.AbsTargPosAx[0]);
+
+    acs.GetActualMotVel("X");
+    System.out.println(acs.ActualVelAx[0]);
+
+    acs.GetMotAcc("X");
+    System.out.println(acs.AccAx[0]);
+    //acs.ExecProg("MUOVIDX");
+
+    acs.StartMove("X");
+
+
 
 
 

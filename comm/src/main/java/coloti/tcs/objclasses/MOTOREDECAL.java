@@ -41,7 +41,7 @@ public class MOTOREDECAL {
     public double JogVelocity = 0.001;
     public double TelPosition;
     public double SkyPosition;
-    public double SlewVelocity = 0.0;
+    public double SlewVelocity = 150;
     public double SlewAcceleration;
     public double SlewDeceleration;
     public double EncoderOffset;

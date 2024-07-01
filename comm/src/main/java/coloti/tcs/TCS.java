@@ -197,7 +197,7 @@ public class TCS {
             tcsError(AsseX.InitAxes(), 1100);
         }
         final double gearratioX = (double) TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
-        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
+        //this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
 
 
         // ELEVATION
@@ -207,7 +207,7 @@ public class TCS {
             tcsError(AsseY.InitAxes(), 1200);
         }
         final double gearratioY = (double) TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
-        this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
+        //this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
 
 
 
@@ -996,7 +996,7 @@ public class TCS {
     }
 
     public void SetAzJogVelocity(final double value){
-        boolean live = false;
+        boolean live = true;
         if (live) {
             AsseX.GetMotionMode(X);
             if (AsseX.MOTIONMODE[0] == 10){
@@ -1024,7 +1024,7 @@ public class TCS {
     }
 
     public void SetElJogVelocity(final double value){
-        boolean live = false;
+        boolean live = true;
         if (live){
             AsseY.GetMotionMode(X);
             if (AsseY.MOTIONMODE[0] == 10){
@@ -1039,7 +1039,7 @@ public class TCS {
     
     
     public void SetAzSlewVelocity(final double value){
-        boolean live = false;
+        boolean live = true;
         int sign = 1;
         if (value < 0)
             sign = -1;
@@ -1074,7 +1074,7 @@ public class TCS {
 
 
     public void SetElSlewVelocity(final double value){
-        boolean live = false;
+        boolean live = true;
         int sign = 1;
         if (value < 0)
             sign = -1;
@@ -1491,11 +1491,11 @@ public class TCS {
     public void CmdMoveToPosition(final boolean value){ // OK
         if (value && xAxisConnection && yAxisConnection){
             try {
-                taskExecutor.runTask(movetopositionTask, defaultListener);
+                taskExecutor.runTask(movetopositionTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "MoveToPositionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "MoveToPositionInfo", "FALSE", 0L, 0L, "");
         }
     }
     
@@ -1519,88 +1519,88 @@ public class TCS {
     public void CmdStartAzMotion(final boolean value){ // OK 
         if (value && xAxisConnection){
             try {
-                taskExecutor.runTask(startAZmotionTask, defaultListener);
+                taskExecutor.runTask(startAZmotionTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StartAzMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StartAzMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
     
     public void CmdStopAzMotion(final boolean value){ // OK 
         if (value && xAxisConnection){
             try {
-                taskExecutor.runTask(stopAZmotionTask, defaultListener);
+                taskExecutor.runTask(stopAZmotionTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StopAzMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StopAzMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
 
     public void CmdStartElMotion(final boolean value){ // OK 
         if (value && yAxisConnection){
             try {
-                taskExecutor.runTask(startELmotionTask, defaultListener);
+                taskExecutor.runTask(startELmotionTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StartElMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StartElMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
     
     public void CmdStopElMotion(final boolean value){ // OK 
         if (value && yAxisConnection){
             try {
-                taskExecutor.runTask(stopELmotionTask, defaultListener);
+                taskExecutor.runTask(stopELmotionTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StopElMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StopElMotionInfo", "FALSE", 0L, 0L, "");
         }
     }
 
     public void CmdElMoveUp(final boolean value){
         if (value && yAxisConnection){
             try {
-                taskExecutor.runTask(elMoveUpTask, defaultListener);
+                taskExecutor.runTask(elMoveUpTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "ElMoveUpInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "ElMoveUpInfo", "FALSE", 0L, 0L, "");
         }
     }
 
     public void CmdElMoveDown(final boolean value){
         if (value && yAxisConnection){
             try {
-                taskExecutor.runTask(elMoveDownTask, defaultListener);
+                taskExecutor.runTask(elMoveDownTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "ElMoveDownInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "ElMoveDownInfo", "FALSE", 0L, 0L, "");
         }
     }
 
     public void CmdAzMoveRight(final boolean value){
-        if (value && yAxisConnection){
+        if (value && xAxisConnection){
             try {
-                taskExecutor.runTask(azMoveRightTask, defaultListener);
+                taskExecutor.runTask(azMoveRightTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "AzMoveRightInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "AzMoveRightInfo", "FALSE", 0L, 0L, "");
         }
     }
 
     public void CmdAzMoveLeft(final boolean value){
-        if (value && yAxisConnection){
+        if (value && xAxisConnection){
             try {
-                taskExecutor.runTask(azMoveLeftTask, defaultListener);
+                taskExecutor.runTask(azMoveLeftTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "AzMoveLeftInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "AzMoveLeftInfo", "FALSE", 0L, 0L, "");
         }
     }
 
@@ -2209,7 +2209,7 @@ public class TCS {
     //#region T move to pos
     private final Task<Void> movetopositionTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2221,20 +2221,25 @@ public class TCS {
             if (TEL.MotionType != 0)
                 SetPointingMode();
 
+            SetPointingMode();
+
             StartMotion(true,true);
             
             
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(1000);
+                Sleep(3000);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
-                //System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+                Sleep(3000);
+                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
 
-                if (!AsseX.isMoving && !AsseY.isMoving)
+                if (!AsseX.isMoving && !AsseY.isMoving){
                     MovementDone();
                     isInterrupted = false;
+                }
             }
 
             if(listener!=null)
@@ -2275,7 +2280,7 @@ public class TCS {
     //#region T move AZ
     private final Task<Void> startAZmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2335,7 +2340,7 @@ public class TCS {
     //#region T move EL
     private final Task<Void> startELmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2455,7 +2460,7 @@ public class TCS {
     //#region T stop AZ
     private final Task<Void> stopAZmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2513,7 +2518,7 @@ public class TCS {
     //#region T stop EL
     private final Task<Void> stopELmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -3174,7 +3179,7 @@ public class TCS {
     //#region T El Up
     private final Task<Void> elMoveUpTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -3190,7 +3195,7 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(100);
+                Sleep(2000);
                 AsseY.IsProgramRunning();
                 if (AsseY.isRunning)
                     isInterrupted = false;
@@ -3231,7 +3236,7 @@ public class TCS {
     //#region T El Down
     private final Task<Void> elMoveDownTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -3247,7 +3252,7 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(100);
+                Sleep(2000);
                 AsseY.IsProgramRunning();
                 if (AsseY.isRunning)
                     isInterrupted = false;
@@ -3288,7 +3293,7 @@ public class TCS {
     //#region T Az Right
     private final Task<Void> azMoveRightTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -3304,7 +3309,7 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(100);
+                Sleep(2000);
                 AsseX.IsProgramRunning();
                 if (AsseX.isRunning)
                     isInterrupted = false;
@@ -3346,7 +3351,7 @@ public class TCS {
     //#region T Az Left
     private final Task<Void> azMoveLeftTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -3362,7 +3367,7 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(100);
+                Sleep(2000);
                 AsseX.IsProgramRunning();
                 if (AsseX.isRunning)
                     isInterrupted = false;
@@ -3830,6 +3835,7 @@ public class TCS {
     }
 
     public void WaitMovement(){
+        Sleep(2000);
         while(TEL.TelIsMoving){
             Sleep(1000);
         }
@@ -4476,6 +4482,7 @@ public class TCS {
         tcs.connect();
         tcs.Sleep(500);
     
+
         // settare orario (in automatico?)
 
         // apertura cupola
@@ -4486,7 +4493,6 @@ public class TCS {
             System.out.println("----------------TCS dome position-------------------");
             System.out.println(tcs.GetCupolaPosition());
             System.out.println("------------------------------------");
-            System.out.println(tcs.AsseCupola.CommStatus);
         }
 
 
@@ -4495,14 +4501,30 @@ public class TCS {
 
         // settare una stella luminosa target per poi fare gli zeri
         if (true){
-            tcs.SetTarget("HIP57399"); // prende le coordinate in J2000  "HIP69673"
+            tcs.SetTarget("HIP69673"); // prende le coordinate in J2000  "HIP69673"
             System.out.println(tcs.TEL.TargetName);
             System.out.println(tcs.TEL.TargetRA2000);
             System.out.println(tcs.TEL.TargetDEC2000);
         }
 
         // muoversi al target
-        if (conditionTest){
+    
+        System.out.println("........  VELOCICITIES  ...........");
+        System.out.println(tcs.GetAzCommandedVel());
+        System.out.println(tcs.GetElCommandedVel());
+
+
+
+
+        tcs.SetAzSlewVelocity(180);
+        tcs.Sleep(500);
+        tcs.SetElSlewVelocity(180);
+        tcs.Sleep(500);
+
+        System.out.println(tcs.MotAZ.SlewVelocity);
+        System.out.println(tcs.MotEL.SlewVelocity);
+
+        if (false){
             tcs.CmdMoveToPosition(true); 
         /*
          * manda il task (movetopositionTask) che muove azimuth ed elevazione,
@@ -4510,11 +4532,13 @@ public class TCS {
          * In input vuole Azimuth ed Elevazione, quindi bisogna prima settarle trasformando da J2000
         */
         // controllare che sia arrivato
-            //tcs.WaitMovement(2000);
+            System.out.println("waiting...");
+            tcs.Sleep(10000);
+            tcs.WaitMovement(2000);
 
         // aggiustamento posizione
-            //tcs.CmdMoveToPosition(true); 
-            //tcs.WaitMovement(500);
+            tcs.CmdMoveToPosition(true); 
+            tcs.WaitMovement(500);
         }
 
         // centrare il target con il tastierino

@@ -43,7 +43,7 @@ public class DefaultListener implements TaskListener{
 
     @Override
     public void onWorking(final Object... v) {
-        System.out.println("Task Working");
+        //System.out.println("Task Working");
         tStop = System.currentTimeMillis();
         setField(commandName, "TRUE", tStart, tStop, "none");
     }

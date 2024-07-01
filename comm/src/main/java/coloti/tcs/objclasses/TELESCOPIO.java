@@ -75,7 +75,7 @@ public class TELESCOPIO {
     public String DomeEastInfo;
 
     public String HomeTelInfo;
-
+    public String MoveToPositionInfo;
 
     public String EnableAzMotorsInfo;
     public String DisableAzMotorsInfo;

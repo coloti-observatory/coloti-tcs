@@ -46,7 +46,7 @@ public class MOTOREARAZ {
     public double TelPosition;
     public double SkyPosition;
     public boolean PositionTypeSky;
-    public double SlewVelocity = 0.0;
+    public double SlewVelocity = 150;
     public double SlewAcceleration;
     public double SlewDeceleration;
     public double AbsEncOffset;

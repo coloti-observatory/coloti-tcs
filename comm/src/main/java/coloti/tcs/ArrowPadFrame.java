@@ -39,12 +39,12 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
     this.setLayout(null);
 
     buttonHome = new JButton("Dome Home");
-    buttonHome.setBounds(110, 30, 80, 30);
+    buttonHome.setBounds(100, 30, 140, 30);
     buttonHome.setBackground(Color.pink);
     this.add(buttonHome);
 
     buttonHomeTel = new JButton("Tel Home");
-    buttonHomeTel.setBounds(195, 30, 80, 30);
+    buttonHomeTel.setBounds(250, 30, 140, 30);
     buttonHomeTel.setBackground(Color.pink);
     this.add(buttonHomeTel);
 
