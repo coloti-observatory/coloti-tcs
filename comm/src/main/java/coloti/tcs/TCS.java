@@ -7,6 +7,7 @@ import coloti.tcs.configuration.Telescopio;
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import coloti.tcs.configuration.*;
 import coloti.tcs.objclasses.*;
+import coloti.tcs.task.DefaultListener;
 import coloti.tcs.task.Task;
 import coloti.tcs.task.TaskExecutor;
 import coloti.tcs.task.TaskListener;
@@ -69,8 +70,8 @@ import javax.lang.model.util.ElementScanner6;
 
 public class TCS {
     
-    public final ACS AsseX;
-    public final ACS AsseY;
+    ACS AsseX; // public final
+    ACS AsseY;
     ACS AsseCupola; //= new ACS("serial ID cupola");
     ACS AsseZ;
     public final WeatherData weatherdata;
@@ -311,7 +312,7 @@ public class TCS {
 
     private final TaskExecutor<Void> taskExecutor = new TaskExecutor<>();
 
-    
+    ///* 
     private final TaskListener defaultListener = new TaskListener() {
         long tStart = 0L;
         long tStop = 0L;
@@ -320,14 +321,16 @@ public class TCS {
         public void setField(String name, String state, long start, long stop, String err){
             try {
                 field = TEL.getClass().getDeclaredField(name);
-            } catch (NoSuchFieldException | SecurityException e) {
+                //field = TEL.getClass().getField(name);
+                String fieldstring = "commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err;
+                field.set(TEL.getClass(), fieldstring);
+            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) { // | IllegalAccessException
                 e.printStackTrace();
             }
-            try {
-                field.set(TEL.getClass(),"commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+        }
+
+        public void setCommandName(final String commandname){
+            commandName = commandname;
         }
 
         @Override
@@ -359,6 +362,7 @@ public class TCS {
         }
 
     };
+    //*/
 
 
 
@@ -1317,6 +1321,7 @@ public class TCS {
     public void CmdGoLoaded(final boolean value){ // OK 
         if (value){
             try {
+                goloadedTask.setTaskListener(new DefaultListener(TEL));
                 taskExecutor.runTask(goloadedTask, defaultListener);
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
@@ -1777,11 +1782,12 @@ public class TCS {
     public void CmdCupolaOvest(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(domewestTask, defaultListener);
+                taskExecutor.runTask(domewestTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "DomeWestInfo", "FALSE", 0L, 0L, "");
+            
+            //setFieldCmd(this.TEL, "DomeWestInfo", "FALSE", 0L, 0L, "");
     }
 
     public void CmdCupolaEst(final boolean value){ // OK 
@@ -1817,7 +1823,7 @@ public class TCS {
     //#region T goloaded
     private final Task<Void> goloadedTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2858,7 +2864,7 @@ public class TCS {
     //#region T domewest
     private final Task<Void> domewestTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener; // = defaultListener;
         
         private Void v;
         @Override
@@ -3741,7 +3747,9 @@ public class TCS {
         this.TEL.TargetVelAZ = tf.velocityAz(timeJDnow);
         this.TEL.TargetEL = tf.El(timeJDnow);
         this.TEL.TargetVelEL = tf.velocityEl(timeJDnow);
-        System.out.println("Target Az and El setted");
+        System.out.println("Target Az and El setted: ");
+        System.out.println("Az: "+TEL.TargetAZ);
+        System.out.println("El: "+TEL.TargetEL);
     }
 
     public boolean CheckWheater(WeatherData wd){
@@ -4379,11 +4387,11 @@ public class TCS {
         public void actionPerformed(ActionEvent e) {
             print("Set fast speed");
             if (xAxisConnection)
-                SetAzSlewVelocity(180);
+                SetAzSlewVelocity(500); //180
             else
                 print("AZ not connected");
             if (yAxisConnection)
-                SetElSlewVelocity(180);
+                SetElSlewVelocity(500); //180
             else
                 print("EL not connected");
         }
@@ -4454,31 +4462,18 @@ public class TCS {
 
         // connect and initialization
         tcs.connect();
-        tcs.Sleep(3000);
-        
-        System.out.println(tcs.AsseCupola.CommStatus);
-        
-        //tcs.AsseCupola.SetSimpleStart(0);
-        //tcs.AsseCupola.GetMotEncPos("X");
-        //long valo = tcs.AsseCupola.VALUECR;
-        //System.out.println("---------------dome position-------");
-        //System.out.println(valo);
-        
+        tcs.Sleep(500);
+    
         // settare orario (in automatico?)
 
         // apertura cupola
         //tcs.CmdCloseCupola(true);
 
-        
-
-        if (conditionTest){
+        if (true){
+            System.out.println(tcs.AsseCupola.CommStatus);
             System.out.println("----------------TCS dome position-------------------");
             System.out.println(tcs.GetCupolaPosition());
             System.out.println("------------------------------------");
-            System.out.println(tcs.AsseCupola.CommStatus);
-            tcs.Sleep(1000);
-            tcs.disconnect();
-            tcs.Sleep(1000);
             System.out.println(tcs.AsseCupola.CommStatus);
         }
 
@@ -4487,8 +4482,8 @@ public class TCS {
         //tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
 
         // settare una stella luminosa target per poi fare gli zeri
-        if (conditionTest){
-            tcs.SetTarget("HIP69673"); // prende le coordinate in J2000
+        if (true){
+            tcs.SetTarget("HIP57399"); // prende le coordinate in J2000  "HIP69673"
             System.out.println(tcs.TEL.TargetName);
             System.out.println(tcs.TEL.TargetRA2000);
             System.out.println(tcs.TEL.TargetDEC2000);
@@ -4502,13 +4497,12 @@ public class TCS {
          * dove viene utilizzata la funzione StartMotion.
          * In input vuole Azimuth ed Elevazione, quindi bisogna prima settarle trasformando da J2000
         */
-
         // controllare che sia arrivato
-            tcs.WaitMovement(2000);
+            //tcs.WaitMovement(2000);
 
         // aggiustamento posizione
-            tcs.CmdMoveToPosition(true); 
-            tcs.WaitMovement(500);
+            //tcs.CmdMoveToPosition(true); 
+            //tcs.WaitMovement(500);
         }
 
         // centrare il target con il tastierino
@@ -4555,7 +4549,7 @@ public class TCS {
             tcs.CmdStartTracking(true);
         }
 
-        
+
 
         // interrompere il moto
 
@@ -4634,7 +4628,7 @@ public class TCS {
         tcs.Sleep(2000);
         tcs.disconnect();
         
-
+        System.out.println("fine.");
 
 
       }

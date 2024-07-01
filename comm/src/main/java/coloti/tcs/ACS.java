@@ -17,7 +17,7 @@ public class ACS {
 
   private CommClass communication;
   public int ERROR;
-  boolean PRINT = true;
+  boolean PRINT = false;
   int ACSOK = -1;
   int ACSposoverflow = 104;
   int[] MOTORSTATUS = { 0, 0, 0 };
