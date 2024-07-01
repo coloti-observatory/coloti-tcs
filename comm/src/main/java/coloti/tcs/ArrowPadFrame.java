@@ -11,6 +11,7 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
   
   //Timer timerUP, timerDOWN, timerLEFT, timerRIGHT;
   JButton buttonHome;
+  JButton buttonHomeTel;
   JButton buttonUP;
   JButton buttonDOWN;
   JButton buttonLEFT;
@@ -37,10 +38,15 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
     this.setSize(1000, 500);
     this.setLayout(null);
 
-    buttonHome = new JButton("Home Position");
-    buttonHome.setBounds(150, 30, 160, 30);
+    buttonHome = new JButton("Dome Home");
+    buttonHome.setBounds(110, 30, 80, 30);
     buttonHome.setBackground(Color.pink);
     this.add(buttonHome);
+
+    buttonHomeTel = new JButton("Tel Home");
+    buttonHomeTel.setBounds(195, 30, 80, 30);
+    buttonHomeTel.setBackground(Color.pink);
+    this.add(buttonHomeTel);
 
     buttonUP = new JButton("UP");
     //buttonUP.setBounds(200, 100, 100, 100);
@@ -167,6 +173,18 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
 
   public void SetButtonHome(ActionListener startAction){
     this.buttonHome.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            startAction.actionPerformed(null);
+        }
+        @Override
+        public void mouseReleased(MouseEvent e) {
+        }
+        });
+  }
+
+  public void SetButtonHomeTel(ActionListener startAction){
+    this.buttonHomeTel.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
             startAction.actionPerformed(null);

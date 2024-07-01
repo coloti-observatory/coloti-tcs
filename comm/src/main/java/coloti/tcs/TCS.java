@@ -1502,11 +1502,11 @@ public class TCS {
     public void CmdStopMotion(final boolean value){ // OK 
         if (value && xAxisConnection && yAxisConnection){
             try {
-                taskExecutor.runTask(stopmotionTask, defaultListener);
+                taskExecutor.runTask(stopmotionTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "");
         }
         else if(value && xAxisConnection){
             CmdStopAzMotion(value);
@@ -1704,11 +1704,11 @@ public class TCS {
     public void CmdHomeTel(final boolean value){ // OK   
         if (value && xAxisConnection && yAxisConnection)
             try {
-                taskExecutor.runTask(hometelTask, defaultListener);
+                taskExecutor.runTask(hometelTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "HomeTelInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "HomeTelInfo", "FALSE", 0L, 0L, "");
     }
 
     public void CmdStopPointMotion(final boolean value){
@@ -1761,7 +1761,7 @@ public class TCS {
     public void CmdStopCupola(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(stopdomeTask, defaultListener);
+                taskExecutor.runTask(stopdomeTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
@@ -1771,12 +1771,12 @@ public class TCS {
     public void CmdHomeCupola(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(homedomeTask, defaultListener);
+                taskExecutor.runTask(homedomeTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            this.TEL.HomeDomeInfo = "commandname: HomeDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
-            setFieldCmd(this.TEL, "HomeDomeInfo", "FALSE", 0L, 0L, "");
+            //this.TEL.HomeDomeInfo = "commandname: HomeDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
+            //setFieldCmd(this.TEL, "HomeDomeInfo", "FALSE", 0L, 0L, "");
     }
 
     public void CmdCupolaOvest(final boolean value){ // OK 
@@ -1793,7 +1793,7 @@ public class TCS {
     public void CmdCupolaEst(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(domeeastTask, defaultListener);
+                taskExecutor.runTask(domeeastTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
@@ -2090,7 +2090,7 @@ public class TCS {
     //#region T homedome
     private final Task<Void> homedomeTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener; // = defaultListener;
         
         private Void v;
         @Override
@@ -2151,7 +2151,7 @@ public class TCS {
     //#region T hometel
     private final Task<Void> hometelTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener; // = defaultListener;
         
         private Void v;
         @Override
@@ -2395,7 +2395,7 @@ public class TCS {
     //#region T stopmotion
     private final Task<Void> stopmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener; // = defaultListener;
         
         private Void v;
         @Override
@@ -2804,7 +2804,7 @@ public class TCS {
     //#region T stopdome
     private final Task<Void> stopdomeTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener; // = defaultListener;
         
         private Void v;
         @Override
@@ -2926,7 +2926,7 @@ public class TCS {
     //#region T domeeast
     private final Task<Void> domeeastTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener; // = defaultListener;
         
         private Void v;
         @Override
@@ -3906,6 +3906,7 @@ public class TCS {
         long ValoX = 0, ValoY = 0;
         
         // aprire file Zeri.dat e prendere ValoX e ValoY
+        /* 
         String filezeri = "zeri.txt";
 
         try (BufferedReader br = new BufferedReader(new FileReader(filezeri))) {
@@ -3920,6 +3921,7 @@ public class TCS {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
 
         final long ZeroX=this.PZ.ZeroX;
         final long ZeroY=this.PZ.ZeroY; // non sono assegnati, vengono dal file?
@@ -3929,10 +3931,10 @@ public class TCS {
         ValoX = AsseX.VALUECR;
         tcsError(AsseX.ExecProg("HOMEX"),1192);
 
-        ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
-        AsseY.CommandArray("AVSE", 8, (int) ValoY);
-        ValoY = AsseY.VALUECR;
-        tcsError(AsseY.ExecProg("HOMEX"),1291);
+        //ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
+        //AsseY.CommandArray("AVSE", 8, (int) ValoY);
+        //ValoY = AsseY.VALUECR;
+        //tcsError(AsseY.ExecProg("HOMEX"),1291);
     }
 
 
@@ -4436,8 +4438,18 @@ public class TCS {
     ActionListener actionHome = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            CmdHome(true);
-            print("Home position procedure...");
+            //CmdHomeTel(true);
+            CmdHomeCupola(true);
+            print("Dome home position procedure...");
+        }
+    };
+    
+    ActionListener actionHomeTel = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            CmdHomeTel(true);
+            //CmdHomeCupola(true);
+            print("Telescope home position procedure...");
         }
     };
     
@@ -4508,7 +4520,8 @@ public class TCS {
         // centrare il target con il tastierino
         if (true){
             ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
-            apframe.SetButtonHome(tcs.actionHome);;
+            apframe.SetButtonHome(tcs.actionHome);
+            apframe.SetButtonHomeTel(tcs.actionHomeTel);
             apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
             apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
             apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);

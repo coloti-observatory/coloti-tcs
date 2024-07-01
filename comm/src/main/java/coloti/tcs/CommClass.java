@@ -228,18 +228,19 @@ public class CommClass{
             while((inputStream.available())>=1){
                 try {
                     TimeUnit.MILLISECONDS.sleep(10);
+                    char carattere = (char) (inputStream.readNBytes(1)[0] & (0XFF));
+                    if (i > 3 & i < 8){
+                        value[i-4] = (int) carattere;
+                        //System.out.println("--  " + value[i-4]);
+                    }
+                    //System.out.println(">> " + carattere + "  ,  " + (int) carattere);
+                    answer += (char) carattere; //(char) inputStream.readNBytes(1)[0];
+                    i+=1;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Thread.currentThread().interrupt();
                 }
-                char carattere = (char) (inputStream.readNBytes(1)[0] & (0XFF));
-                if (i > 3 & i < 8){
-                    value[i-4] = (int) carattere;
-                    //System.out.println("--  " + value[i-4]);
-                }
-                //System.out.println(">> " + carattere + "  ,  " + (int) carattere);
-                answer += (char) carattere; //(char) inputStream.readNBytes(1)[0];
-                i+=1;
+                
             }
             return answer;
         }
@@ -259,13 +260,14 @@ public class CommClass{
             while((inputStream.available())>=1){
                 try {
                     TimeUnit.MILLISECONDS.sleep(100);
+                    value = (int) (inputStream.readNBytes(1)[0] & (0XFF));
+                    answer[i] = value; 
+                    i+=1;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Thread.currentThread().interrupt();
                 }
-                value = (int) (inputStream.readNBytes(1)[0] & (0XFF));
-                answer[i] = value; 
-                i+=1;
+                
             }
             return answer;
         } catch (IOException e) {

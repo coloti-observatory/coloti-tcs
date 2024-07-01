@@ -1745,12 +1745,16 @@ public class ACS {
     //System.out.println(acs.isRunning);
     System.out.println(acs.CommStatus);
 
-    acs.GetMotEncPos("X");
-    long valo = acs.VALUECR;
-    System.out.println(acs.CommStatus);
-    System.out.println("---------------dome position-------");
-    System.out.println(valo);
-    System.out.println(acs.CommStatus);
+    acs.SetMotorOn("X");
+
+
+
+    //acs.GetMotEncPos("X");
+    //long valo = acs.VALUECR;
+    //System.out.println(acs.CommStatus);
+    //System.out.println("---------------dome position-------");
+    //System.out.println(valo);
+    //System.out.println(acs.CommStatus);
     //acs.Sleep(5000);
 
     //acs.ExecProg("CHIUDCUP");
