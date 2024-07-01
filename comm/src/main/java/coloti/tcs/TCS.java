@@ -4267,77 +4267,77 @@ public class TCS {
 
     //#region TASTIERINO
 
-
-
-
-    public void TestAzioneTastierino(){
-        System.out.println(3);
-    }
-
-    public void testprint(String string){
+    public void print(String string){
         System.out.println(string);
     }
 
     ActionListener actionMoveUP = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Going up...");
-            if (tcsConnection)
+            print("Going up...");
+            if (yAxisConnection)
                 CmdElMoveUp(true);
+            else
+                print("EL not connected");
         }
     };
 
     ActionListener actionMoveDOWN = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Going down...");
-            if (tcsConnection)
+            print("Going down...");
+            if (yAxisConnection)
                 CmdElMoveDown(true);
+            else
+                print("EL not connected");
         }
     };
 
     ActionListener actionMoveLEFT = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Going left...");
-            if (tcsConnection)
+            print("Going left...");
+            if (xAxisConnection)
                 CmdAzMoveLeft(true);
+            else
+                print("AZ not connected");
         }
     };
 
     ActionListener actionMoveRIGHT = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Going right...");
-            if (tcsConnection)
+            print("Going right...");
+            if (xAxisConnection)
                 CmdAzMoveRight(true);
+            else
+                print("AZ not connected");
         }
     };
 
     ActionListener actionstopEL = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (tcsConnection)
+            if (yAxisConnection)
                 CmdStopElMotion(true);
-            testprint("done.");
+            print("done.");
         }
     };
 
     ActionListener actionstopAZ = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (tcsConnection)
+            if (xAxisConnection)
                 CmdStopAzMotion(true);
-            testprint("done.");
+            print("done.");
         }
     };
 
     ActionListener actionSTOP = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Stop movements...");
-            if (tcsConnection)
-                CmdEmergencyStop(true);
+            print("Stop movements...");
+            CmdEmergencyStop(true);
         }
     };
 
@@ -4347,25 +4347,43 @@ public class TCS {
     ActionListener actionSlowSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Set slow speed");
-            if (tcsConnection)
+            print("Set slow speed");
+            if (xAxisConnection)
                 SetAzSlewVelocity(60);
+            else
+                print("AZ not connected");
+            if (yAxisConnection)
+                SetElSlewVelocity(60);
+            else
+                print("EL not connected");
         }
     };
     ActionListener actionMediumSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Set medium speed");
-            if (tcsConnection)
+            print("Set medium speed");
+            if (xAxisConnection)
                 SetAzSlewVelocity(150);
+            else
+                print("AZ not connected");
+            if (yAxisConnection)
+                SetElSlewVelocity(150);
+            else
+                print("EL not connected");
         }
     };
     ActionListener actionFastSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Set fast speed");
-            if (tcsConnection)
+            print("Set fast speed");
+            if (xAxisConnection)
                 SetAzSlewVelocity(180);
+            else
+                print("AZ not connected");
+            if (yAxisConnection)
+                SetElSlewVelocity(180);
+            else
+                print("EL not connected");
         }
     };
 
@@ -4377,27 +4395,31 @@ public class TCS {
     ActionListener actionDomeEAST = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Dome going east...");
-            if (tcsConnection)
+            print("Dome going east...");
+            if (domeAxisConnection)
                 CmdCupolaEst(true);
+            else
+                print("DOME not connected");
         }
     };
 
     ActionListener actionDomeWEST = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testprint("Dome going west...");
-            if (tcsConnection)
+            print("Dome going west...");
+            if (domeAxisConnection)
                 CmdCupolaOvest(true);
+            else
+                print("DOME not connected");
         }
     };
 
     ActionListener actionDomeStop = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (tcsConnection)
+            if (domeAxisConnection)
                 CmdStopCupola(true);
-            testprint("done.");
+            print("done.");
         }
     };
     
@@ -4495,6 +4517,7 @@ public class TCS {
             apframe.Show();
         }
 
+        
 
         // settare gli zeri sulla stella nota 
         if (conditionTest)
