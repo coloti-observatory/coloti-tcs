@@ -4555,6 +4555,8 @@ public class TCS {
             tcs.CmdStartTracking(true);
         }
 
+        
+
         // interrompere il moto
 
         // parcheggiare il telescopio nella park position

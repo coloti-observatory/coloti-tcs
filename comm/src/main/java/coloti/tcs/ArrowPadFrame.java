@@ -5,6 +5,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 
+import astri.astron.Target;
+
 public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implements ButtonModel    JFrame
   
   //Timer timerUP, timerDOWN, timerLEFT, timerRIGHT;
@@ -28,7 +30,7 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
   JPanel panelTarget;
  
 
-  ArrowPadFrame(JFrame parentFrame) {
+  public ArrowPadFrame(JFrame parentFrame) {
     super(parentFrame, "Speed Selector", true);
     parentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -107,7 +109,23 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
 
     labelTarget = new JLabel("Target: nothing entered");
     labelTarget.setBounds(150, 120, 250, 30);
+
     buttonTarget = new JButton("Submit Target");
+
+    /* 
+    buttonTarget.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        String targetString = textTarget.getText();
+        labelTarget.setText("Target: "+targetString);
+        Target src = new Target(textTarget.getText());
+        System.out.println(src);
+        textTarget.setText("");
+      }
+    });
+    */
+    
     buttonTarget.setBounds(300, 80, 160, 30);
     textTarget = new JTextField(16);
     textTarget.setBounds(50, 80, 230, 30);
@@ -137,7 +155,9 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
         public void mousePressed(MouseEvent e) {
             String targetString = textTarget.getText();
             labelTarget.setText("Target: "+targetString);
-            textTarget.setText("  ");
+            Target src = new Target(textTarget.getText());
+            System.out.println(src);
+            textTarget.setText("");
             startAction.actionPerformed(null);
         }
         });
