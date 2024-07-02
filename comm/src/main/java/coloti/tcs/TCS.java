@@ -3838,6 +3838,7 @@ public class TCS {
         System.out.println("Telescopio arrivato");
     }
 
+    /*
     public void Controllore(){} // vari, utilizza funzione consolle
     public void PuntamentoCoordinate(){}
     public void PuntamentoMinimo(){}
@@ -3850,7 +3851,7 @@ public class TCS {
     public void VerificaVisibilitaAstro(){}
     public void PuntamentoCatalogo(){}
     public void TelescopioJoystic(){}
-    public void TelescopioSettaZeroStar(){}
+    public void TelescopioSettaZeroStar(){} */
 
     public void VecchioEseguiPuntamento(){ 
         final int setTrackCup = 0;
@@ -4476,7 +4477,18 @@ public class TCS {
 
         // connect and initialization
         tcs.connect();
-        tcs.Sleep(500);
+        
+        System.out.println("comm status: "+tcs.AsseX.CommStatus);
+
+        System.out.print("Encoder Res: ");
+        System.out.println(tcs.AsseX.ENCODERRES[0]);
+        System.out.println("comm status: "+tcs.AsseX.CommStatus);
+        System.out.println("comm status: "+tcs.AsseX.CommStatus);
+        System.out.println("comm status: "+tcs.AsseX.CommStatus);
+        System.out.println("comm status: "+tcs.AsseX.CommStatus);
+        
+
+
     
 
         // settare orario (in automatico?)
@@ -4484,8 +4496,7 @@ public class TCS {
         // apertura cupola
         //tcs.CmdCloseCupola(true);
 
-        if (true){
-            System.out.println(tcs.AsseCupola.CommStatus);
+        if (conditionTest){
             System.out.println("----------------TCS dome position-------------------");
             System.out.println(tcs.GetCupolaPosition());
             System.out.println("------------------------------------");
@@ -4496,7 +4507,7 @@ public class TCS {
         //tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
 
         // settare una stella luminosa target per poi fare gli zeri
-        if (true){
+        if (conditionTest){
             tcs.SetTarget("HIP69673"); // prende le coordinate in J2000  "HIP69673"
             System.out.println(tcs.TEL.TargetName);
             System.out.println(tcs.TEL.TargetRA2000);
@@ -4505,22 +4516,8 @@ public class TCS {
 
         // muoversi al target
     
-        System.out.println("........  VELOCICITIES  ...........");
-        System.out.println(tcs.GetAzCommandedVel());
-        System.out.println(tcs.GetElCommandedVel());
 
-
-
-
-        tcs.SetAzSlewVelocity(180);
-        tcs.Sleep(500);
-        tcs.SetElSlewVelocity(180);
-        tcs.Sleep(500);
-
-        System.out.println(tcs.MotAZ.SlewVelocity);
-        System.out.println(tcs.MotEL.SlewVelocity);
-
-        if (false){
+        if (conditionTest){
             tcs.CmdMoveToPosition(true); 
         /*
          * manda il task (movetopositionTask) che muove azimuth ed elevazione,
@@ -4538,7 +4535,7 @@ public class TCS {
         }
 
         // centrare il target con il tastierino
-        if (true){
+        if (conditionTest){
             ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
             apframe.SetButtonHome(tcs.actionHome);
             apframe.SetButtonHomeTel(tcs.actionHomeTel);
