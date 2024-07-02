@@ -197,7 +197,7 @@ public class TCS {
             tcsError(AsseX.InitAxes(), 1100);
         }
         final double gearratioX = (double) TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
-        //this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
+        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
 
 
         // ELEVATION
@@ -207,7 +207,7 @@ public class TCS {
             tcsError(AsseY.InitAxes(), 1200);
         }
         final double gearratioY = (double) TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
-        //this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
+        this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
 
 
 
