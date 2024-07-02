@@ -161,7 +161,7 @@ public class ACS {
     this.MaxPos = new double[nax];
     this.MinPos = new double[nax];
     
-    this.VARIABILETEST = 123456789;
+    //this.VARIABILETEST = 123456789
     this.communication = new CommClass(SerialID);
   }
 
@@ -265,6 +265,7 @@ public class ACS {
     }
   }
 
+  /* 
   public void MotConfig(String ax, int um, double gr, double rev) {
     SetUserUnit(ax, um, gr);
     int axI = AxesNumber(ax);
@@ -273,6 +274,7 @@ public class ACS {
     this.MinAbsVel[axI] = this.MinVel[axI] = -this.MaxVel[axI];
     this.MinAbsAcc[axI] = 1000 / this.CONVFACTOR[axI];
   }
+  */
 
   public class Tell0 {
     byte T0Control;

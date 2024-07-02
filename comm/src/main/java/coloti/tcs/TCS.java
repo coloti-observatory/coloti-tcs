@@ -70,10 +70,10 @@ import javax.lang.model.util.ElementScanner6;
 
 public class TCS {
     
-    ACS AsseX; // public final
-    ACS AsseY;
-    ACS AsseCupola; //= new ACS("serial ID cupola");
-    ACS AsseZ;
+    public ACS AsseX; // public final
+    public ACS AsseY;
+    public ACS AsseCupola; //= new ACS("serial ID cupola");
+    public ACS AsseZ;
     public final WeatherData weatherdata;
     // Parametri   D = degrees, R = radians, AS = arcseconds, H = hours, S = seconds
     double pi = Math.PI;
@@ -97,7 +97,11 @@ public class TCS {
     boolean ElTracking = false;
     double ConversionFactorX;
     double ConversionFactorY;
-    static final int RAD = 0, GRAD = 1, HOUR = 2, ENC = 3, ARCSECS = 4;
+    static final int RAD = 0;
+    static final int GRAD = 1;
+    static final int HOUR = 2;
+    static final int ENC = 3;
+    static final int ARCSECS = 4;
     int UnitMeasure = ARCSECS;
     boolean xAxisConnection = false;
     boolean yAxisConnection = false;
@@ -369,19 +373,16 @@ public class TCS {
 
     //#region Errors
 
-    public Map <Integer, String> errorMap = new HashMap <>(){ // mappa da completare
+    public Map <Integer, String> errorMap = new HashMap <>() {
         {
             put(1100, "Az axis connection issue during initialization");
             put(1200, "El axis connection issue during initialization");
             put(1300, "Dome axis connection issue during initialization");
-
             put(1101, "Close communication issue, Az axis not disconnected");
             put(1201, "Close communication issue, El axis not disconnected");
             put(1301, "Close communication issue, Dome axis not disconnected");
-
             put(1151, "Error in get Az motor status");
             put(1251, "Error in get El motor status");
-
             put(1152, "Error in Get Az telescope position");
             put(1153, "Error in Get Az actual velocity");
             put(1154, "Error in Get Az commanded position");
@@ -400,7 +401,6 @@ public class TCS {
             put(1172, "Error in Set Az motor off");
             put(1190, "Error in move Az motor");
             put(1192, "Execution program issue in Az Home position");
-
             put(1252, "Error in Get El telescope position");
             put(1253, "Error in Get El actual velocity");
             put(1254, "Error in Get El commanded position");
@@ -419,7 +419,6 @@ public class TCS {
             put(1272, "Error in Set El motor off");
             put(1290, "Error in move Az motor");
             put(1292, "Execution program issue in Az Home position");
-
             put(1351, "Error in get Dome position");
             put(1360, "Error in Set Dome target position");
             put(1380, "Execution program issue in open Dome");
@@ -429,12 +428,9 @@ public class TCS {
             put(1384, "Execution program issue in move Dome to east");
             put(1386, "Execution program issue in move Dome to point");
             put(1387, "Execution program issue in move Dome to home position");
-            
-            //put(110, "GetAzAbsTargPos");
-            //put(120, "...");
-            //put(1000, "ERRORE");
         }
     };
+
 
     // 800 per i Begin Errors, 700 per program, 900 per general
     // 101 settato un modo sbagliato

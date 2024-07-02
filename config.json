@@ -7,12 +7,12 @@
 "NumeroAssi":3,
 "NumeroControllori":3,
 "ConnessioneAz":true,
-"ConnessioneEl":true,
-"ConnessioneDome":true,
+"ConnessioneEl":false,
+"ConnessioneDome":false,
 "ConnessioneMeteo":false,
 "IdSerialAz":"/dev/ttyUSB0",
-"IdSerialEl":"/dev/ttyUSB1",
-"IdSerialDome":"/dev/ttyUSB2",
+"IdSerialEl":"",
+"IdSerialDome":"",
 "IdSerialWeather":""
 },
 "OSSERVATORIO":{
@@ -25,7 +25,7 @@
 "Meteo":0
 },
 "TELESCOPIO":{
-"Nome":"IRAIT",
+"Nome":"COLOTI",
 "DiametroSpecchio":800,
 "LunghezzaFocale":8000,
 "RapportoRiduzioneAR":360,
