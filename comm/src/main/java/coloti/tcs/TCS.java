@@ -199,9 +199,10 @@ public class TCS {
             this.xAxisConnection = AsseX.SetSimpleStart(0);
             Sleep(500);
             tcsError(AsseX.InitAxes(), 1100);
+            final double gearratioX = (double) TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
+            this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
         }
-        final double gearratioX = (double) TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
-        this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
+        
 
 
         // ELEVATION
@@ -209,9 +210,10 @@ public class TCS {
             this.yAxisConnection = AsseY.SetSimpleStart(0);
             Sleep(500);
             tcsError(AsseY.InitAxes(), 1200);
+            final double gearratioY = (double) TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
+            this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
         }
-        final double gearratioY = (double) TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
-        this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
+        
 
 
 
@@ -4482,10 +4484,12 @@ public class TCS {
 
         System.out.print("Encoder Res: ");
         System.out.println(tcs.AsseX.ENCODERRES[0]);
-        System.out.println("comm status: "+tcs.AsseX.CommStatus);
-        System.out.println("comm status: "+tcs.AsseX.CommStatus);
-        System.out.println("comm status: "+tcs.AsseX.CommStatus);
-        System.out.println("comm status: "+tcs.AsseX.CommStatus);
+        System.out.print("Convfactor: ");
+        System.out.println(tcs.AsseX.CONVFACTOR[0]);
+        System.out.print("Max Velocity: ");
+        System.out.println(tcs.AsseX.MaxVel);
+        System.out.print("Max Absolute Velocity: ");
+        System.out.println(tcs.AsseX.MaxAbsVel);
         
 
 
