@@ -224,9 +224,9 @@ public class ACS {
         this.GEARRATIO[i] = 1;
         this.CONVFACTOR[i] = 1;
         Err = GetMotionMode(this.axes[i]);
-        this.MaxAbsVel[i] = this.MaxVel[i] = this.ENCODERRES[i];
-        this.MinAbsVel[i] = this.MinVel[i] = 0;
-        this.MaxAbsAcc[i] = this.MaxAcc[i] = this.ENCODERRES[i];
+        this.MaxAbsVel[i] = this.MaxVel[i] = ENCODERRES[i];
+        this.MinAbsVel[i] = this.MinVel[i] = -ENCODERRES[i];
+        this.MaxAbsAcc[i] = this.MaxAcc[i] = ENCODERRES[i];
         this.MinAbsAcc[i] = this.MinAcc[i] = 1000;
         Err = GetMotMaxMinPos(this.axes[i]);
       }
@@ -257,12 +257,16 @@ public class ACS {
 
       case ARCSECS:
         this.UM = ARCSECS;
-        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[ARCSECS];
+        this.CONVFACTOR[axI] = gr * ENCODERRES[axI] / MAXMIS[ARCSECS];
+        System.out.println("INFO UNITS: ");
+        System.out.println("gr: "+gr);
+        System.out.println("Encoderres: "+ENCODERRES[axI]);
+        System.out.println("MaxMis: "+ MAXMIS[ARCSECS]);
         return CONVFACTOR[axI];
-
       default:
         return 1.0;
     }
+    //Set
   }
 
   /* 
@@ -492,9 +496,8 @@ public class ACS {
       e.printStackTrace();
     }
   }
-  
 
-  //#region SET
+   //#region SET
 
   public int SetHostMode() { // VERIFICATO 
     int Err = DirectCommand("SHT1\r");

@@ -4487,9 +4487,9 @@ public class TCS {
         System.out.print("Convfactor: ");
         System.out.println(tcs.AsseX.CONVFACTOR[0]);
         System.out.print("Max Velocity: ");
-        System.out.println(tcs.AsseX.MaxVel);
+        System.out.println(tcs.AsseX.MaxVel[0]);
         System.out.print("Max Absolute Velocity: ");
-        System.out.println(tcs.AsseX.MaxAbsVel);
+        System.out.println(tcs.AsseX.MaxAbsVel[0]);
         
 
 
