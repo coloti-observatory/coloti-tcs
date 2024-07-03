@@ -4482,13 +4482,17 @@ public class TCS {
         System.out.println("comm status: "+tcs.AsseX.CommStatus);
 
         System.out.print("Encoder Res: ");
-        System.out.println(tcs.AsseX.ENCODERRES[0]);
+        System.out.println(tcs.AsseX.ENCODERRES[0]);  // 18000
         System.out.print("Convfactor: ");
-        System.out.println(tcs.AsseX.CONVFACTOR[0]);
+        System.out.println(tcs.AsseX.CONVFACTOR[0]); // 20
         System.out.print("Max Velocity: ");
         System.out.println(tcs.AsseX.MaxVel[0]);
         System.out.print("Max Absolute Velocity: ");
         System.out.println(tcs.AsseX.MaxAbsVel[0]);
+        System.out.print("Max Acceleration: ");
+        System.out.println(tcs.AsseX.MaxAcc[0]);
+        System.out.print("Max Absolute Acceleration: ");
+        System.out.println(tcs.AsseX.MaxAbsAcc[0]);
         
 
 
