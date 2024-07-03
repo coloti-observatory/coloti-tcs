@@ -53,9 +53,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.*;
 import javax.swing.*;
 
-//import java.util.concurrent.CompletableFuture;
+
 
 /*
+import java.util.concurrent.CompletableFuture;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -64,9 +65,8 @@ import java.util.*;
 
 import java.util.function.IntPredicate;
 import javax.lang.model.util.ElementScanner6;
+mport coloti.tcs.ACSv5;
 */
-
-//import coloti.tcs.ACSv5;
 
 public class TCS {
     
@@ -318,7 +318,7 @@ public class TCS {
 
     private final TaskExecutor<Void> taskExecutor = new TaskExecutor<>();
 
-    ///* 
+    /* 
     private final TaskListener defaultListener = new TaskListener() {
         long tStart = 0L;
         long tStop = 0L;
@@ -937,30 +937,27 @@ public class TCS {
     // SETTERS
 
     public void SetMotionType(final int value){ // 0 slew, 1 jog
-        if (xAxisConnection && yAxisConnection){
+        if (xAxisConnection){
             if (value == 0){
                 tcsError(AsseX.SetSlewMode(X),1165);
-
-                if (this.NumAxes == 2)
-                    tcsError(AsseY.SetSlewMode(X),1265);
-
-                tcsError(AsseX.SetMotVel(X, MotAZ.SlewVelocity),1166);
-
-                if (this.NumAxes == 2)
-                    tcsError(AsseY.SetMotVel(X, MotEL.SlewVelocity),1266);
+                //tcsError(AsseX.SetMotVel(X, MotAZ.SlewVelocity),1166)
             }
             else if (value == 1){
                 tcsError(AsseX.SetTrackMode(X),1167);
-                
-                if (this.NumAxes == 2)
-                    tcsError(AsseY.SetTrackMode(X),1267);
-
-                tcsError(AsseX.SetMotVel(X, MotAZ.JogVelocity),1166);
-                if (this.NumAxes == 2)
-                    tcsError(AsseY.SetMotVel(X, MotEL.JogVelocity),1266);
+                //tcsError(AsseX.SetMotVel(X, MotAZ.JogVelocity),1166)
             }
-            this.TEL.MotionType = value;
         }
+        if (yAxisConnection){
+            if (value == 0){
+                tcsError(AsseY.SetSlewMode(X),1265);
+                //tcsError(AsseY.SetMotVel(X, MotEL.SlewVelocity),1266)
+            }
+            else if (value == 1){
+                tcsError(AsseY.SetTrackMode(X),1267);
+                //tcsError(AsseY.SetMotVel(X, MotEL.JogVelocity),1266)
+            }
+        }
+        this.TEL.MotionType = value;
     }
 
     public void SetTrackingMode(){
@@ -1320,26 +1317,26 @@ public class TCS {
         if (value){
             try {
                 goloadedTask.setTaskListener(new DefaultListener(TEL));
-                taskExecutor.runTask(goloadedTask, defaultListener);
+                taskExecutor.runTask(goloadedTask,  new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "GoLoadedInfo", "FALSE", 0L, 0L, "");
-            //this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded; busy: FALSE; tstart: 0; tstop: 0; error:";
+            //setFieldCmd(this.TEL, "GoLoadedInfo", "FALSE", 0L, 0L, "")
+            this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded; busy: FALSE; tstart: 0; tstop: 0; error:";
 
-            //initHwStateMachine(LOADED)  */
+            //initHwStateMachine(LOADED)  
         }
     }
 
     public void CmdGoStandby(final boolean value){ // OK 
         if (value){
             try {
-                taskExecutor.runTask(gostandbyTask, defaultListener);
+                taskExecutor.runTask(gostandbyTask,  new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "GoStandbyInfo", "FALSE", 0L, 0L, "");
-            //this.TEL.GoStandbyInfo = "commandname: CommandGoStandby; busy: FALSE; tstart: 0; tstop: 0; error:";
+            //setFieldCmd(this.TEL, "GoStandbyInfo", "FALSE", 0L, 0L, "")
+            this.TEL.GoStandbyInfo = "commandname: CommandGoStandby; busy: FALSE; tstart: 0; tstop: 0; error:";
 
 
             /*long tStart = System.currentTimeMillis();
@@ -1364,12 +1361,12 @@ public class TCS {
         if (value){
 
             try {
-                taskExecutor.runTask(goonlineTask, defaultListener);
+                taskExecutor.runTask(goonlineTask,  new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "GoOnlineInfo", "FALSE", 0L, 0L, "");
-            //this.TEL.GoOnlineInfo = "commandname: CommandGoOnline; busy: FALSE; tstart: 0; tstop: 0; error:";
+            //setFieldCmd(this.TEL, "GoOnlineInfo", "FALSE", 0L, 0L, "")
+            this.TEL.GoOnlineInfo = "commandname: CommandGoOnline; busy: FALSE; tstart: 0; tstop: 0; error:";
 
             /*
             long tStart = System.currentTimeMillis();
@@ -1410,12 +1407,12 @@ public class TCS {
         if (value){
             
             try {
-                taskExecutor.runTask(gomaintenanceTask, defaultListener);
+                taskExecutor.runTask(gomaintenanceTask,  new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "GoMaintenanceInfo", "FALSE", 0L, 0L, "");
-            //this.TEL.GoMaintenanceInfo = "commandname: CommandGoMaintenance; busy: FALSE; tstart: 0; tstop: 0; error:";
+            //setFieldCmd(this.TEL, "GoMaintenanceInfo", "FALSE", 0L, 0L, "")
+            this.TEL.GoMaintenanceInfo = "commandname: CommandGoMaintenance; busy: FALSE; tstart: 0; tstop: 0; error:";
 
             
             /*
@@ -1437,50 +1434,51 @@ public class TCS {
     public void CmdEnableAzMotors(final boolean value){ // OK 
         if (value && xAxisConnection){
             long tStart = System.currentTimeMillis();
-            setFieldCmd(this.TEL, "EnableAzMotorsInfo", "TRUE", tStart, 0L, "");
+            this.TEL.EnableAzMotorsInfo = "commandname: EnableAzMotors; busy: TRUE; tstart:"+tStart+"; tstop: 0; error:";
             tcsError(AsseX.SetMotorOn(X),1170);
-            setFieldCmd(this.TEL, "EnableAzMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), errorBuffer);
+            this.TEL.EnableAzMotorsInfo = "commandname: EnableAzMotors; busy: FALSE; tstart:"+tStart+"; tstop:"+System.currentTimeMillis()+"; error:"+errorBuffer;
             if (TemporaryErr == -1)
-                setFieldCmd(this.TEL, "EnableAzMotorsInfo", "FALSE", 0L, 0L, "");
+                this.TEL.EnableAzMotorsInfo = "commandname: EnableAzMotors; busy: FALSE; tstart: 0; tstop: 0; error:";
         }
     }
 
     public void CmdDisableAzMotors(final boolean value){ // OK 
         if (value && xAxisConnection){
             long tStart = System.currentTimeMillis();
-            setFieldCmd(this.TEL, "DisableAzMotorsInfo", "TRUE", tStart, 0L, "");
+            this.TEL.DisableAzMotorsInfo = "commandname: DisableAzMotors; busy: TRUE; tstart:"+tStart+"; tstop: 0; error:";
             if (AsseX.IsMoving(X) == 1){
                 tcsError(AsseX.StopMove(X),1171);
             }
             tcsError(AsseX.SetMotorOff(X),1172);
-            setFieldCmd(this.TEL, "DisableAzMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
+            this.TEL.DisableAzMotorsInfo = "commandname: DisableAzMotors; busy: FALSE; tstart:"+tStart+"; tstop:"+System.currentTimeMillis()+"; error:"+errorBuffer;
             if (TemporaryErr == -1)
-                setFieldCmd(this.TEL, "DisableAzMotorsInfo", "FALSE", 0L, 0L, "");
+                this.TEL.DisableAzMotorsInfo = "commandname: DisableAzMotors; busy: FALSE; tstart: 0; tstop: 0; error:";
+                
         }
     }
 
     public void CmdEnableElMotors(final boolean value){ // OK 
         if (value && yAxisConnection){
             long tStart = System.currentTimeMillis();
-            setFieldCmd(this.TEL, "EnableElMotorsInfo", "TRUE", tStart, 0L, "");
+            this.TEL.EnableElMotorsInfo = "commandname: EnableElMotors; busy: TRUE; tstart:"+tStart+"; tstop: 0; error:";
             tcsError(AsseY.SetMotorOn(X),1270);
-            setFieldCmd(this.TEL, "EnableElMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), errorBuffer);
+            this.TEL.EnableElMotorsInfo = "commandname: EnableElMotors; busy: FALSE; tstart:"+tStart+"; tstop:"+System.currentTimeMillis()+"; error:"+errorBuffer;
             if (TemporaryErr == -1)
-                setFieldCmd(this.TEL, "EnableElMotorsInfo", "FALSE", 0L, 0L, "");
+                this.TEL.EnableElMotorsInfo = "commandname: EnableElMotors; busy: FALSE; tstart: 0; tstop: 0; error:";
         }
     }
 
     public void CmdDisableElMotors(final boolean value){ // OK 
         if (value && yAxisConnection){
             long tStart = System.currentTimeMillis();
-            setFieldCmd(this.TEL, "DisableElMotorsInfo", "TRUE", tStart, 0L, "");
+            this.TEL.DisableElMotorsInfo = "commandname: DisableElMotors; busy: TRUE; tstart:"+tStart+"; tstop: 0; error:";
             if (AsseY.IsMoving(X) == 1){
                 tcsError(AsseY.StopMove(X),1271);
             }
             tcsError(AsseY.SetMotorOff(X),1272);
-            setFieldCmd(this.TEL, "DisableElMotorsInfo", "FALSE", tStart, System.currentTimeMillis(), this.errorBuffer);
+            this.TEL.DisableElMotorsInfo = "commandname: DisableElMotors; busy: FALSE; tstart:"+tStart+"; tstop:"+System.currentTimeMillis()+"; error:"+errorBuffer;
             if (TemporaryErr == -1)
-                setFieldCmd(this.TEL, "DisableElMotorsInfo", "FALSE", 0L, 0L, "");
+                this.TEL.DisableElMotorsInfo = "commandname: DisableElMotors; busy: FALSE; tstart: 0; tstop: 0; error:";
         }
     }
 
@@ -1493,7 +1491,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "MoveToPositionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "MoveToPositionInfo", "FALSE", 0L, 0L, "")
         }
     }
     
@@ -1504,7 +1502,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "")
         }
         else if(value && xAxisConnection){
             CmdStopAzMotion(value);
@@ -1521,7 +1519,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StartAzMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StartAzMotionInfo", "FALSE", 0L, 0L, "")
         }
     }
     
@@ -1532,7 +1530,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StopAzMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StopAzMotionInfo", "FALSE", 0L, 0L, "")
         }
     }
 
@@ -1543,7 +1541,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StartElMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StartElMotionInfo", "FALSE", 0L, 0L, "")
         }
     }
     
@@ -1554,7 +1552,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StopElMotionInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StopElMotionInfo", "FALSE", 0L, 0L, "")
         }
     }
 
@@ -1565,7 +1563,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "ElMoveUpInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "ElMoveUpInfo", "FALSE", 0L, 0L, "")
         }
     }
 
@@ -1576,7 +1574,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "ElMoveDownInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "ElMoveDownInfo", "FALSE", 0L, 0L, "")
         }
     }
 
@@ -1587,7 +1585,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "AzMoveRightInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "AzMoveRightInfo", "FALSE", 0L, 0L, "")
         }
     }
 
@@ -1598,7 +1596,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "AzMoveLeftInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "AzMoveLeftInfo", "FALSE", 0L, 0L, "")
         }
     }
 
@@ -1665,11 +1663,11 @@ public class TCS {
     public void CmdStartTracking(final boolean value){
         if (value && xAxisConnection && yAxisConnection){
             try {
-                taskExecutor.runTask(trackingTask, defaultListener);
+                taskExecutor.runTask(trackingTask,  new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StartTrackingInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StartTrackingInfo", "FALSE", 0L, 0L, "")
         }
     }
 
@@ -1685,12 +1683,12 @@ public class TCS {
             CmdStartMotion(value);}*/
         if (value && xAxisConnection && yAxisConnection){
             try {
-                taskExecutor.runTask(pointingAzTask, defaultListener);
-                taskExecutor.runTask(pointingElTask, defaultListener);
+                taskExecutor.runTask(pointingAzTask, new DefaultListener(TEL));
+                taskExecutor.runTask(pointingElTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "")
         }
     }
 
@@ -1706,7 +1704,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "HomeTelInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "HomeTelInfo", "FALSE", 0L, 0L, "")
     }
 
     public void CmdStopPointMotion(final boolean value){
@@ -1719,41 +1717,41 @@ public class TCS {
     public void CmdOpenCupola(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(opendomeTask, defaultListener);
+                taskExecutor.runTask(opendomeTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "OpenDomeInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "OpenDomeInfo", "FALSE", 0L, 0L, "")
     }
 
     public void CmdCloseCupola(final boolean value){ // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(closedomeTask, defaultListener);
+                taskExecutor.runTask(closedomeTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "CloseDomeInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "CloseDomeInfo", "FALSE", 0L, 0L, "")
     }
 
     public void CmdStartCupolaPointing(final boolean value) { // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(startcupolapointingTask, defaultListener);
+                taskExecutor.runTask(startcupolapointingTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StartPointingDomeInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StartPointingDomeInfo", "FALSE", 0L, 0L, "")
     }
 
     public void CmdStartCupolaParking(final boolean value) { // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(startcupolaparkingTask, defaultListener);
+                taskExecutor.runTask(startcupolaparkingTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StartParkingDomeInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StartParkingDomeInfo", "FALSE", 0L, 0L, "")
     }
 
     public void CmdStopCupola(final boolean value){ // OK 
@@ -1763,7 +1761,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "StopDomeInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "StopDomeInfo", "FALSE", 0L, 0L, "")
     }
 
     public void CmdHomeCupola(final boolean value){ // OK 
@@ -1773,8 +1771,8 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //this.TEL.HomeDomeInfo = "commandname: HomeDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:";
-            //setFieldCmd(this.TEL, "HomeDomeInfo", "FALSE", 0L, 0L, "");
+            //this.TEL.HomeDomeInfo = "commandname: HomeDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:"
+            //setFieldCmd(this.TEL, "HomeDomeInfo", "FALSE", 0L, 0L, "")
     }
 
     public void CmdCupolaOvest(final boolean value){ // OK 
@@ -1785,7 +1783,7 @@ public class TCS {
                 logger.error(e.getMessage());
             }
             
-            //setFieldCmd(this.TEL, "DomeWestInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "DomeWestInfo", "FALSE", 0L, 0L, "")
     }
 
     public void CmdCupolaEst(final boolean value){ // OK 
@@ -1795,7 +1793,7 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            setFieldCmd(this.TEL, "DomeEastInfo", "FALSE", 0L, 0L, "");
+            //setFieldCmd(this.TEL, "DomeEastInfo", "FALSE", 0L, 0L, "")
     }
 
     public void CmdHome(final boolean value){
@@ -1888,7 +1886,7 @@ public class TCS {
     //#region T gostandby
     private final Task<Void> gostandbyTask = new Task<Void>(){
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -1954,7 +1952,7 @@ public class TCS {
     //#region T goonline
     private final Task<Void> goonlineTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2021,7 +2019,7 @@ public class TCS {
     //#region T gomainten
     private final Task<Void> gomaintenanceTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2088,7 +2086,7 @@ public class TCS {
     //#region T homedome
     private final Task<Void> homedomeTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; // = defaultListener;
+        private TaskListener listener; 
         
         private Void v;
         @Override
@@ -2149,7 +2147,7 @@ public class TCS {
     //#region T hometel
     private final Task<Void> hometelTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; // = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2398,7 +2396,7 @@ public class TCS {
     //#region T stopmotion
     private final Task<Void> stopmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; // = defaultListener;
+        private TaskListener listener; 
         
         private Void v;
         @Override
@@ -2573,7 +2571,7 @@ public class TCS {
     //#region T opendome
     private final Task<Void> opendomeTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2630,7 +2628,7 @@ public class TCS {
     //#region T closedome
     private final Task<Void> closedomeTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2688,7 +2686,7 @@ public class TCS {
     //#region T domepointing
     private final Task<Void> startcupolapointingTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2748,7 +2746,7 @@ public class TCS {
     //#region T domeparking
     private final Task<Void> startcupolaparkingTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -2807,7 +2805,7 @@ public class TCS {
     //#region T stopdome
     private final Task<Void> stopdomeTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; // = defaultListener;
+        private TaskListener listener; 
         
         private Void v;
         @Override
@@ -2867,7 +2865,7 @@ public class TCS {
     //#region T domewest
     private final Task<Void> domewestTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; // = defaultListener;
+        private TaskListener listener; 
         
         private Void v;
         @Override
@@ -2929,7 +2927,7 @@ public class TCS {
     //#region T domeeast
     private final Task<Void> domeeastTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; // = defaultListener;
+        private TaskListener listener; 
         
         private Void v;
         @Override
@@ -2991,7 +2989,7 @@ public class TCS {
     //#region T tracking
     private final Task<Void> trackingTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -3060,7 +3058,7 @@ public class TCS {
     // fare il pointing come loop mantenendo un errore di posizione per controllo dopo il primo step (o anche no)
     private final Task<Void> pointingAzTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
@@ -3119,7 +3117,7 @@ public class TCS {
 
     private final Task<Void> pointingElTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener = defaultListener;
+        private TaskListener listener;
         
         private Void v;
         @Override
