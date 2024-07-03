@@ -3183,10 +3183,11 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("ElMoveUpInfo");
                 
-            if (TEL.MotionType != 0)
-                SetPointingMode();
+            if (TEL.MotionType != 1)
+                SetTrackingMode();
 
-            AsseY.ExecProg("MUOVIDX");
+            //AsseY.ExecProg("MUOVIDX")
+            //AsseY.Move
 
             while(isInterrupted){
                 if(listener!=null)
