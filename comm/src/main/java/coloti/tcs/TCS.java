@@ -199,11 +199,18 @@ public class TCS {
             this.xAxisConnection = AsseX.SetSimpleStart(0);
             Sleep(500);
             tcsError(AsseX.InitAxes(), 1100);
-            final double gearratioX = (double) TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
-            this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX); 
-        }
-        
 
+            this.AsseX.ENCODERRES[0] = MotAZ.RisoluzioneEncoder1;
+            this.AsseX.MaxAbsVel[0] = this.AsseX.MaxVel[0] = MotAZ.RisoluzioneEncoder1;
+            this.AsseX.MinAbsVel[0] = this.AsseX.MinVel[0] = -MotAZ.RisoluzioneEncoder1;
+            this.AsseX.MaxAbsAcc[0] = this.AsseX.MaxAcc[0] = MotAZ.RisoluzioneEncoder1;
+
+            final double gearratioX = (double) TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
+            this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX);
+            this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima*3600, -MotAZ.VelocitaMassima*3600);
+            this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup, MotAZ.PosizioneLimiteInf);
+            
+        }
 
         // ELEVATION
         if (yAxisConnection){
@@ -212,11 +219,10 @@ public class TCS {
             tcsError(AsseY.InitAxes(), 1200);
             final double gearratioY = (double) TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
             this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
+            this.AsseY.SetMaxMinVel(X, MotEL.VelocitaMassima*3600, -MotEL.VelocitaMassima*3600);
+            this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup, MotEL.PosizioneLimiteInf);
         }
         
-
-
-
         // DOME
         if(domeAxisConnection){
             this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
@@ -224,7 +230,7 @@ public class TCS {
             //tcsError(AsseCupola.InitAxes(), 1300) ?
         }
 
-
+        // WEATHER
         if(weatherConnection){
             weatherdata.OpenCommunications();
             Sleep(500);
@@ -4476,11 +4482,8 @@ public class TCS {
         // inizializzazione
         TCS tcs = new TCS();
 
-        // connect and initialization
-        tcs.connect();
-        
+        System.out.println("Before Connection: ");
         System.out.println("comm status: "+tcs.AsseX.CommStatus);
-
         System.out.print("Encoder Res: ");
         System.out.println(tcs.AsseX.ENCODERRES[0]);  // 18000
         System.out.print("Convfactor: ");
@@ -4493,7 +4496,34 @@ public class TCS {
         System.out.println(tcs.AsseX.MaxAcc[0]);
         System.out.print("Max Absolute Acceleration: ");
         System.out.println(tcs.AsseX.MaxAbsAcc[0]);
+
+        // connect and initialization
+        tcs.connect();
         
+        System.out.println("-----------------------------");
+
+        System.out.println("After Connection: ");
+        System.out.println("comm status: "+tcs.AsseX.CommStatus);
+        System.out.print("Encoder Res: ");
+        System.out.println(tcs.AsseX.ENCODERRES[0]);  // 18000
+        System.out.print("Convfactor: ");
+        System.out.println(tcs.AsseX.CONVFACTOR[0]); // 20
+        System.out.print("Max Velocity: ");
+        System.out.println(tcs.AsseX.MaxVel[0]);
+        System.out.print("Max Absolute Velocity: ");
+        System.out.println(tcs.AsseX.MaxAbsVel[0]);
+        System.out.print("Max Acceleration: ");
+        System.out.println(tcs.AsseX.MaxAcc[0]);
+        System.out.print("Max Absolute Acceleration: ");
+        System.out.println(tcs.AsseX.MaxAbsAcc[0]);
+
+
+        System.out.println("-----------------------------");
+
+        tcs.AsseX.GetMotMaxMinPos("X");
+        System.out.println("Max Min Pos: "+tcs.AsseX.MaxPos[0]+" , "+tcs.AsseX.MinPos[0]);
+
+
 
 
     

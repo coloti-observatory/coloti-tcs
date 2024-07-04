@@ -17,7 +17,7 @@ public class ACS {
 
   private CommClass communication;
   public int ERROR;
-  boolean PRINT = true;
+  boolean PRINT = false;
   int ACSOK = -1;
   int ACSposoverflow = 104;
   int[] MOTORSTATUS = { 0, 0, 0 };
@@ -266,7 +266,7 @@ public class ACS {
       default:
         return 1.0;
     }
-    //Set
+    //SetMaxMinVel(ax, , );
   }
 
   /* 
@@ -576,14 +576,28 @@ public class ACS {
     return Err;
   }
 
+
+  public int SetMotMaxMinPos(String ax, int posmax, int posmin) { // VERIFICATO 
+    int ValueMax = 0;
+    int ValueMin = 0;
+    ValueMax = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * posmax);
+    byte[] command = sbld("S%sPH", ax);
+    int Err = CommandSet(command, ValueMax);
+
+    ValueMin = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * posmax);
+    command = sbld("S%sPL", ax);
+    Err = CommandSet(command, ValueMin);
+
+    return Err;
+  }
+
   public int SetMotVel(String ax, double vel) { // VERIFICATO 
     int Value = 0;
-    /* 
+    
     if (vel > MaxVel[AxesNumber(ax)])
       vel = MaxVel[AxesNumber(ax)];
     if (vel < MinVel[AxesNumber(ax)])
       vel = MinVel[AxesNumber(ax)];
-      */
 
     Value = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * vel);
     
