@@ -258,10 +258,12 @@ public class ACS {
       case ARCSECS:
         this.UM = ARCSECS;
         this.CONVFACTOR[axI] = gr * ENCODERRES[axI] / MAXMIS[ARCSECS];
-        System.out.println("INFO UNITS: ");
-        System.out.println("gr: "+gr);
-        System.out.println("Encoderres: "+ENCODERRES[axI]);
-        System.out.println("MaxMis: "+ MAXMIS[ARCSECS]);
+        if (PRINT){
+          System.out.println("INFO UNITS: ");
+          System.out.println("gr: "+gr);
+          System.out.println("Encoderres: "+ENCODERRES[axI]);
+          System.out.println("MaxMis: "+ MAXMIS[ARCSECS]);
+        }
         return CONVFACTOR[axI];
       default:
         return 1.0;
