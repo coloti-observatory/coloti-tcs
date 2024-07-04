@@ -11,7 +11,7 @@
 "ConnessioneDome":false,
 "ConnessioneMeteo":false,
 "IdSerialAz":"/dev/ttyUSB0",
-"IdSerialEl":"",
+"IdSerialEl":"/dev/ttyUSB0",
 "IdSerialDome":"",
 "IdSerialWeather":""
 },

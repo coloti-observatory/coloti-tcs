@@ -584,7 +584,7 @@ public class ACS {
     byte[] command = sbld("S%sPH", ax);
     int Err = CommandSet(command, ValueMax);
 
-    ValueMin = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * posmax);
+    ValueMin = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * posmin);
     command = sbld("S%sPL", ax);
     Err = CommandSet(command, ValueMin);
 

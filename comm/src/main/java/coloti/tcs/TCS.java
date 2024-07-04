@@ -208,8 +208,7 @@ public class TCS {
             final double gearratioX = (double) TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
             this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX);
             this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima*3600, -MotAZ.VelocitaMassima*3600);
-            this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup, MotAZ.PosizioneLimiteInf);
-            
+            this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup*3600, MotAZ.PosizioneLimiteInf*3600);            
         }
 
         // ELEVATION
@@ -217,10 +216,16 @@ public class TCS {
             this.yAxisConnection = AsseY.SetSimpleStart(0);
             Sleep(500);
             tcsError(AsseY.InitAxes(), 1200);
+
+            this.AsseY.ENCODERRES[0] = MotEL.RisoluzioneEncoder1;
+            this.AsseY.MaxAbsVel[0] = this.AsseY.MaxVel[0] = MotEL.RisoluzioneEncoder1;
+            this.AsseY.MinAbsVel[0] = this.AsseY.MinVel[0] = -MotEL.RisoluzioneEncoder1;
+            this.AsseY.MaxAbsAcc[0] = this.AsseY.MaxAcc[0] = MotEL.RisoluzioneEncoder1;
+
             final double gearratioY = (double) TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
             this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
             this.AsseY.SetMaxMinVel(X, MotEL.VelocitaMassima*3600, -MotEL.VelocitaMassima*3600);
-            this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup, MotEL.PosizioneLimiteInf);
+            this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup*3600, MotEL.PosizioneLimiteInf*3600);
         }
         
         // DOME
@@ -4481,47 +4486,92 @@ public class TCS {
 
         // inizializzazione
         TCS tcs = new TCS();
+        if (false){
+            System.out.println("Before Connection: ");
+            System.out.println("comm status: "+tcs.AsseX.CommStatus);
+            System.out.print("Encoder Res: ");
+            System.out.println(tcs.AsseX.ENCODERRES[0]);  // 18000
+            System.out.print("Convfactor: ");
+            System.out.println(tcs.AsseX.CONVFACTOR[0]); // 20
+            System.out.print("Max Velocity: ");
+            System.out.println(tcs.AsseX.MaxVel[0]);
+            System.out.print("Max Absolute Velocity: ");
+            System.out.println(tcs.AsseX.MaxAbsVel[0]);
+            System.out.print("Max Acceleration: ");
+            System.out.println(tcs.AsseX.MaxAcc[0]);
+            System.out.print("Max Absolute Acceleration: ");
+            System.out.println(tcs.AsseX.MaxAbsAcc[0]);
 
-        System.out.println("Before Connection: ");
-        System.out.println("comm status: "+tcs.AsseX.CommStatus);
-        System.out.print("Encoder Res: ");
-        System.out.println(tcs.AsseX.ENCODERRES[0]);  // 18000
-        System.out.print("Convfactor: ");
-        System.out.println(tcs.AsseX.CONVFACTOR[0]); // 20
-        System.out.print("Max Velocity: ");
-        System.out.println(tcs.AsseX.MaxVel[0]);
-        System.out.print("Max Absolute Velocity: ");
-        System.out.println(tcs.AsseX.MaxAbsVel[0]);
-        System.out.print("Max Acceleration: ");
-        System.out.println(tcs.AsseX.MaxAcc[0]);
-        System.out.print("Max Absolute Acceleration: ");
-        System.out.println(tcs.AsseX.MaxAbsAcc[0]);
+            // connect and initialization
+            tcs.connect();
+            
+            System.out.println("-----------------------------");
 
-        // connect and initialization
-        tcs.connect();
-        
-        System.out.println("-----------------------------");
-
-        System.out.println("After Connection: ");
-        System.out.println("comm status: "+tcs.AsseX.CommStatus);
-        System.out.print("Encoder Res: ");
-        System.out.println(tcs.AsseX.ENCODERRES[0]);  // 18000
-        System.out.print("Convfactor: ");
-        System.out.println(tcs.AsseX.CONVFACTOR[0]); // 20
-        System.out.print("Max Velocity: ");
-        System.out.println(tcs.AsseX.MaxVel[0]);
-        System.out.print("Max Absolute Velocity: ");
-        System.out.println(tcs.AsseX.MaxAbsVel[0]);
-        System.out.print("Max Acceleration: ");
-        System.out.println(tcs.AsseX.MaxAcc[0]);
-        System.out.print("Max Absolute Acceleration: ");
-        System.out.println(tcs.AsseX.MaxAbsAcc[0]);
+            System.out.println("After Connection: ");
+            System.out.println("comm status: "+tcs.AsseX.CommStatus);
+            System.out.print("Encoder Res: ");
+            System.out.println(tcs.AsseX.ENCODERRES[0]);  // 18000
+            System.out.print("Convfactor: ");
+            System.out.println(tcs.AsseX.CONVFACTOR[0]); // 20
+            System.out.print("Max Velocity: ");
+            System.out.println(tcs.AsseX.MaxVel[0]);
+            System.out.print("Max Absolute Velocity: ");
+            System.out.println(tcs.AsseX.MaxAbsVel[0]);
+            System.out.print("Max Acceleration: ");
+            System.out.println(tcs.AsseX.MaxAcc[0]);
+            System.out.print("Max Absolute Acceleration: ");
+            System.out.println(tcs.AsseX.MaxAbsAcc[0]);
 
 
-        System.out.println("-----------------------------");
+            System.out.println("-----------------------------");
 
-        tcs.AsseX.GetMotMaxMinPos("X");
-        System.out.println("Max Min Pos: "+tcs.AsseX.MaxPos[0]+" , "+tcs.AsseX.MinPos[0]);
+            tcs.AsseX.GetMotMaxMinPos("X");
+            System.out.println("Max Min Pos: "+tcs.AsseX.MaxPos[0]+" , "+tcs.AsseX.MinPos[0]);
+        }
+
+        if (true){
+            System.out.println("Before Connection: ");
+            System.out.println("comm status: "+tcs.AsseY.CommStatus);
+            System.out.print("Encoder Res: ");
+            System.out.println(tcs.AsseY.ENCODERRES[0]);  // 18000
+            System.out.print("Convfactor: ");
+            System.out.println(tcs.AsseY.CONVFACTOR[0]); // 20
+            System.out.print("Max Velocity: ");
+            System.out.println(tcs.AsseY.MaxVel[0]);
+            System.out.print("Max Absolute Velocity: ");
+            System.out.println(tcs.AsseY.MaxAbsVel[0]);
+            System.out.print("Max Acceleration: ");
+            System.out.println(tcs.AsseY.MaxAcc[0]);
+            System.out.print("Max Absolute Acceleration: ");
+            System.out.println(tcs.AsseY.MaxAbsAcc[0]);
+
+            // connect and initialization
+            tcs.connect();
+            
+            System.out.println("-----------------------------");
+
+            System.out.println("After Connection: ");
+            System.out.println("comm status: "+tcs.AsseY.CommStatus);
+            System.out.print("Encoder Res: ");
+            System.out.println(tcs.AsseY.ENCODERRES[0]);  // 18000
+            System.out.print("Convfactor: ");
+            System.out.println(tcs.AsseY.CONVFACTOR[0]); // 20
+            System.out.print("Max Velocity: ");
+            System.out.println(tcs.AsseY.MaxVel[0]);
+            System.out.print("Max Absolute Velocity: ");
+            System.out.println(tcs.AsseY.MaxAbsVel[0]);
+            System.out.print("Max Acceleration: ");
+            System.out.println(tcs.AsseY.MaxAcc[0]);
+            System.out.print("Max Absolute Acceleration: ");
+            System.out.println(tcs.AsseY.MaxAbsAcc[0]);
+
+
+            System.out.println("-----------------------------");
+
+            tcs.AsseY.GetMotMaxMinPos("X");
+            System.out.println("Max Min Pos: "+tcs.AsseY.MaxPos[0]+" , "+tcs.AsseY.MinPos[0]);
+
+        }
 
 
 
