@@ -386,7 +386,7 @@ public class TCS {
 
     //#region Errors
 
-    public Map <Integer, String> errorMap = new HashMap <>() {
+    private Map <Integer, String> errorMap = new HashMap <>() {
         {
             put(1100, "Az axis connection issue during initialization");
             put(1200, "El axis connection issue during initialization");
@@ -460,7 +460,7 @@ public class TCS {
     }
 
 
-    public Map <Integer, String> errEncMap = new HashMap <>(){
+    private Map <Integer, String> errEncMap = new HashMap <>(){
         {
             put(100, "initialization issue, mode not setted");
             put(101, "initialization issue, wrong mode setted");
@@ -3025,13 +3025,14 @@ public class TCS {
 
             //AsseY.ExecProg("MUOVIDX")
             //AsseY.Move
+            AsseY.StartMove(X);
 
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
                 Sleep(2000);
-                AsseY.IsProgramRunning();
-                if (AsseY.isRunning)
+                AsseY.IsMoving(X);
+                if (!AsseY.isMoving)
                     isInterrupted = false;
             }
 
@@ -3078,17 +3079,18 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("ElMoveDownInfo");
                 
-            if (TEL.MotionType != 0)
-                SetPointingMode();
+            if (TEL.MotionType != 1)
+                SetTrackingMode();
 
-            AsseY.ExecProg("MUOVISX");
+            //AsseY.ExecProg("MUOVISX")
+            AsseY.StartMove(X);
 
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
                 Sleep(2000);
-                AsseY.IsProgramRunning();
-                if (AsseY.isRunning)
+                AsseY.IsMoving(X);
+                if (!AsseY.isMoving)
                     isInterrupted = false;
             }
 
@@ -3135,17 +3137,18 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("AzMoveRightInfo");
             
-            if (TEL.MotionType != 0)
-                SetPointingMode();
+            if (TEL.MotionType != 1)
+                SetTrackingMode();
 
-            AsseX.ExecProg("MUOVIDX");
+            //AsseX.ExecProg("MUOVIDX");
+            AsseX.StartMove(X);
 
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
                 Sleep(2000);
-                AsseX.IsProgramRunning();
-                if (AsseX.isRunning)
+                AsseX.IsMoving(X);
+                if (!AsseX.isMoving)
                     isInterrupted = false;
             }
 
@@ -3193,17 +3196,18 @@ public class TCS {
             if(listener!=null)
                 listener.onStart("AzMoveLeftInfo");
                 
-            if (TEL.MotionType != 0)
-                SetPointingMode();
+            if (TEL.MotionType != 1)
+                SetTrackingMode();
 
-            AsseX.ExecProg("MUOVISX");
+            //AsseX.ExecProg("MUOVISX");
+            AsseX.StartMove(X);
 
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
                 Sleep(2000);
-                AsseX.IsProgramRunning();
-                if (AsseX.isRunning)
+                AsseX.IsMoving(X);
+                if (!AsseX.isMoving)
                     isInterrupted = false;
             }
 
