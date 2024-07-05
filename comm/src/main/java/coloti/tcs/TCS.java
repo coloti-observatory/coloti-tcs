@@ -1763,13 +1763,10 @@ public class TCS {
     }
 
     public void CmdStartCupolaParking(final boolean value) { // OK 
-        if (value && domeAxisConnection)
-            try {
-                taskExecutor.runTask(startcupolapointingTask, new DefaultListener(TEL));
-            } catch (ExecutionException | TimeoutException e) {
-                logger.error(e.getMessage());
-            }
-            //setFieldCmd(this.TEL, "StartParkingDomeInfo", "FALSE", 0L, 0L, "")
+        if (value && domeAxisConnection){
+            this.TEL.TargetAZ = CUP.ParkPos;
+            CmdStartCupolaPointing(true);
+        }
     }
 
     public void CmdStopCupola(final boolean value){ // OK 
