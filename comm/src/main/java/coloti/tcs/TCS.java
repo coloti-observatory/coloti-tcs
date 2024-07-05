@@ -1498,7 +1498,7 @@ public class TCS {
     public void CmdMoveToPosition(final boolean value){ // OK
         if (value && xAxisConnection && yAxisConnection){
             try {
-                taskExecutor.runTask(movetopositionTask, new DefaultListener(TEL));
+                taskExecutor.runTask(pointingTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
@@ -1523,16 +1523,6 @@ public class TCS {
         }
     }
 
-    public void CmdStartAzMotion(final boolean value){ // OK 
-        if (value && xAxisConnection){
-            try {
-                taskExecutor.runTask(startAZmotionTask, new DefaultListener(TEL));
-            } catch (ExecutionException | TimeoutException e) {
-                logger.error(e.getMessage());
-            }
-            //setFieldCmd(this.TEL, "StartAzMotionInfo", "FALSE", 0L, 0L, "")
-        }
-    }
     
     public void CmdStopAzMotion(final boolean value){ // OK 
         if (value && xAxisConnection){
@@ -1542,17 +1532,6 @@ public class TCS {
                 logger.error(e.getMessage());
             }
             //setFieldCmd(this.TEL, "StopAzMotionInfo", "FALSE", 0L, 0L, "")
-        }
-    }
-
-    public void CmdStartElMotion(final boolean value){ // OK 
-        if (value && yAxisConnection){
-            try {
-                taskExecutor.runTask(startELmotionTask, new DefaultListener(TEL));
-            } catch (ExecutionException | TimeoutException e) {
-                logger.error(e.getMessage());
-            }
-            //setFieldCmd(this.TEL, "StartElMotionInfo", "FALSE", 0L, 0L, "")
         }
     }
     
@@ -1648,7 +1627,7 @@ public class TCS {
     public void CmdStartAzParking(final boolean value){
         if (value){
             SetAzTelPosition(MotAZ.ParkPos);
-            CmdStartAzMotion(true);
+            CmdStartAzPointing(true);
         }
     }
 
@@ -1660,7 +1639,7 @@ public class TCS {
     public void CmdStartElParking(final boolean value){
         if (value){
             SetElTelPosition(MotEL.ParkPos);
-            CmdStartElMotion(true);
+            CmdStartElPointing(true);
         }
     }
 
@@ -1695,6 +1674,34 @@ public class TCS {
         if (value && xAxisConnection && yAxisConnection){
             try {
                 taskExecutor.runTask(pointingAzTask, new DefaultListener(TEL));
+                taskExecutor.runTask(pointingElTask, new DefaultListener(TEL));
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            //setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "")
+        }
+    }
+
+    public void CmdStartAzPointing(final boolean value){
+        /*if (value){
+            SetMotionType(0);
+            CmdStartMotion(value);}*/
+        if (value && xAxisConnection){
+            try {
+                taskExecutor.runTask(pointingAzTask, new DefaultListener(TEL));
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+            //setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "")
+        }
+    }
+
+    public void CmdStartElPointing(final boolean value){
+        /*if (value){
+            SetMotionType(0);
+            CmdStartMotion(value);}*/
+        if (value && yAxisConnection){
+            try {
                 taskExecutor.runTask(pointingElTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
@@ -1758,7 +1765,7 @@ public class TCS {
     public void CmdStartCupolaParking(final boolean value) { // OK 
         if (value && domeAxisConnection)
             try {
-                taskExecutor.runTask(startcupolaparkingTask, new DefaultListener(TEL));
+                taskExecutor.runTask(startcupolapointingTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
@@ -2213,372 +2220,6 @@ public class TCS {
 
 
 
-    //#region T move to pos
-    private final Task<Void> movetopositionTask = new Task<Void>() {
-        boolean isInterrupted = true;
-        private TaskListener listener;
-        
-        private Void v;
-        @Override
-        public Void call() throws Exception {
-            if(listener!=null)
-                listener.onStart("MoveToPositionInfo");
-                
-
-            if (TEL.MotionType != 0)
-                SetPointingMode();
-
-            SetPointingMode();
-
-            StartMotion(true,true);
-            
-            
-            while(isInterrupted){
-                if(listener!=null)
-                    listener.onWorking(null);
-                Sleep(3000);
-                AsseX.IsMoving(X);
-                AsseY.IsMoving(X);
-                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
-                Sleep(3000);
-                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
-
-                if (!AsseX.isMoving && !AsseY.isMoving){
-                    MovementDone();
-                    isInterrupted = false;
-                }
-            }
-
-            if(listener!=null)
-                listener.onDone(null);
-            isInterrupted = false;
-            
-            
-            return v;
-        }
-
-        @Override
-        public void setVal(final Void v) {
-        }
-
-        @Override
-        public void interrupt() {
-            isInterrupted = false;
-            if(listener!=null)
-                listener.onError("task interrupted");
-        }
-
-        @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
-        }
-
-        @Override
-        public String getCurrentVal() {
-           return null;
-        }
-
-        
-    };
-
-    
-
-
-    //#region T move AZ
-    private final Task<Void> startAZmotionTask = new Task<Void>() {
-        boolean isInterrupted = true;
-        private TaskListener listener;
-        
-        private Void v;
-        @Override
-        public Void call() throws Exception {
-            if(listener!=null)
-                listener.onStart("StartAzMotionInfo");
-                
-            if (TEL.MotionType != 0)
-                SetPointingMode();
-
-            StartMotion(true, false);
-            
-            while(isInterrupted){
-                if(listener!=null)
-                    listener.onWorking(null);
-                Sleep(10000);
-                AsseX.IsMoving(X);
-                //System.out.println("Az is moving ... Az: "+AsseX.isMoving);
-                if (!AsseX.isMoving)
-                    isInterrupted = false;
-            }
-
-            if(listener!=null)
-                listener.onDone(null);
-            isInterrupted = false;
-            
-            
-            return v;
-        }
-
-        @Override
-        public void setVal(final Void v) {
-        }
-
-        @Override
-        public void interrupt() {
-            isInterrupted = false;
-            if(listener!=null)
-                listener.onError("task interrupted");
-        }
-
-        @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
-        }
-
-        @Override
-        public String getCurrentVal() {
-           return null;
-        }
-
-        
-    };
-
-    
-
-    //#region T move EL
-    private final Task<Void> startELmotionTask = new Task<Void>() {
-        boolean isInterrupted = true;
-        private TaskListener listener;
-        
-        private Void v;
-        @Override
-        public Void call() throws Exception {
-            if(listener!=null)
-                listener.onStart("StartElMotionInfo");
-
-            if (TEL.MotionType != 0)
-                SetPointingMode();
-
-            StartMotion(false, true);
-            
-            while(isInterrupted){
-                if(listener!=null)
-                    listener.onWorking(null);
-                Sleep(10000);
-                AsseY.IsMoving(X);
-                //System.out.println("El is moving ... El: "+AsseY.isMoving);
-                if (!AsseY.isMoving)
-                    isInterrupted = false;
-            }
-
-            if(listener!=null)
-                listener.onDone(null);
-            isInterrupted = false;
-            
-            
-            return v;
-        }
-
-        @Override
-        public void setVal(final Void v) {
-        }
-
-        @Override
-        public void interrupt() {
-            isInterrupted = false;
-            if(listener!=null)
-                listener.onError("task interrupted");
-        }
-
-        @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
-        }
-
-        @Override
-        public String getCurrentVal() {
-           return null;
-        }
-
-        
-    };
-
-
-    
-    //#region T stopmotion
-    private final Task<Void> stopmotionTask = new Task<Void>() {
-        boolean isInterrupted = true;
-        private TaskListener listener; 
-        
-        private Void v;
-        @Override
-        public Void call() throws Exception {
-            if(listener!=null)
-                listener.onStart("StopMotionInfo");
-                
-            if (AsseX.IsMoving(X) == 1)
-                tcsError(AsseX.StopMove(X),1171);
-            if (AsseY.IsMoving(X) == 1)
-                tcsError(AsseY.StopMove(X),1271);
-            
-            while(isInterrupted){
-                if(listener!=null)
-                    listener.onWorking(null);
-                Sleep(100);
-                AsseX.IsMoving(X);
-                AsseY.IsMoving(X);
-                //System.out.println("Az and El are stopping ... ");
-                if (AsseX.isMoving && AsseY.isMoving)
-                    isInterrupted = false;
-            }
-
-            if(listener!=null)
-                listener.onDone(null);
-            isInterrupted = false;
-            
-            
-            return v;
-        }
-
-        @Override
-        public void setVal(final Void v) {
-        }
-
-        @Override
-        public void interrupt() {
-            isInterrupted = false;
-            if(listener!=null)
-                listener.onError("task interrupted");
-        }
-
-        @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
-        }
-
-        @Override
-        public String getCurrentVal() {
-           return null;
-        }
-
-        
-    };
-
-
-    //#region T stop AZ
-    private final Task<Void> stopAZmotionTask = new Task<Void>() {
-        boolean isInterrupted = true;
-        private TaskListener listener;
-        
-        private Void v;
-        @Override
-        public Void call() throws Exception {
-            if(listener!=null)
-                listener.onStart("StopAzMotionInfo");
-                
-            if (AsseX.IsMoving(X) == 1)
-                tcsError(AsseX.StopMove(X),1171);
-                
-            while(isInterrupted){
-                if(listener!=null)
-                    listener.onWorking(null);
-                Sleep(100);
-                AsseX.IsMoving(X);
-                //System.out.println("Az is stopping ... ");
-                if (AsseX.isMoving)
-                    isInterrupted = false;
-            }
-
-            if(listener!=null)
-                listener.onDone(null);
-            isInterrupted = false;
-            
-            
-            return v;
-        }
-
-        @Override
-        public void setVal(final Void v) {
-        }
-
-        @Override
-        public void interrupt() {
-            isInterrupted = false;
-            if(listener!=null)
-                listener.onError("task interrupted");
-        }
-
-        @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
-        }
-
-        @Override
-        public String getCurrentVal() {
-           return null;
-        }
-
-        
-    };
-
-
-
-    //#region T stop EL
-    private final Task<Void> stopELmotionTask = new Task<Void>() {
-        boolean isInterrupted = true;
-        private TaskListener listener;
-        
-        private Void v;
-        @Override
-        public Void call() throws Exception {
-            if(listener!=null)
-                listener.onStart("StopElMotionInfo");
-                
-            if (AsseY.IsMoving(X) == 1)
-                tcsError(AsseY.StopMove(X),1271);
-                
-            while(isInterrupted){
-                if(listener!=null)
-                    listener.onWorking(null);
-                Sleep(100);
-                AsseY.IsMoving(X);
-                //System.out.println("El is stopping ... ");
-                if (AsseY.isMoving)
-                    isInterrupted = false;
-            }
-
-            if(listener!=null)
-                listener.onDone(null);
-            isInterrupted = false;
-            
-            
-            return v;
-        }
-
-        @Override
-        public void setVal(final Void v) {
-        }
-
-        @Override
-        public void interrupt() {
-            isInterrupted = false;
-            if(listener!=null)
-                listener.onError("task interrupted");
-        }
-
-        @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
-        }
-
-        @Override
-        public String getCurrentVal() {
-           return null;
-        }
-
-        
-    };
-
-
     //#region T opendome
     private final Task<Void> opendomeTask = new Task<Void>() {
         boolean isInterrupted = true;
@@ -2694,7 +2335,7 @@ public class TCS {
     
 
 
-    //#region T domepointing
+    //#region T domepoint
     private final Task<Void> startcupolapointingTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
@@ -2713,66 +2354,6 @@ public class TCS {
                 Sleep(5000);
                 AsseCupola.IsProgramRunning();
                 System.out.println("Dome is pointing ... ");
-                if (AsseCupola.isRunning)
-                    isInterrupted = false;
-            }
-
-            CUP.StatusRotazione = 0;
-            CUP.Direzione = 0;
-
-            if(listener!=null)
-                listener.onDone(null);
-            isInterrupted = false;
-            
-            
-            return v;
-        }
-
-        @Override
-        public void setVal(final Void v) {
-        }
-
-        @Override
-        public void interrupt() {
-            isInterrupted = false;
-            if(listener!=null)
-                listener.onError("task interrupted");
-        }
-
-        @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
-        }
-
-        @Override
-        public String getCurrentVal() {
-           return null;
-        }
-
-        
-    };
-
-    
-
-    //#region T domeparking
-    private final Task<Void> startcupolaparkingTask = new Task<Void>() {
-        boolean isInterrupted = true;
-        private TaskListener listener;
-        
-        private Void v;
-        @Override
-        public Void call() throws Exception {
-            if(listener!=null)
-                listener.onStart("StartParkingDomeInfo");
-                
-            PuntaCupola(CUP.ParkPos);
-                
-            while(isInterrupted){
-                if(listener!=null)
-                    listener.onWorking(null);
-                Sleep(5000);
-                AsseCupola.IsProgramRunning();
-                System.out.println("Dome is parking ... ");
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
             }
@@ -3080,16 +2661,17 @@ public class TCS {
             if (TEL.MotionType != 0)
                 SetPointingMode();
         
-            StartMotion(true,false);
+            StartPointingMotion(true,false);
             
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
                 Sleep(1000); // da spostare alla fine del while?
                 AsseX.IsMoving(X);
-                if (!AsseX.isMoving)
+                if (!AsseX.isMoving){
                     IsAzPointing(false);
                     isInterrupted = false;
+                }
             }
 
             if(listener!=null)
@@ -3139,16 +2721,17 @@ public class TCS {
             if (TEL.MotionType != 0)
                 SetPointingMode();
         
-            StartMotion(false,true);
+            StartPointingMotion(false,true);
             
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
                 Sleep(1000); // da spostare alla fine del while?
                 AsseY.IsMoving(X);
-                if (!AsseY.isMoving)
+                if (!AsseY.isMoving){
                     IsElPointing(false);
                     isInterrupted = false;
+                }
             }
 
             if(listener!=null)
@@ -3181,6 +2764,252 @@ public class TCS {
 
         
     };
+
+    //#region T pointing
+    private final Task<Void> pointingTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("MoveToPositionInfo");
+                
+
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+
+            SetPointingMode();
+
+            StartPointingMotion(true,true);
+            
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(3000);
+                AsseX.IsMoving(X);
+                AsseY.IsMoving(X);
+                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+                Sleep(3000);
+                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+
+                if (!AsseX.isMoving && !AsseY.isMoving){
+                    MovementDone();
+                    isInterrupted = false;
+                }
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+
+    
+    //#region T stop
+    private final Task<Void> stopmotionTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener; 
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StopMotionInfo");
+                
+            if (AsseX.IsMoving(X) == 1)
+                tcsError(AsseX.StopMove(X),1171);
+            if (AsseY.IsMoving(X) == 1)
+                tcsError(AsseY.StopMove(X),1271);
+            
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(100);
+                AsseX.IsMoving(X);
+                AsseY.IsMoving(X);
+                //System.out.println("Az and El are stopping ... ");
+                if (AsseX.isMoving && AsseY.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+    //#region T stop AZ
+    private final Task<Void> stopAZmotionTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StopAzMotionInfo");
+                
+            if (AsseX.IsMoving(X) == 1)
+                tcsError(AsseX.StopMove(X),1171);
+                
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(100);
+                AsseX.IsMoving(X);
+                //System.out.println("Az is stopping ... ");
+                if (AsseX.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
+
+
+    //#region T stop EL
+    private final Task<Void> stopELmotionTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener;
+        
+        private Void v;
+        @Override
+        public Void call() throws Exception {
+            if(listener!=null)
+                listener.onStart("StopElMotionInfo");
+                
+            if (AsseY.IsMoving(X) == 1)
+                tcsError(AsseY.StopMove(X),1271);
+                
+            while(isInterrupted){
+                if(listener!=null)
+                    listener.onWorking(null);
+                Sleep(100);
+                AsseY.IsMoving(X);
+                //System.out.println("El is stopping ... ");
+                if (AsseY.isMoving)
+                    isInterrupted = false;
+            }
+
+            if(listener!=null)
+                listener.onDone(null);
+            isInterrupted = false;
+            
+            
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if(listener!=null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+           return null;
+        }
+
+        
+    };
+
 
 
     //#region T El Up
@@ -3792,7 +3621,7 @@ public class TCS {
         AsseY.StopMove(X);
     }
     
-    public void StartMotion(boolean AzAxis, boolean ElAxis){
+    public void StartPointingMotion(boolean AzAxis, boolean ElAxis){
         this.TEL.TelIsMoving = true;
         if(AzAxis && AsseX.IsMoving(X) == 1){
             tcsError(AsseX.StopMove(X),1171);
@@ -3802,7 +3631,8 @@ public class TCS {
             tcsError(AsseY.StopMove(X),1271);
             Sleep(100);
         }
-        if(TEL.MotionType == 0){
+        if(TEL.MotionType == 0){ // slew
+            // accelerazione necessaria? Non basta nell'inizializzazione?
             if (AzAxis){
                 tcsError(AsseX.SetMotAcc(X, MotAZ.MaxAcc),1161);
                 tcsError(AsseX.SetMotDec(X, MotAZ.MaxAcc),1162);
@@ -4486,7 +4316,7 @@ public class TCS {
 
         // inizializzazione
         TCS tcs = new TCS();
-        if (false){
+        if (tcs.xAxisConnection){
             System.out.println("Before Connection: ");
             System.out.println("comm status: "+tcs.AsseX.CommStatus);
             System.out.print("Encoder Res: ");
@@ -4529,7 +4359,7 @@ public class TCS {
             System.out.println("Max Min Pos: "+tcs.AsseX.MaxPos[0]+" , "+tcs.AsseX.MinPos[0]);
         }
 
-        if (true){
+        if (tcs.yAxisConnection){
             System.out.println("Before Connection: ");
             System.out.println("comm status: "+tcs.AsseY.CommStatus);
             System.out.print("Encoder Res: ");
@@ -4607,7 +4437,7 @@ public class TCS {
         if (conditionTest){
             tcs.CmdMoveToPosition(true); 
         /*
-         * manda il task (movetopositionTask) che muove azimuth ed elevazione,
+         * manda il task (pointingTask) che muove azimuth ed elevazione,
          * dove viene utilizzata la funzione StartMotion.
          * In input vuole Azimuth ed Elevazione, quindi bisogna prima settarle trasformando da J2000
         */
