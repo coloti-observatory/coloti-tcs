@@ -987,6 +987,10 @@ public class TCS {
         }
     }
 
+    public void SetAbsJogVelocity(final double value){
+        this.MotAZ.AbsJogVelocity = value;
+        this.MotEL.AbsJogVelocity = value;
+    }
 
     public void SetAzTelPosition(final double value){
         if (xAxisConnection){
@@ -1002,6 +1006,10 @@ public class TCS {
     }
 
     public void SetAzJogVelocity(final double value){
+        AsseX.SetMotVel(X, value);
+        this.MotAZ.JogVelocity = value;
+
+        /* 
         boolean live = true;
         if (live) {
             AsseX.GetMotionMode(X);
@@ -1012,7 +1020,7 @@ public class TCS {
         }
         else{
             this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
-        }
+        }*/
     }
 
 
@@ -1030,6 +1038,10 @@ public class TCS {
     }
 
     public void SetElJogVelocity(final double value){
+        AsseY.SetMotVel(X, value);
+        this.MotEL.JogVelocity = value;
+
+        /* 
         boolean live = true;
         if (live){
             AsseY.GetMotionMode(X);
@@ -1040,7 +1052,7 @@ public class TCS {
         }
         else{
             this.MotEL.JogVelocity = value*MotEL.JogDirection;
-        }
+        }*/
     }
     
     
@@ -3025,6 +3037,7 @@ public class TCS {
 
             //AsseY.ExecProg("MUOVIDX")
             //AsseY.Move
+            SetElJogVelocity(1*MotEL.AbsJogVelocity);
             AsseY.StartMove(X);
 
             while(isInterrupted){
@@ -3083,6 +3096,7 @@ public class TCS {
                 SetTrackingMode();
 
             //AsseY.ExecProg("MUOVISX")
+            SetElJogVelocity(-1*MotEL.AbsJogVelocity);
             AsseY.StartMove(X);
 
             while(isInterrupted){
@@ -3141,6 +3155,8 @@ public class TCS {
                 SetTrackingMode();
 
             //AsseX.ExecProg("MUOVIDX");
+
+            SetAzJogVelocity(1*MotAZ.AbsJogVelocity);
             AsseX.StartMove(X);
 
             while(isInterrupted){
@@ -3200,6 +3216,7 @@ public class TCS {
                 SetTrackingMode();
 
             //AsseX.ExecProg("MUOVISX");
+            SetAzJogVelocity(-1*MotAZ.AbsJogVelocity);
             AsseX.StartMove(X);
 
             while(isInterrupted){
@@ -4206,42 +4223,21 @@ public class TCS {
         @Override
         public void actionPerformed(ActionEvent e) {
             print("Set slow speed");
-            if (xAxisConnection)
-                SetAzSlewVelocity(60);
-            else
-                print("AZ not connected");
-            if (yAxisConnection)
-                SetElSlewVelocity(60);
-            else
-                print("EL not connected");
+            SetAbsJogVelocity(60);
         }
     };
     ActionListener actionMediumSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             print("Set medium speed");
-            if (xAxisConnection)
-                SetAzSlewVelocity(150);
-            else
-                print("AZ not connected");
-            if (yAxisConnection)
-                SetElSlewVelocity(150);
-            else
-                print("EL not connected");
+            SetAbsJogVelocity(150);
         }
     };
     ActionListener actionFastSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             print("Set fast speed");
-            if (xAxisConnection)
-                SetAzSlewVelocity(500); //180
-            else
-                print("AZ not connected");
-            if (yAxisConnection)
-                SetElSlewVelocity(500); //180
-            else
-                print("EL not connected");
+            SetAbsJogVelocity(180);
         }
     };
 

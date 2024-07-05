@@ -43,6 +43,7 @@ public class MOTOREARAZ {
     public String ResetAxisInfo;
     public int JogDirection = 1;
     public double JogVelocity = 0.001;
+    public double AbsJogVelocity;
     public double TelPosition;
     public double SkyPosition;
     public boolean PositionTypeSky;
