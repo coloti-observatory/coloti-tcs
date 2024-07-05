@@ -57,6 +57,7 @@ public class TestGui {
         }
     };
 
+
     public static void main(String[] args) {
         TestGui tg = new TestGui();
 
@@ -69,6 +70,8 @@ public class TestGui {
 
        
         ArrowPadFrame apframe = new ArrowPadFrame(parentframe);
+
+        
         apframe.SetButtonTarget(tg.actionTarget);
         apframe.SetButtonHome(tg.actionstart);
         apframe.SetButtonUP(tg.actionstart, tg.actionstop);

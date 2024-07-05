@@ -32,9 +32,11 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
   JRadioButton mediumButton;
   JRadioButton fastButton;
 
+  JLabel labelTimer;
+
   JTextField textTarget;
   JButton buttonTarget;
-  //JLabel labelTarget;
+  JLabel labelTarget;
   JPanel panelTarget;
  
 
@@ -120,8 +122,8 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
 
 
 
-    //labelTarget = new JLabel("Target: nothing entered");
-    //labelTarget.setBounds(150, 120, 250, 30);
+    labelTarget = new JLabel("Target: nothing entered");
+    labelTarget.setBounds(150, 120, 250, 30);
 
     buttonTarget = new JButton("Submit Target");
 
@@ -142,9 +144,19 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
     buttonTarget.setBounds(300, 80, 160, 30);
     textTarget = new JTextField(16);
     textTarget.setBounds(50, 80, 230, 30);
-    //this.add(labelTarget);
+    this.add(labelTarget);
     this.add(buttonTarget);
     this.add(textTarget);
+
+    labelTimer = new JLabel("");
+    labelTimer.setBounds(150, 200, 250, 30);
+    this.add(labelTimer);
+
+    //this.timer.start();
+
+
+
+
 
     //panelTarget = new JPanel();
     //panelTarget.add(textTarget);
@@ -162,6 +174,15 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
   //  this.timerUP = new 
   // }
 
+  Timer timer = new Timer(1000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Update the JTextField with current time (for example)
+        labelTimer.setText("Current Time: " + System.currentTimeMillis());
+    }
+  });
+
+
   public void SetButtonTarget(ActionListener startAction){
     this.buttonTarget.addMouseListener(new MouseAdapter() {
         @Override
@@ -174,7 +195,7 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
                 e1.printStackTrace();
               }
 
-            //labelTarget.setText("Target: "+targetString);
+            labelTarget.setText("Target: "+targetString);
             //Target src = new Target(textTarget.getText());
             //System.out.println(src);
             textTarget.setText("");
