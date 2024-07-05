@@ -17,6 +17,9 @@ import coloti.tcs.trajectory.TrajectoryManager;
 import coloti.tcs.weather.WeatherData;
 
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -987,12 +990,14 @@ public class TCS {
         }
     }
 
+
     public void SetAbsJogVelocity(final double value){
         this.MotAZ.AbsJogVelocity = value;
         this.MotEL.AbsJogVelocity = value;
     }
 
-    public void SetAzTelPosition(final double value){
+
+    public void SetAzTelPosition(final double value){ // abs target 
         if (xAxisConnection){
             tcsError(AsseX.SetAbsTargPos(X, value),1160);
             tcsError(AsseX.GetAbsTargPos(X),1154);
@@ -1024,7 +1029,7 @@ public class TCS {
     }
 
 
-    public void SetElTelPosition(final double value){
+    public void SetElTelPosition(final double value){ // abs target
         if (yAxisConnection){
             tcsError(AsseY.SetAbsTargPos(X, value),1260);
             tcsError(AsseY.GetAbsTargPos(X),1254);
@@ -1505,8 +1510,8 @@ public class TCS {
         }
     }
 
-    // motion (slew) to position
-
+    // motion (slew) to position 
+    /*
     public void CmdMoveToPosition(final boolean value){ // OK
         if (value && xAxisConnection && yAxisConnection){
             try {
@@ -1516,7 +1521,7 @@ public class TCS {
             }
             //setFieldCmd(this.TEL, "MoveToPositionInfo", "FALSE", 0L, 0L, "")
         }
-    }
+    }*/
     
     public void CmdStopMotion(final boolean value){ // OK 
         if (value && xAxisConnection && yAxisConnection){
@@ -1558,6 +1563,7 @@ public class TCS {
         }
     }
 
+    
     public void CmdElMoveUp(final boolean value){
         if (value && yAxisConnection){
             try {
@@ -1603,9 +1609,6 @@ public class TCS {
     }
 
 
-
-
-
     public void CmdEmergencyStop(final boolean value){
         if (value){
             EmergencyStop();
@@ -1631,21 +1634,11 @@ public class TCS {
         }
     }
 
-    public void CmdStopParking(final boolean value){
-        if (value)
-            CmdStopMotion(value);
-    }
-
     public void CmdStartAzParking(final boolean value){
         if (value){
             SetAzTelPosition(MotAZ.ParkPos);
             CmdStartAzPointing(true);
         }
-    }
-
-    public void CmdStopAzParking(final boolean value){
-        if (value)
-            CmdStopMotion(value);
     }
 
     public void CmdStartElParking(final boolean value){
@@ -1655,10 +1648,6 @@ public class TCS {
         }
     }
 
-    public void CmdStopElParking(final boolean value){
-        if (value)
-            CmdStopMotion(value);
-    }
 
 
 
@@ -1678,20 +1667,10 @@ public class TCS {
             CmdStopMotion(value);
     }
 
-    // fare il pointing come loop mantenendo un errore di posizione per controllo dopo il primo step (o anche no)
+    /* fare il pointing come loop mantenendo un errore di posizione per controllo dopo il primo step (o anche no)*/
     public void CmdStartPointing(final boolean value){
-        /*if (value){
-            SetMotionType(0);
-            CmdStartMotion(value);}*/
-        if (value && xAxisConnection && yAxisConnection){
-            try {
-                taskExecutor.runTask(pointingAzTask, new DefaultListener(TEL));
-                taskExecutor.runTask(pointingElTask, new DefaultListener(TEL));
-            } catch (ExecutionException | TimeoutException e) {
-                logger.error(e.getMessage());
-            }
-            //setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "")
-        }
+        CmdStartAzPointing(value);
+        CmdStartElPointing(value);
     }
 
     public void CmdStartAzPointing(final boolean value){
@@ -4295,6 +4274,23 @@ public class TCS {
         }
     };
     
+    ActionListener actionTarget = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String lineTargetName = "";
+            try {
+                List<String> lines = Files.readAllLines(Paths.get("target.txt"), StandardCharsets.UTF_8);
+                for (String line : lines) {
+                    lineTargetName = line;
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            SetTarget(lineTargetName);
+        }
+    };
+    
 
 
 
@@ -4313,6 +4309,7 @@ public class TCS {
 
         // inizializzazione
         TCS tcs = new TCS();
+
         if (tcs.xAxisConnection){
             System.out.println("Before Connection: ");
             System.out.println("comm status: "+tcs.AsseX.CommStatus);
@@ -4432,7 +4429,7 @@ public class TCS {
     
 
         if (conditionTest){
-            tcs.CmdMoveToPosition(true); 
+            tcs.CmdStartPointing(true); 
         /*
          * manda il task (pointingTask) che muove azimuth ed elevazione,
          * dove viene utilizzata la funzione StartMotion.
@@ -4444,15 +4441,16 @@ public class TCS {
             tcs.WaitMovement(2000);
 
         // aggiustamento posizione
-            tcs.CmdMoveToPosition(true); 
+            tcs.CmdStartPointing(true); 
             tcs.WaitMovement(500);
         }
 
         // centrare il target con il tastierino
-        if (conditionTest){
+        if (true){
             ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
             apframe.SetButtonHome(tcs.actionHome);
             apframe.SetButtonHomeTel(tcs.actionHomeTel);
+            apframe.SetButtonTarget(tcs.actionTarget);
             apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
             apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
             apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);
@@ -4482,9 +4480,9 @@ public class TCS {
 
         // arrivare al target e iniziare il tracking per l'osservazione
         if (conditionTest){
-            tcs.CmdMoveToPosition(true);
+            tcs.CmdStartPointing(true);
             tcs.WaitMovement(); 
-            tcs.CmdMoveToPosition(true); 
+            tcs.CmdStartPointing(true); 
             tcs.WaitMovement(); 
         }
 

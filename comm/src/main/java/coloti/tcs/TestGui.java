@@ -2,6 +2,11 @@ package coloti.tcs;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -37,7 +42,18 @@ public class TestGui {
     ActionListener actionTarget = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
+
+            try {
+                List<String> lines = Files.readAllLines(Paths.get("target.txt"), StandardCharsets.UTF_8);
+                for (String line : lines) {
+                    System.out.println(line);
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
             System.out.println("Target set");
+            
         }
     };
 

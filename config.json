@@ -10,8 +10,8 @@
 "ConnessioneEl":false,
 "ConnessioneDome":false,
 "ConnessioneMeteo":false,
-"IdSerialAz":"/dev/ttyUSB0",
-"IdSerialEl":"/dev/ttyUSB0",
+"IdSerialAz":"",
+"IdSerialEl":"",
 "IdSerialDome":"",
 "IdSerialWeather":""
 },

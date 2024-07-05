@@ -7,6 +7,12 @@ import javax.swing.event.ChangeListener;
 
 import astri.astron.Target;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+
+
 public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implements ButtonModel    JFrame
   
   //Timer timerUP, timerDOWN, timerLEFT, timerRIGHT;
@@ -20,6 +26,7 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
   JButton buttonDomeEAST;
   JButton buttonDomeWEST;
   JLabel l1;
+  String targetString;
 
   JRadioButton slowButton;
   JRadioButton mediumButton;
@@ -27,7 +34,7 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
 
   JTextField textTarget;
   JButton buttonTarget;
-  JLabel labelTarget;
+  //JLabel labelTarget;
   JPanel panelTarget;
  
 
@@ -113,8 +120,8 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
 
 
 
-    labelTarget = new JLabel("Target: nothing entered");
-    labelTarget.setBounds(150, 120, 250, 30);
+    //labelTarget = new JLabel("Target: nothing entered");
+    //labelTarget.setBounds(150, 120, 250, 30);
 
     buttonTarget = new JButton("Submit Target");
 
@@ -135,7 +142,7 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
     buttonTarget.setBounds(300, 80, 160, 30);
     textTarget = new JTextField(16);
     textTarget.setBounds(50, 80, 230, 30);
-    this.add(labelTarget);
+    //this.add(labelTarget);
     this.add(buttonTarget);
     this.add(textTarget);
 
@@ -159,10 +166,17 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
     this.buttonTarget.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
-            String targetString = textTarget.getText();
-            labelTarget.setText("Target: "+targetString);
-            Target src = new Target(textTarget.getText());
-            System.out.println(src);
+            targetString = textTarget.getText();
+
+              try {
+                Files.write(Paths.get("target.txt"), targetString.getBytes(StandardCharsets.UTF_8));
+              } catch (IOException e1) {
+                e1.printStackTrace();
+              }
+
+            //labelTarget.setText("Target: "+targetString);
+            //Target src = new Target(textTarget.getText());
+            //System.out.println(src);
             textTarget.setText("");
             startAction.actionPerformed(null);
         }
