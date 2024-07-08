@@ -38,14 +38,17 @@ public class ArrowPadFrame extends JDialog{ //  implements KeyListener  implemen
   JButton buttonTarget;
   JLabel labelTarget;
   JPanel panelTarget;
+  TCS tcs;
  
 
-  public ArrowPadFrame(JFrame parentFrame) {
+  public ArrowPadFrame(JFrame parentFrame, TCS tcs) {
     super(parentFrame, "Speed Selector", true);
     parentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     this.setSize(1000, 500);
     this.setLayout(null);
+
+    this.tcs = tcs; //, TCS tcs
 
     buttonHome = new JButton("Dome Home");
     buttonHome.setBounds(100, 30, 140, 30);

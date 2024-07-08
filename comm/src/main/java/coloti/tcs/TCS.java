@@ -1,6 +1,7 @@
 package coloti.tcs;
 
 import coloti.tcs.configuration.Telescopio;
+import coloti.tcs.gui.GUItcs;
 //import coloti.tcs.configuration.MotoreArAz;
 //import java.io.File;
 //import java.io.IOException;
@@ -106,9 +107,9 @@ public class TCS {
     static final int ENC = 3;
     static final int ARCSECS = 4;
     int UnitMeasure = ARCSECS;
-    boolean xAxisConnection = false;
-    boolean yAxisConnection = false;
-    boolean domeAxisConnection = false;
+    public boolean xAxisConnection = false;
+    public boolean yAxisConnection = false;
+    public boolean domeAxisConnection = false;
     boolean weatherConnection = false;
     boolean tcsConnection = false;
     private EHardwareStatePhase statePhase;
@@ -4446,8 +4447,13 @@ public class TCS {
         }
 
         // centrare il target con il tastierino
-        if (true){
-            ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
+
+
+        GUItcs gui = new GUItcs(tcs);
+        gui.showGui();
+
+        if (false){
+            ArrowPadFrame apframe = new ArrowPadFrame(new JFrame(), tcs);
             apframe.SetButtonHome(tcs.actionHome);
             apframe.SetButtonHomeTel(tcs.actionHomeTel);
             apframe.SetButtonTarget(tcs.actionTarget);

@@ -4624,6 +4624,7 @@ public class backup_tcs2 {
         }
 
         // centrare il target con il tastierino
+        /* 
         if (conditionTest){
             ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
             apframe.SetButtonHome(tcs.actionHome);
@@ -4640,6 +4641,7 @@ public class backup_tcs2 {
             apframe.SetFastSpeed(tcs.actionFastSpeed);
             apframe.Show();
         }
+        */
 
         
 

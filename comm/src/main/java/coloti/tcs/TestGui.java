@@ -60,18 +60,14 @@ public class TestGui {
 
     public static void main(String[] args) {
         TestGui tg = new TestGui();
-
-
-
+        /* 
         JFrame parentframe = new JFrame("Parent Frame");
         parentframe.setSize(400, 300);
         parentframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         parentframe.setVisible(true);
-
        
         ArrowPadFrame apframe = new ArrowPadFrame(parentframe);
 
-        
         apframe.SetButtonTarget(tg.actionTarget);
         apframe.SetButtonHome(tg.actionstart);
         apframe.SetButtonUP(tg.actionstart, tg.actionstop);
@@ -83,13 +79,8 @@ public class TestGui {
         apframe.SetFastSpeed(tg.actionspeed);
         apframe.SetButtonSTOP(tg.actionstop);
         apframe.Show();
-
+        */
 
         System.out.println("fine");
-
-
-
-
-
     }
 }
