@@ -17,6 +17,9 @@ import coloti.tcs.trajectory.TrajectoryManager;
 import coloti.tcs.weather.WeatherData;
 
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -4299,8 +4302,7 @@ public class backup_tcs2 {
     public void print(String string){
         System.out.println(string);
     }
-
-    ActionListener actionMoveUP = new ActionListener() {
+ ActionListener actionMoveUP = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             print("Going up...");
@@ -4377,42 +4379,21 @@ public class backup_tcs2 {
         @Override
         public void actionPerformed(ActionEvent e) {
             print("Set slow speed");
-            if (xAxisConnection)
-                SetAzSlewVelocity(60);
-            else
-                print("AZ not connected");
-            if (yAxisConnection)
-                SetElSlewVelocity(60);
-            else
-                print("EL not connected");
+            //SetAbsJogVelocity(60);
         }
     };
     ActionListener actionMediumSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             print("Set medium speed");
-            if (xAxisConnection)
-                SetAzSlewVelocity(150);
-            else
-                print("AZ not connected");
-            if (yAxisConnection)
-                SetElSlewVelocity(150);
-            else
-                print("EL not connected");
+            //SetAbsJogVelocity(150);
         }
     };
     ActionListener actionFastSpeed = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             print("Set fast speed");
-            if (xAxisConnection)
-                SetAzSlewVelocity(500); //180
-            else
-                print("AZ not connected");
-            if (yAxisConnection)
-                SetElSlewVelocity(500); //180
-            else
-                print("EL not connected");
+            //SetAbsJogVelocity(180);
         }
     };
 
@@ -4470,8 +4451,23 @@ public class backup_tcs2 {
         }
     };
     
+    ActionListener actionTarget = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String lineTargetName = "";
+            try {
+                List<String> lines = Files.readAllLines(Paths.get("target.txt"), StandardCharsets.UTF_8);
+                for (String line : lines) {
+                    lineTargetName = line;
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
 
-
+            SetTarget(lineTargetName);
+        }
+    };
+    
 
 
 
@@ -4626,9 +4622,10 @@ public class backup_tcs2 {
         // centrare il target con il tastierino
         /* 
         if (conditionTest){
-            ArrowPadFrame apframe = new ArrowPadFrame(new JFrame());
+            ArrowPadFrame apframe = new ArrowPadFrame(new JFrame(), tcs);
             apframe.SetButtonHome(tcs.actionHome);
             apframe.SetButtonHomeTel(tcs.actionHomeTel);
+            apframe.SetButtonTarget(tcs.actionTarget);
             apframe.SetButtonUP(tcs.actionMoveUP, tcs.actionstopEL);
             apframe.SetButtonDOWN(tcs.actionMoveDOWN, tcs.actionstopEL);
             apframe.SetButtonLEFT(tcs.actionMoveLEFT, tcs.actionstopAZ);

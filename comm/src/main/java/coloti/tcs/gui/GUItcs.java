@@ -1,5 +1,6 @@
 package coloti.tcs.gui;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -21,6 +22,10 @@ public class GUItcs  extends JFrame{
         padframe = new FramePaddle(this, tcs);
         showdialog = new JButton("show");
 
+        
+        //this.showdialog.setBounds(0, 0, 100, 50);
+        //this.showdialog.setBackground(Color.green);
+
         showdialog.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -38,10 +43,9 @@ public class GUItcs  extends JFrame{
     public void showGui(){
         pack();
         setVisible(true);
-        //padframe.Show();
     }
 
-    /* 
+    /*  MAIN
     public static void main(String[] argc){
         
         GUItcs gui = new GUItcs();
