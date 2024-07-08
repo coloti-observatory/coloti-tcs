@@ -198,6 +198,7 @@ public class TCS {
     }
     
     public final boolean connect(){
+        print("Prova Connessione");
         // AZIMUTH
         if (xAxisConnection){
             this.xAxisConnection = AsseX.SetSimpleStart(0);
@@ -256,7 +257,8 @@ public class TCS {
             return false;
     }
 
-    private void disconnect() {
+    public void disconnect() {
+        print("Prova Disconnessione");
         boolean status = true;
         if (xAxisConnection){
             status = AsseX.CloseComm();
@@ -1273,8 +1275,8 @@ public class TCS {
     public void SetTarget(final String value){
         if (value == ""){
             this.TEL.Target = new Target();
-            this.TEL.Target.setRa(TEL.TargetRA); //setRa2000 ?
-            this.TEL.Target.setDec(TEL.TargetDEC);  //setDec2000 ?
+            this.TEL.Target.setRa(TEL.TargetRA2000); //setRa2000 ?
+            this.TEL.Target.setDec(TEL.TargetDEC2000);  //setDec2000 ?
             this.TEL.Target.setEpoch(0);
             Trajectory();
         }
@@ -2593,7 +2595,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(1000);
 
-                UpdateInfoTarget();
+                UpdateInfoTarget(false);
                 Tracking();
 
                 AsseX.IsMoving(X);
@@ -3455,7 +3457,7 @@ public class TCS {
         this.tf = new TrajectoryFitter(tra);
         this.tf.fit(5); // posso provare polinomi diversi
 
-        UpdateInfoTarget();
+        UpdateInfoTarget(true);
 
         // TimeUtil.getCurrentJuliandDay()
 
@@ -3581,15 +3583,17 @@ public class TCS {
         }
     }
 
-    public void UpdateInfoTarget(){
+    public void UpdateInfoTarget(boolean printinfo){
         double timeJDnow = TimeUtil.getCurrentJuliandDay();
         this.TEL.TargetAZ = tf.Az(timeJDnow);
         this.TEL.TargetVelAZ = tf.velocityAz(timeJDnow);
         this.TEL.TargetEL = tf.El(timeJDnow);
         this.TEL.TargetVelEL = tf.velocityEl(timeJDnow);
-        System.out.println("Target Az and El setted: ");
-        System.out.println("Az: "+TEL.TargetAZ);
-        System.out.println("El: "+TEL.TargetEL);
+        if (printinfo){
+            System.out.println("Target Az and El setted: ");
+            System.out.println("Az: "+TEL.TargetAZ);
+            System.out.println("El: "+TEL.TargetEL);
+        }
     }
 
     public boolean CheckWheater(WeatherData wd){
@@ -3962,6 +3966,21 @@ public class TCS {
         }
     }
 
+    public double gettargetRA(){
+        return TEL.TargetRA2000;
+    }
+
+    public double gettargetDEC(){
+        return TEL.TargetDEC2000;
+    }
+
+    public double gettargetAZ(){
+        return TEL.TargetAZ;
+    }
+
+    public double gettargetEL(){
+        return TEL.TargetEL;
+    }
 
     // CUPOLA
 
@@ -4385,7 +4404,13 @@ public class TCS {
         angolo = tcs.GetCupolaPosition();
         System.out.println("Posizione cupola: "+angolo);
         //tcs.Sleep(5000);
-        //*/
+        //
+
+
+
+
+
+        
         System.out.println("tutto okay");
 
         //if (connecting){
@@ -4393,6 +4418,8 @@ public class TCS {
         tcs.disconnect();
         
         System.out.println("fine.");
+
+        */
 
 
       }

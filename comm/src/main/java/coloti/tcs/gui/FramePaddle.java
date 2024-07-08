@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.text.DecimalFormat;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -15,10 +16,12 @@ import astri.astron.Target;
 import coloti.tcs.TCS;
 
 public class FramePaddle extends JDialog{ //  implements KeyListener  implements ButtonModel    JFrame
-  
+  DecimalFormat format = new DecimalFormat("#.##");
   //Timer timerUP, timerDOWN, timerLEFT, timerRIGHT;
   JButton buttonHomeDome;
   JButton buttonHomeTel;
+  JButton buttonConnect;
+  JButton buttonDisconnect;
   JButton buttonUP;
   JButton buttonDOWN;
   JButton buttonLEFT;
@@ -34,9 +37,12 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JRadioButton fastButton;
 
   JLabel labelTimer;
+  JLabel labelTargetRa;
+  JLabel labelTargetDec;
 
   JTextField textTarget;
   JButton buttonTarget;
+  JButton buttonPoint;
   JLabel labelTarget;
   JPanel panelTarget;
  
@@ -61,6 +67,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionHomeDome;
   ActionListener actionHomeTel;
   ActionListener actionTarget;
+  ActionListener actionConnect;
+  ActionListener actionDisconnect;
+  ActionListener actionPoint;
 
  
 
@@ -97,23 +106,60 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.add(buttonHomeTel);
 
 
+    this.buttonConnect = new JButton("CONNECT");
+    this.buttonConnect.setBounds(200, 30, 140, 50);
+    this.buttonConnect.setBackground(Color.green);
+    this.add(buttonConnect);
+
+    this.buttonDisconnect = new JButton("DISCONNECT");
+    this.buttonDisconnect.setBounds(350, 30, 140, 50);
+    this.buttonDisconnect.setBackground(Color.magenta);
+    this.add(buttonDisconnect);
+
+
+
+
 
     this.labelTarget = new JLabel("Target: nothing entered");
-    this.labelTarget.setBounds(250, 320, 250, 30);
-
-    this.buttonTarget = new JButton("Submit Target");
-    
-    this.buttonTarget.setBounds(400, 280, 160, 30);
-    this.textTarget = new JTextField(16);
-    this.textTarget.setBounds(150, 280, 230, 30);
+    this.labelTarget.setBounds(150, 335, 250, 30);
     this.add(labelTarget);
+    
+    this.buttonTarget = new JButton("Submit Target");
+    this.buttonTarget.setBounds(400, 280, 160, 30);
     this.add(buttonTarget);
+
+    this.textTarget = new JTextField(16);
+    this.textTarget.setBounds(150, 280, 230, 30);    
     this.add(textTarget);
 
+
+    this.buttonPoint = new JButton("Point Target");
+    this.buttonPoint.setBounds(400, 325, 160, 50);
+    this.buttonPoint.setBackground(Color.orange);
+    this.add(buttonPoint);
+
+
     labelTimer = new JLabel("");
-    labelTimer.setBounds(250, 350, 250, 30);
+    labelTimer.setBounds(950, 30, 250, 30);
     this.add(labelTimer);
     this.timer.start();
+
+
+    labelTargetRa = new JLabel("");
+    labelTargetRa.setBounds(150, 375, 300, 30);
+    this.add(labelTargetRa);
+    this.timerTargetRa.start();
+
+    labelTargetDec = new JLabel("");
+    labelTargetDec.setBounds(150, 395, 300, 30);
+    this.add(labelTargetDec);
+    this.timerTargetDec.start();
+
+
+
+
+
+
 
 
 
@@ -287,6 +333,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     
     this.actionTarget = action -> tcs.SetTarget(targetString);
 
+    this.actionConnect = action -> tcs.connect();
+
+    this.actionDisconnect = action -> tcs.disconnect();
+
+    this.actionPoint = action -> tcs.CmdStartPointing(true);
 
 
   }
@@ -305,6 +356,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     setSlowSpeed();
     setMediumSpeed();
     setFastSpeed();
+    setButtonConnect();
+    setButtonDisconnect();
+    setButtonPoint();
   
   }
 
@@ -320,6 +374,22 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
         labelTimer.setText("Current Time: " + System.currentTimeMillis());
+    }
+  });
+
+  Timer timerTargetRa = new Timer(1000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Update the JTextField with current time (for example)
+        labelTargetRa.setText("Target RA:    " + format.format(tcs.gettargetRA()) + "     (AZ: "+ format.format(tcs.gettargetAZ())+")");
+    }
+  });
+
+  Timer timerTargetDec = new Timer(1000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Update the JTextField with current time (for example)
+        labelTargetDec.setText("Target DEC:  " + format.format(tcs.gettargetDEC()) + "     (EL: "+ format.format(tcs.gettargetEL())+")");
     }
   });
 
@@ -341,6 +411,15 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
             labelTarget.setText("Target: "+targetString);
             textTarget.setText("");
             actionTarget.actionPerformed(null);
+        }
+        });
+  }
+
+  public void setButtonPoint(){
+    this.buttonPoint.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            actionPoint.actionPerformed(null);
         }
         });
   }
@@ -469,6 +548,23 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.fastButton.addActionListener(actionFastSpeed);
   }
 
+  public void setButtonConnect(){
+    this.buttonConnect.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+          actionConnect.actionPerformed(null);
+      }
+      });
+  }
+
+  public void setButtonDisconnect(){
+    this.buttonDisconnect.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+          actionDisconnect.actionPerformed(null);
+      }
+      });
+  }
 
 
   public void Show(){
