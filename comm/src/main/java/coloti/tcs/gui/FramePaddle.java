@@ -39,6 +39,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JLabel labelTimer;
   JLabel labelTargetRa;
   JLabel labelTargetDec;
+  JLabel labelCurrentPosition;
 
   JTextField textTarget;
   JButton buttonTarget;
@@ -154,6 +155,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     labelTargetDec.setBounds(150, 395, 300, 30);
     this.add(labelTargetDec);
     this.timerTargetDec.start();
+
+    labelCurrentPosition = new JLabel("");
+    labelCurrentPosition.setBounds(150, 440, 300, 30);
+    this.add(labelCurrentPosition);
+    this.timerCurrentPosition.start();
 
 
 
@@ -390,6 +396,14 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
         labelTargetDec.setText("Target DEC:  " + format.format(tcs.gettargetDEC()) + "     (EL: "+ format.format(tcs.gettargetEL())+")");
+    }
+  });
+
+  Timer timerCurrentPosition = new Timer(1000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Update the JTextField with current time (for example)
+        labelCurrentPosition.setText("Current Posizion (AZ,DEC):  " + format.format(tcs.GetAzTelPos()) + " , "+ format.format(tcs.GetElTelPos()));
     }
   });
 
