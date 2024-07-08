@@ -68,7 +68,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     super(parentFrame, "Speed Selector", true);
     parentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-    this.setSize(1000, 500);
+    this.setSize(1200, 700);
     this.setLayout(null);
 
     this.tcs = tcs; //, TCS tcs
@@ -87,67 +87,90 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void appearance(){
 
     this.buttonHomeDome = new JButton("Dome Home");
-    this.buttonHomeDome.setBounds(100, 30, 140, 30);
+    this.buttonHomeDome.setBounds(200, 230, 140, 30);
     this.buttonHomeDome.setBackground(Color.pink);
     this.add(buttonHomeDome);
 
     this.buttonHomeTel = new JButton("Tel Home");
-    this.buttonHomeTel.setBounds(250, 30, 140, 30);
+    this.buttonHomeTel.setBounds(350, 230, 140, 30);
     this.buttonHomeTel.setBackground(Color.pink);
     this.add(buttonHomeTel);
 
+
+
+    this.labelTarget = new JLabel("Target: nothing entered");
+    this.labelTarget.setBounds(250, 320, 250, 30);
+
+    this.buttonTarget = new JButton("Submit Target");
+    
+    this.buttonTarget.setBounds(400, 280, 160, 30);
+    this.textTarget = new JTextField(16);
+    this.textTarget.setBounds(150, 280, 230, 30);
+    this.add(labelTarget);
+    this.add(buttonTarget);
+    this.add(textTarget);
+
+    labelTimer = new JLabel("");
+    labelTimer.setBounds(250, 350, 250, 30);
+    this.add(labelTimer);
+    this.timer.start();
+
+
+
+
+
     this.buttonUP = new JButton("UP");
     //buttonUP.setBounds(200, 100, 100, 100);
-    this.buttonUP.setBounds(700, 100, 100, 100);
+    this.buttonUP.setBounds(900, 300, 100, 100);
     this.add(buttonUP);
 
     this.buttonDOWN = new JButton("DOWN");
     //buttonDOWN.setBounds(200, 300, 100, 100);
-    this.buttonDOWN.setBounds(700, 300, 100, 100);
+    this.buttonDOWN.setBounds(900, 500, 100, 100);
     this.add(buttonDOWN);
 
     this.buttonLEFT = new JButton("LEFT");
     //buttonLEFT.setBounds(100, 200, 100, 100);
-    this.buttonLEFT.setBounds(600, 200, 100, 100);
+    this.buttonLEFT.setBounds(800, 400, 100, 100);
     this.add(buttonLEFT);
 
     this.buttonRIGHT = new JButton("RIGHT");
     //buttonRIGHT.setBounds(300, 200, 100, 100);
-    this.buttonRIGHT.setBounds(800, 200, 100, 100);
+    this.buttonRIGHT.setBounds(1000, 400, 100, 100);
     this.add(buttonRIGHT);
 
     this.buttonSTOP = new JButton("STOP");
     //buttonSTOP.setBounds(380, 400, 80, 30);
-    this.buttonSTOP.setBounds(880, 400, 80, 30);
+    this.buttonSTOP.setBounds(1080, 600, 80, 30);
     this.buttonSTOP.setBackground(Color.RED);
     this.add(buttonSTOP);
 
     this.buttonDomeEAST = new JButton("East");
     //buttonDomeEAST.setBounds(300, 50, 80, 30);
-    this.buttonDomeEAST.setBounds(800, 50, 80, 30);
+    this.buttonDomeEAST.setBounds(1000, 250, 80, 30);
     this.buttonDomeEAST.setBackground(Color.LIGHT_GRAY);
     this.add(buttonDomeEAST);
 
     this.buttonDomeWEST = new JButton("West");
     //buttonDomeWEST.setBounds(390, 50, 80, 30);
-    this.buttonDomeWEST.setBounds(890, 50, 80, 30);
+    this.buttonDomeWEST.setBounds(1090, 250, 80, 30);
     this.buttonDomeWEST.setBackground(Color.LIGHT_GRAY);
     this.add(buttonDomeWEST);
       
     this.l1 = new JLabel("Dome");  
     //l1.setBounds(360, 20, 100, 30);
-    this.l1.setBounds(860, 20, 100, 30);
+    this.l1.setBounds(1060, 220, 100, 30);
     this.add(l1);
 
     this.slowButton = new JRadioButton("Slow");
     //slowButton.setBounds(50, 30, 100, 30);
-    this.slowButton.setBounds(550, 30, 100, 30);
+    this.slowButton.setBounds(800, 130, 100, 30);
     this.mediumButton = new JRadioButton("Medium");
     //mediumButton.setBounds(50, 70, 100, 30);
-    this.mediumButton.setBounds(550, 70, 100, 30);
+    this.mediumButton.setBounds(800, 170, 100, 30);
     this.fastButton = new JRadioButton("Fast");
     //fastButton.setBounds(50, 110, 100, 30);
-    this.fastButton.setBounds(550, 110, 100, 30);
+    this.fastButton.setBounds(800, 210, 100, 30);
 
     // Group the radio buttons
     //ButtonGroup group = new ButtonGroup();
@@ -160,22 +183,6 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.add(fastButton);
 
 
-
-    this.labelTarget = new JLabel("Target: nothing entered");
-    this.labelTarget.setBounds(150, 120, 250, 30);
-
-    this.buttonTarget = new JButton("Submit Target");
-    
-    this.buttonTarget.setBounds(300, 80, 160, 30);
-    this.textTarget = new JTextField(16);
-    this.textTarget.setBounds(50, 80, 230, 30);
-    this.add(labelTarget);
-    this.add(buttonTarget);
-    this.add(textTarget);
-
-    labelTimer = new JLabel("");
-    labelTimer.setBounds(150, 200, 250, 30);
-    this.add(labelTimer);
     
   }
 
