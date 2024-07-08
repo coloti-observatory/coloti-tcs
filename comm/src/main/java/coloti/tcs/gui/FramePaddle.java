@@ -80,6 +80,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
   public void configure(){
     appearance();
+    defineActions();
+    setInteractions();
   }
 
   public void appearance(){
@@ -178,10 +180,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   }
 
 
-
-
-
-  public void setactions(){
+  public void defineActions(){
 
     this.actionMoveUP = action -> {
       print("Going up...");
@@ -198,93 +197,112 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
           print("EL not connected");
       };
 
-      this.actionMoveLEFT = action -> {
-        print("Going left...");
-        if (tcs.xAxisConnection)
-          tcs.CmdAzMoveLeft(true);
-        else
-            print("AZ not connected");
-      };
+    this.actionMoveLEFT = action -> {
+      print("Going left...");
+      if (tcs.xAxisConnection)
+        tcs.CmdAzMoveLeft(true);
+      else
+          print("AZ not connected");
+    };
 
-      this.actionMoveRIGHT = action -> {
-        print("Going right...");
-        if (tcs.xAxisConnection)
-          tcs.CmdAzMoveRight(true);
-        else
-            print("AZ not connected");
-      };
+    this.actionMoveRIGHT = action -> {
+      print("Going right...");
+      if (tcs.xAxisConnection)
+        tcs.CmdAzMoveRight(true);
+      else
+          print("AZ not connected");
+    };
 
-      this.actionstopEL = action -> {
-        if (tcs.yAxisConnection)
-          tcs.CmdStopElMotion(true);
-        print("done.");
-      };
+    this.actionstopEL = action -> {
+      if (tcs.yAxisConnection)
+        tcs.CmdStopElMotion(true);
+      print("done.");
+    };
 
-      this.actionstopAZ = action -> {
-        if (tcs.xAxisConnection)
-              tcs.CmdStopAzMotion(true);
-            print("done.");
-      };
+    this.actionstopAZ = action -> {
+      if (tcs.xAxisConnection)
+            tcs.CmdStopAzMotion(true);
+          print("done.");
+    };
 
-      this.actionSTOP = action -> {
-        print("Stop movements...");
-        tcs.CmdEmergencyStop(true);
-      };
+    this.actionSTOP = action -> {
+      print("Stop movements...");
+      tcs.CmdEmergencyStop(true);
+    };
 
-      this.actionSlowSpeed = action -> {
-        print("Set slow speed");
-        tcs.SetAbsJogVelocity(60);
-      };
+    this.actionSlowSpeed = action -> {
+      print("Set slow speed");
+      tcs.SetAbsJogVelocity(60);
+    };
 
-      this.actionMediumSpeed = action -> {
-        print("Set medium speed");
-        tcs.SetAbsJogVelocity(150);
-      };
+    this.actionMediumSpeed = action -> {
+      print("Set medium speed");
+      tcs.SetAbsJogVelocity(150);
+    };
 
-      this.actionFastSpeed = action -> {
-        print("Set fast speed");
-        tcs.SetAbsJogVelocity(180);
-      };
+    this.actionFastSpeed = action -> {
+      print("Set fast speed");
+      tcs.SetAbsJogVelocity(180);
+    };
 
-      this.actionDomeEAST = action -> {
-        print("Dome going east...");
-        if (tcs.domeAxisConnection)
-          tcs.CmdCupolaEst(true);
-        else
-            print("DOME not connected");
-      };
+    this.actionDomeEAST = action -> {
+      print("Dome going east...");
+      if (tcs.domeAxisConnection)
+        tcs.CmdCupolaEst(true);
+      else
+          print("DOME not connected");
+    };
 
-      this.actionDomeEAST = action -> {
-        print("Dome going west...");
-        if (tcs.domeAxisConnection)
-          tcs.CmdCupolaOvest(true);
-        else
-            print("DOME not connected");
-      };
+    this.actionDomeEAST = action -> {
+      print("Dome going west...");
+      if (tcs.domeAxisConnection)
+        tcs.CmdCupolaOvest(true);
+      else
+          print("DOME not connected");
+    };
 
-      this.actionDomeStop = action -> {
-        if (tcs.domeAxisConnection)
-          tcs.CmdStopCupola(true);
-        print("done.");
-      };
-      
-      this.actionHomeDome = action -> {
-        tcs.CmdHomeCupola(true);
-        print("Dome home position procedure...");
+    this.actionDomeStop = action -> {
+      if (tcs.domeAxisConnection)
+        tcs.CmdStopCupola(true);
+      print("done.");
+    };
+    
+    this.actionHomeDome = action -> {
+      tcs.CmdHomeCupola(true);
+      print("Dome home position procedure...");
 
-      };
-      
-      this.actionHomeTel = action -> {
-        tcs.CmdHomeTel(true);
-        print("Telescope home position procedure...");
-      };
-      
-      this.actionTarget = action -> tcs.SetTarget(targetString);
+    };
+    
+    this.actionHomeTel = action -> {
+      tcs.CmdHomeTel(true);
+      print("Telescope home position procedure...");
+    };
+    
+    this.actionTarget = action -> tcs.SetTarget(targetString);
 
 
-      
 
   }
+
+  public void setInteractions(){
+    setButtonTarget();
+    setButtonHomeDome();
+    setButtonHomeTel();
+    setButtonUP();
+    setButtonDOWN();
+    setButtonLEFT();
+    setButtonRIGHT();
+    setButtonSTOP();
+    setButtonDomeEAST();
+    setButtonDomeWEST();
+    setSlowSpeed();
+    setMediumSpeed();
+    setFastSpeed();
+  
+  }
+
+
+
 
   //public void SetTimer(ActionListener action){
   //  this.timerUP = new 
@@ -298,21 +316,21 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     }
   });
 
-
-
   public void print(String string){
     System.out.println(string);
   }
 
-  public void settingTarget(String string){
+  public void writeTarget(String string){
     this.targetString = string;
   }
 
-  public void SetButtonTarget(){
+
+
+  public void setButtonTarget(){
     this.buttonTarget.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
-            settingTarget(textTarget.getText());
+            writeTarget(textTarget.getText());
             labelTarget.setText("Target: "+targetString);
             textTarget.setText("");
             actionTarget.actionPerformed(null);
@@ -320,9 +338,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
-
-
-  public void SetButtonHome(){
+  public void setButtonHomeDome(){
     this.buttonHomeDome.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -331,7 +347,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
-  public void SetButtonHomeTel(){
+  public void setButtonHomeTel(){
     this.buttonHomeTel.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -340,8 +356,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
-
-  public void SetButtonUP(){
+  public void setButtonUP(){
     
     this.buttonUP.addMouseListener(new MouseAdapter() {
         @Override
@@ -356,7 +371,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
-  public void SetButtonDOWN(){
+  public void setButtonDOWN(){
     this.buttonDOWN.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -370,7 +385,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
-  public void SetButtonLEFT(){
+  public void setButtonLEFT(){
     this.buttonLEFT.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -384,7 +399,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
-  public void SetButtonRIGHT(){
+  public void setButtonRIGHT(){
     this.buttonRIGHT.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -398,8 +413,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
-
-  public void SetButtonSTOP(){
+  public void setButtonSTOP(){
     this.buttonSTOP.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -408,7 +422,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
-  public void SetButtonDomeEAST(){
+  public void setButtonDomeEAST(){
     this.buttonDomeEAST.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -422,7 +436,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
   
-  public void SetButtonDomeWEST(){
+  public void setButtonDomeWEST(){
     this.buttonDomeWEST.addMouseListener(new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -436,17 +450,19 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
-  public void SetSlowSpeed(){
+  public void setSlowSpeed(){
     this.slowButton.addActionListener(actionSlowSpeed);
   }
 
-  public void SetMediumSpeed(){
+  public void setMediumSpeed(){
     this.mediumButton.addActionListener(actionMediumSpeed);
   }
 
-  public void SetFastSpeed(){
+  public void setFastSpeed(){
     this.fastButton.addActionListener(actionFastSpeed);
   }
+
+
 
   public void Show(){
     this.setVisible(true);
