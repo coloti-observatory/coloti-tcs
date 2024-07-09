@@ -438,6 +438,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     setButtonConnect();
     setButtonDisconnect();
     setButtonPoint();
+    setButtonVelocity();
   
   }
 
@@ -503,7 +504,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   }
 
   public void writeVelocity(double value){
-    this.commandedVelocity = (double) value;
+    this.commandedVelocity = value;
   }
 
 
@@ -511,7 +512,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void setButtonTarget(){
     this.buttonTarget.addMouseListener(new MouseAdapter() {
         @Override
-        public void mousePressed(MouseEvent e) {
+        public void mouseReleased(MouseEvent e) {
             writeTarget(textTarget.getText());
             labelTarget.setText("Target: "+targetString);
             textTarget.setText("");
@@ -523,7 +524,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void setButtonVelocity(){
     this.buttonSetVel.addMouseListener(new MouseAdapter() {
         @Override
-        public void mousePressed(MouseEvent e) {
+        public void mouseReleased(MouseEvent e) {
             writeVelocity(Double.parseDouble(textSetVel.getText()));
             actionVelocity.actionPerformed(null);
         }
@@ -533,7 +534,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void setButtonPoint(){
     this.buttonPoint.addMouseListener(new MouseAdapter() {
         @Override
-        public void mousePressed(MouseEvent e) {
+        public void mouseReleased(MouseEvent e) {
             actionPoint.actionPerformed(null);
         }
         });
@@ -542,7 +543,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void setButtonHomeDome(){
     this.buttonHomeDome.addMouseListener(new MouseAdapter() {
         @Override
-        public void mousePressed(MouseEvent e) {
+        public void mouseReleased(MouseEvent e) {
             actionHomeDome.actionPerformed(null);
         }
         });
@@ -551,7 +552,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void setButtonHomeTel(){
     this.buttonHomeTel.addMouseListener(new MouseAdapter() {
         @Override
-        public void mousePressed(MouseEvent e) {
+        public void mouseReleased(MouseEvent e) {
             actionHomeTel.actionPerformed(null);
         }
         });
@@ -674,7 +675,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void setButtonConnect(){
     this.buttonConnect.addMouseListener(new MouseAdapter() {
       @Override
-      public void mousePressed(MouseEvent e) {
+      public void mouseReleased(MouseEvent e) {
           actionConnect.actionPerformed(null);
       }
       });
@@ -683,7 +684,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void setButtonDisconnect(){
     this.buttonDisconnect.addMouseListener(new MouseAdapter() {
       @Override
-      public void mousePressed(MouseEvent e) {
+      public void mouseReleased(MouseEvent e) {
           actionDisconnect.actionPerformed(null);
       }
       });

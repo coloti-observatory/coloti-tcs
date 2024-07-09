@@ -634,7 +634,7 @@ public class ACS {
   }
 
   public int SetMotorOn(String ax){ // VERIFICATO 
-    if (true) {
+    if (GetMotorStatus(ax) != 1) {
       byte[] command = sbld("S%sMO", ax);
       int ErroreCode = CommandSet(command, 1);
       if (ErroreCode == -1) {
