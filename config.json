@@ -6,13 +6,13 @@
 "TipoControlloreAssi":1,
 "NumeroAssi":3,
 "NumeroControllori":3,
-"ConnessioneAz":true,
+"ConnessioneAz":false,
 "ConnessioneEl":false,
-"ConnessioneDome":true,
+"ConnessioneDome":false,
 "ConnessioneMeteo":false,
-"IdSerialAz":"/dev/ttyUSB0",
+"IdSerialAz":"",
 "IdSerialEl":"",
-"IdSerialDome":"/dev/ttyUSB1",
+"IdSerialDome":"",
 "IdSerialWeather":""
 },
 "OSSERVATORIO":{

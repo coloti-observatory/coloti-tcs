@@ -315,7 +315,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.actionDomeEAST = action -> {
       print("Dome going west...");
       if (tcs.domeAxisConnection)
-        tcs.CmdCupolaOvest(true);
+        tcs.CmdCupolaEst(true);
       else
           print("DOME not connected");
     };

@@ -919,8 +919,8 @@ public class TCS {
         return TEL.HomeTelInfo;
     }
 
-    // ultimo errore o numero totale di errori? Se lo metto come stringa posso avere entrambi
     public int GetErrorNumber(){ // adesso tiene il numero totale di errori ottenuti
+        // ultimo errore o numero totale di errori? Se lo metto come stringa posso avere entrambi
         this.GEN.ErrorNumber = nErrors;
         return GEN.ErrorNumber;
     }
@@ -929,29 +929,25 @@ public class TCS {
         this.GEN.ErrorBuffer = "{"+errorText+"}";
         return GEN.ErrorBuffer;
     }
-    // serve? Qual è il massimo?
-    public boolean GetErrorBufferOutOfRange(){
+    
+    public boolean GetErrorBufferOutOfRange(){ // serve? Qual è il massimo?
         return GEN.ErrorBufferOutOfRange;
     }
-    // serve saperlo?
-    public int GetErrorBufferSize(){
+    
+    public int GetErrorBufferSize(){ // serve saperlo?
         return GEN.ErrorBufferSize;
     }
-    // come lo faccio?
-    public int GetHeartBeat(){
+    
+    public int GetHeartBeat(){ // come lo faccio?
         return GEN.HeartBeat;
     }
+
+
+
+
+
     
-
-
-    
-    
-
-
     //#region SET
-
-
-    // SETTERS
 
     public void SetMotionType(final int value){ // 0 slew, 1 jog
         if (xAxisConnection){
