@@ -16,7 +16,7 @@ import astri.astron.Target;
 import coloti.tcs.TCS;
 
 public class FramePaddle extends JDialog{ //  implements KeyListener  implements ButtonModel    JFrame
-  DecimalFormat format = new DecimalFormat("#.##");
+  DecimalFormat format = new DecimalFormat("#.###");
   //Timer timerUP, timerDOWN, timerLEFT, timerRIGHT;
   JButton buttonHomeDome;
   JButton buttonHomeTel;
@@ -35,17 +35,26 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JRadioButton slowButton;
   JRadioButton mediumButton;
   JRadioButton fastButton;
+  
+  JRadioButton slewButton;
+  JRadioButton jogButton;
 
   JLabel labelTimer;
+  JLabel labelVelocity;
+  JLabel labelVelocity2;
   JLabel labelTargetRa;
   JLabel labelTargetDec;
   JLabel labelCurrentPosition;
 
   JTextField textTarget;
+  JTextField textSetVel;
+  JButton buttonSetVel;
   JButton buttonTarget;
   JButton buttonPoint;
   JLabel labelTarget;
   JPanel panelTarget;
+
+  JLabel labelVelDescr;
  
   TCS tcs;
 
@@ -62,6 +71,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionSlowSpeed;
   ActionListener actionMediumSpeed;
   ActionListener actionFastSpeed;
+  ActionListener actionJogMode;
+  ActionListener actionSlewMode;
   ActionListener actionDomeEAST;
   ActionListener actionDomeWEST;
   ActionListener actionDomeStop;
@@ -140,11 +151,34 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.add(buttonPoint);
 
 
+
+    this.labelVelDescr = new JLabel("velocity (arcs/s)");
+    this.labelVelDescr.setBounds(900, 150, 150, 30);
+    this.add(labelVelDescr);
+    
+    this.buttonSetVel = new JButton("Set Velocity");
+    this.buttonSetVel.setBounds(900, 220, 150, 30);
+    this.add(buttonSetVel);
+
+    this.textSetVel = new JTextField(16);
+    this.textSetVel.setBounds(900, 180, 150, 30);    
+    this.add(textSetVel);
+
+
     labelTimer = new JLabel("");
     labelTimer.setBounds(950, 30, 250, 30);
     this.add(labelTimer);
     this.timer.start();
 
+    labelVelocity = new JLabel("");
+    labelVelocity.setBounds(750, 70, 400, 30);
+    this.add(labelVelocity);
+    this.timerVelocity.start();
+
+    labelVelocity2 = new JLabel("");
+    labelVelocity2.setBounds(750, 110, 400, 30);
+    this.add(labelVelocity2);
+    this.timerVelocity2.start();
 
     labelTargetRa = new JLabel("");
     labelTargetRa.setBounds(150, 375, 300, 30);
@@ -199,40 +233,59 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.buttonDomeEAST = new JButton("East");
     //buttonDomeEAST.setBounds(300, 50, 80, 30);
-    this.buttonDomeEAST.setBounds(1000, 250, 80, 30);
+    //this.buttonDomeEAST.setBounds(1000, 250, 80, 30);
+    this.buttonDomeEAST.setBounds(630, 320, 80, 30);
     this.buttonDomeEAST.setBackground(Color.LIGHT_GRAY);
     this.add(buttonDomeEAST);
 
     this.buttonDomeWEST = new JButton("West");
     //buttonDomeWEST.setBounds(390, 50, 80, 30);
-    this.buttonDomeWEST.setBounds(1090, 250, 80, 30);
+    //this.buttonDomeWEST.setBounds(1090, 250, 80, 30);
+    this.buttonDomeWEST.setBounds(720, 320, 80, 30);
     this.buttonDomeWEST.setBackground(Color.LIGHT_GRAY);
     this.add(buttonDomeWEST);
       
     this.l1 = new JLabel("Dome");  
     //l1.setBounds(360, 20, 100, 30);
-    this.l1.setBounds(1060, 220, 100, 30);
+    //this.l1.setBounds(1060, 220, 100, 30);
+    this.l1.setBounds(690, 290, 100, 30);
     this.add(l1);
 
     this.slowButton = new JRadioButton("Slow");
     //slowButton.setBounds(50, 30, 100, 30);
-    this.slowButton.setBounds(800, 130, 100, 30);
+    this.slowButton.setBounds(750, 150, 100, 30);
     this.mediumButton = new JRadioButton("Medium");
     //mediumButton.setBounds(50, 70, 100, 30);
-    this.mediumButton.setBounds(800, 170, 100, 30);
+    this.mediumButton.setBounds(750, 190, 100, 30);
     this.fastButton = new JRadioButton("Fast");
     //fastButton.setBounds(50, 110, 100, 30);
-    this.fastButton.setBounds(800, 210, 100, 30);
+    this.fastButton.setBounds(750, 230, 100, 30);
 
     // Group the radio buttons
-    //ButtonGroup group = new ButtonGroup();
-    //group.add(slowButton);
-    //group.add(mediumButton);
-    //group.add(fastButton);
+    ButtonGroup group = new ButtonGroup();
+    group.add(slowButton);
+    group.add(mediumButton);
+    group.add(fastButton);
+
 
     this.add(slowButton);
     this.add(mediumButton);
     this.add(fastButton);
+
+
+
+
+    this.slewButton = new JRadioButton("Slewing mode");
+    this.slewButton.setBounds(180, 100, 150, 30);
+    this.jogButton = new JRadioButton("Jogging mode");
+    this.jogButton.setBounds(350, 100, 150, 30);
+    // Group the radio buttons
+    ButtonGroup group2 = new ButtonGroup();
+    group2.add(slewButton);
+    group2.add(jogButton);
+
+    this.add(slewButton);
+    this.add(jogButton);
 
 
     
@@ -304,6 +357,16 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       tcs.SetAbsJogVelocity(180);
     };
 
+    this.actionJogMode = action -> {
+      print("Set jogging mode");
+      tcs.SetTrackingMode();
+    };
+
+    this.actionSlewMode = action -> {
+      print("Set slewing mode");
+      tcs.SetPointingMode();
+    };
+
     this.actionDomeEAST = action -> {
       print("Dome going east...");
       if (tcs.domeAxisConnection)
@@ -370,6 +433,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     setSlowSpeed();
     setMediumSpeed();
     setFastSpeed();
+    setJogMode();
+    setSlewMode();
     setButtonConnect();
     setButtonDisconnect();
     setButtonPoint();
@@ -388,6 +453,20 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
         labelTimer.setText("Current Time: " + System.currentTimeMillis());
+    }
+  });
+
+  Timer timerVelocity = new Timer(1000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        labelVelocity.setText("AZ vel. - commanded: " + format.format(tcs.GetAzCommandedVel()) + " ,  current: "+ format.format(tcs.GetAzActVel()) );
+    }
+  });
+
+  Timer timerVelocity2 = new Timer(1000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        labelVelocity2.setText("EL vel. - commanded: " + format.format(tcs.GetElCommandedVel()) + " ,  current: "+ format.format(tcs.GetElActVel()) );
     }
   });
 
@@ -568,6 +647,14 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
   public void setFastSpeed(){
     this.fastButton.addActionListener(actionFastSpeed);
+  }
+
+  public void setJogMode(){
+    this.jogButton.addActionListener(actionJogMode);
+  }
+
+  public void setSlewMode(){
+    this.slewButton.addActionListener(actionSlewMode);
   }
 
   public void setButtonConnect(){

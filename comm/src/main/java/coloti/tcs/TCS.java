@@ -213,7 +213,8 @@ public class TCS {
             final double gearratioX = (double) TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
             this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX);
             this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima*3600, -MotAZ.VelocitaMassima*3600);
-            this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup*3600, MotAZ.PosizioneLimiteInf*3600);            
+            this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup*3600, MotAZ.PosizioneLimiteInf*3600);   
+            AsseX.SetMotorOn(X);         
         }
 
         // ELEVATION
@@ -231,6 +232,7 @@ public class TCS {
             this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
             this.AsseY.SetMaxMinVel(X, MotEL.VelocitaMassima*3600, -MotEL.VelocitaMassima*3600);
             this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup*3600, MotEL.PosizioneLimiteInf*3600);
+            AsseY.SetMotorOn(X);
         }
         
         // DOME
@@ -806,23 +808,7 @@ public class TCS {
     public String GetAzEnableMotorsInfo(){
         return TEL.EnableAzMotorsInfo;
     }
-    /*
-     * if (xAxisConnection){
-            AsseX.IsMoving(X);
-            
-            final BitSet bitsMState = BitSet.valueOf(new byte[]{AsseX.Tell0.T0MotorStateX});
-            String controlInfo = "";
-            if (bitsMState.get(3))
-                    controlInfo = "FALSE";
-            else
-                controlInfo = "";
-
-            this.MotAZ.EnableMotorsInfo = controlInfo;
-            
-            final String INFO = "commandname: CommandEnableDriveAzimuth; busy: FALSE; tstart: 1970-01-01-00:00:00.000; tstop: 1970-01-01-00:00:00.000; error: ";
-        }
-     */
-
+    
     public String GetAzDisableMotorsInfo(){
         return TEL.DisableAzMotorsInfo;
     }
@@ -924,7 +910,7 @@ public class TCS {
         this.GEN.ErrorNumber = nErrors;
         return GEN.ErrorNumber;
     }
-    
+
     public String GetErrorBuffer(){ // adesso tiene solo l'ultimo errore
         this.GEN.ErrorBuffer = "{"+errorText+"}";
         return GEN.ErrorBuffer;
@@ -933,7 +919,7 @@ public class TCS {
     public boolean GetErrorBufferOutOfRange(){ // serve? Qual è il massimo?
         return GEN.ErrorBufferOutOfRange;
     }
-    
+
     public int GetErrorBufferSize(){ // serve saperlo?
         return GEN.ErrorBufferSize;
     }
@@ -975,6 +961,7 @@ public class TCS {
 
     public void SetTrackingMode(){
         SetMotionType(1);
+
     }
 
     public void SetPointingMode(){
@@ -1307,12 +1294,8 @@ public class TCS {
     public void SetTargetEl(final double value){
         this.TEL.TargetEL = value;
     }
-
-
-
-
+    
     // PARKING
-
     public void SetAzParkingPosition(final double value){
         this.MotAZ.ParkPos = value;
     }
@@ -1325,21 +1308,8 @@ public class TCS {
         this.CUP.ParkPos = value;
     }
     
+    //#region CMD 
 
-    
-
-
-
-
-    //#region CMD
-
-
-
-    // COMANDI OPCUA  
-    
-    // commandname: CommandGoLoaded; busy: FALSE; tstart: 1970-01-01-00:00:00.000; tstop: 1970-01-01-00:00:00.000; error:
-
-    
     public void CmdGoLoaded(final boolean value){ // OK 
         if (value){
             try {
@@ -1603,6 +1573,8 @@ public class TCS {
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
+
+
             //setFieldCmd(this.TEL, "AzMoveLeftInfo", "FALSE", 0L, 0L, "")
         }
     }
@@ -3021,7 +2993,7 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(2000);
+                Sleep(200);
                 AsseY.IsMoving(X);
                 if (!AsseY.isMoving)
                     isInterrupted = false;
@@ -3080,7 +3052,7 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(2000);
+                Sleep(200);
                 AsseY.IsMoving(X);
                 if (!AsseY.isMoving)
                     isInterrupted = false;
@@ -3140,7 +3112,7 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(2000);
+                Sleep(200);
                 AsseX.IsMoving(X);
                 if (!AsseX.isMoving)
                     isInterrupted = false;
@@ -3200,7 +3172,7 @@ public class TCS {
             while(isInterrupted){
                 if(listener!=null)
                     listener.onWorking(null);
-                Sleep(2000);
+                Sleep(200);
                 AsseX.IsMoving(X);
                 if (!AsseX.isMoving)
                     isInterrupted = false;
