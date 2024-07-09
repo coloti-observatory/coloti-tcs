@@ -452,29 +452,29 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   //  this.timerUP = new 
   // }
 
-  Timer timer = new Timer(1000, new ActionListener() {
+  Timer timer = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
-        labelTimer.setText("Current Time: " + System.currentTimeMillis());
+        labelTimer.setText("Current Time: ");// + System.currentTimeMillis());
     }
   });
 
-  Timer timerVelocity = new Timer(1000, new ActionListener() {
+  Timer timerVelocity = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
         labelVelocity.setText("AZ vel. - commanded: " + format.format(tcs.GetAzCommandedVel()) + " ,  current: "+ format.format(tcs.GetAzActVel()) );
     }
   });
 
-  Timer timerVelocity2 = new Timer(1000, new ActionListener() {
+  Timer timerVelocity2 = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
         labelVelocity2.setText("EL vel. - commanded: " + format.format(tcs.GetElCommandedVel()) + " ,  current: "+ format.format(tcs.GetElActVel()) );
     }
   });
 
-  Timer timerTargetRa = new Timer(1000, new ActionListener() {
+  Timer timerTargetRa = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
@@ -482,7 +482,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     }
   });
 
-  Timer timerTargetDec = new Timer(1000, new ActionListener() {
+  Timer timerTargetDec = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
@@ -490,7 +490,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     }
   });
 
-  Timer timerCurrentPosition = new Timer(1000, new ActionListener() {
+  Timer timerCurrentPosition = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)

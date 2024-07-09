@@ -57,8 +57,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.*;
 import javax.swing.*;
 
-
-
 /*
 import java.util.concurrent.CompletableFuture;
 import java.io.UnsupportedEncodingException;
@@ -73,22 +71,22 @@ mport coloti.tcs.ACSv5;
 */
 
 public class TCS {
-    
+
     public ACS AsseX; // public final
     public ACS AsseY;
-    public ACS AsseCupola; //= new ACS("serial ID cupola");
+    public ACS AsseCupola; // = new ACS("serial ID cupola");
     public ACS AsseZ;
     public final WeatherData weatherdata;
-    // Parametri   D = degrees, R = radians, AS = arcseconds, H = hours, S = seconds
+    // Parametri D = degrees, R = radians, AS = arcseconds, H = hours, S = seconds
     double pi = Math.PI;
-    double D2R = pi/180.0;
-    double R2D = 180.0/pi;
-    double AS2R = pi/(180.0*3600.0);
-    double R2AS = (180.0*3600.0)/pi;
-    double H2R = pi/12.0;
-    double R2H = 12.0/pi;
-    double S2R = pi/(12.0*3600.0);
-    double R2S = (12.0*3600.0)/pi;
+    double D2R = pi / 180.0;
+    double R2D = 180.0 / pi;
+    double AS2R = pi / (180.0 * 3600.0);
+    double R2AS = (180.0 * 3600.0) / pi;
+    double H2R = pi / 12.0;
+    double R2H = 12.0 / pi;
+    double S2R = pi / (12.0 * 3600.0);
+    double R2S = (12.0 * 3600.0) / pi;
     double[] CostX = new double[6];
     double[] CostY = new double[6];
     int SetPointX;
@@ -146,21 +144,22 @@ public class TCS {
     public State FAULT = new State(5, "FAULT");
     public Field fieldcmd;
 
-    public TCS(){//boolean connectX, boolean connectY, boolean connectDome, String IDserX, String IDserY, String IDserDome)
+    public TCS() {// boolean connectX, boolean connectY, boolean connectDome, String IDserX,
+                  // String IDserY, String IDserDome)
         Configure();
         this.xAxisConnection = GEN.ConnessioneAz;
         this.yAxisConnection = GEN.ConnessioneEl;
         this.domeAxisConnection = GEN.ConnessioneDome;
         this.weatherConnection = GEN.ConnessioneMeteo;
 
-        //this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection
-        //AsseCupola = new ACS("/dev/ttyUSB0",1)  
-        AsseX = new ACS(GEN.IdSerialAz,1);
-        AsseY = new ACS(GEN.IdSerialEl,1);
-        AsseCupola = new ACS(GEN.IdSerialDome,1);
-        
+        // this.tcsConnection = xAxisConnection & yAxisConnection & domeAxisConnection
+        // AsseCupola = new ACS("/dev/ttyUSB0",1)
+        AsseX = new ACS(GEN.IdSerialAz, 1);
+        AsseY = new ACS(GEN.IdSerialEl, 1);
+        AsseCupola = new ACS(GEN.IdSerialDome, 1);
+
         weatherdata = new WeatherData(GEN.IdSerialWeather);
-        
+
         this.CostX[0] = 1;
         this.CostX[1] = 1;
         this.CostX[2] = 1;
@@ -169,38 +168,38 @@ public class TCS {
         this.CostY[2] = 1;
 
         /*
-        this.xAxisConnection = connectX;
-        this.yAxisConnection = connectY;
-        this.domeAxisConnection = connectDome;
-
-        AsseX = new ACS(IDserX);
-        AsseY = new ACS(IDserY);
-        AsseCupola = new ACS(IDserDome);*/
+         * this.xAxisConnection = connectX;
+         * this.yAxisConnection = connectY;
+         * this.domeAxisConnection = connectDome;
+         * 
+         * AsseX = new ACS(IDserX);
+         * AsseY = new ACS(IDserY);
+         * AsseCupola = new ACS(IDserDome);
+         */
     }
 
-    public void tcsError(final int err, final int IdErr){
+    public void tcsError(final int err, final int IdErr) {
         this.error = -1;
         this.errorBuffer = "none";
         this.TemporaryErr = err;
-        if(err != -1){
+        if (err != -1) {
             this.nErrors += 1;
             // se stringa: inizializzazione come String errorstring = "Least recent call: "
-            //  this.errorstring += IdErr+", ";
+            // this.errorstring += IdErr+", ";
             this.error = IdErr;
             this.errorBuffer = errorMap.get(IdErr);
-            //logger.warn(errorBuffer);
-            this.errorText += "Error "+IdErr+": "+errorBuffer;
+            // logger.warn(errorBuffer);
+            this.errorText += "Error " + IdErr + ": " + errorBuffer;
             if (check(nEncErr, err))
-                this.errorText += ", ("+err+")"+errEncMap.get(err)+";";
+                this.errorText += ", (" + err + ")" + errEncMap.get(err) + ";";
             else
                 this.errorText += ";";
         }
     }
-    
-    public final boolean connect(){
-        print("Prova Connessione");
+
+    public final boolean connect() {
         // AZIMUTH
-        if (xAxisConnection){
+        if (xAxisConnection) {
             this.xAxisConnection = AsseX.SetSimpleStart(0);
             Sleep(500);
             tcsError(AsseX.InitAxes(), 1100);
@@ -210,15 +209,15 @@ public class TCS {
             this.AsseX.MinAbsVel[0] = this.AsseX.MinVel[0] = -MotAZ.RisoluzioneEncoder1;
             this.AsseX.MaxAbsAcc[0] = this.AsseX.MaxAcc[0] = MotAZ.RisoluzioneEncoder1;
 
-            final double gearratioX = (double) TEL.RapportoRiduzioneAZ*MotAZ.RiduzioneMotore;
+            final double gearratioX = (double) TEL.RapportoRiduzioneAZ * MotAZ.RiduzioneMotore;
             this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX);
-            this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima*3600, -MotAZ.VelocitaMassima*3600);
-            this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup*3600, MotAZ.PosizioneLimiteInf*3600);   
-            AsseX.SetMotorOn(X);         
+            this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima * 3600, -MotAZ.VelocitaMassima * 3600);
+            this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup * 3600, MotAZ.PosizioneLimiteInf * 3600);
+            AsseX.SetMotorOn(X);
         }
 
         // ELEVATION
-        if (yAxisConnection){
+        if (yAxisConnection) {
             this.yAxisConnection = AsseY.SetSimpleStart(0);
             Sleep(500);
             tcsError(AsseY.InitAxes(), 1200);
@@ -228,59 +227,57 @@ public class TCS {
             this.AsseY.MinAbsVel[0] = this.AsseY.MinVel[0] = -MotEL.RisoluzioneEncoder1;
             this.AsseY.MaxAbsAcc[0] = this.AsseY.MaxAcc[0] = MotEL.RisoluzioneEncoder1;
 
-            final double gearratioY = (double) TEL.RapportoRiduzioneAL*MotEL.RiduzioneMotore;
+            final double gearratioY = (double) TEL.RapportoRiduzioneAL * MotEL.RiduzioneMotore;
             this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
-            this.AsseY.SetMaxMinVel(X, MotEL.VelocitaMassima*3600, -MotEL.VelocitaMassima*3600);
-            this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup*3600, MotEL.PosizioneLimiteInf*3600);
+            this.AsseY.SetMaxMinVel(X, MotEL.VelocitaMassima * 3600, -MotEL.VelocitaMassima * 3600);
+            this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup * 3600, MotEL.PosizioneLimiteInf * 3600);
             AsseY.SetMotorOn(X);
         }
-        
+
         // DOME
-        if(domeAxisConnection){
+        if (domeAxisConnection) {
             this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
             Sleep(500);
-            //tcsError(AsseCupola.InitAxes(), 1300) ?
+            // tcsError(AsseCupola.InitAxes(), 1300) ?
         }
 
         // WEATHER
-        if(weatherConnection){
+        if (weatherConnection) {
             weatherdata.OpenCommunications();
             Sleep(500);
         }
 
         // machine state
-        if (xAxisConnection || yAxisConnection || domeAxisConnection){
+        if (xAxisConnection || yAxisConnection || domeAxisConnection) {
             initHwStateMachine(OFF);
             TEL.MachineState = mcsStateMachine.getCurrentState().value;
             TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
             return true;
-        }
-        else
+        } else
             return false;
     }
 
     public void disconnect() {
-        print("Prova Disconnessione");
         boolean status = true;
-        if (xAxisConnection){
+        if (xAxisConnection) {
             status = AsseX.CloseComm();
             if (status)
-                tcsError(0,1101);
+                tcsError(0, 1101);
         }
-        if (yAxisConnection){
+        if (yAxisConnection) {
             status = AsseY.CloseComm();
             if (status)
-                tcsError(0,1201);
+                tcsError(0, 1201);
         }
-        if (domeAxisConnection){
+        if (domeAxisConnection) {
             status = AsseCupola.CloseComm();
             if (status)
-                tcsError(0,1301);
+                tcsError(0, 1301);
         }
         taskExecutor.shutdown();
     }
-    
-    public void Configure(){ // CambiaConfig SalvaConfig ReadConfig
+
+    public void Configure() { // CambiaConfig SalvaConfig ReadConfig
         this.CFG = new ConfigurationClass();
         this.GEN = new GENERALE(CFG);
         this.OSS = new OSSERVATORIO(CFG);
@@ -296,11 +293,11 @@ public class TCS {
         // Luna
     }
 
-    public void Sleep(final int millisecondsTime) { 
+    public void Sleep(final int millisecondsTime) {
         try {
-          TimeUnit.MILLISECONDS.sleep(millisecondsTime);
+            TimeUnit.MILLISECONDS.sleep(millisecondsTime);
         } catch (final InterruptedException e) {
-          e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -321,80 +318,84 @@ public class TCS {
         mcsStateMachine = new StateMachine(model);
     }
 
-    public void setFieldCmd(TELESCOPIO tel, String name, String state, long start, long stop, String err){
+    public void setFieldCmd(TELESCOPIO tel, String name, String state, long start, long stop, String err) {
         try {
             fieldcmd = tel.getClass().getDeclaredField(name);
         } catch (NoSuchFieldException | SecurityException e) {
             e.printStackTrace();
         }
-        /*try {
-            fieldcmd.set(tel.getClass(),"commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }*/
+        /*
+         * try {
+         * fieldcmd.set(tel.getClass(),"commandname: "+name+"; busy: "
+         * +state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err);
+         * } catch (IllegalArgumentException | IllegalAccessException e) {
+         * e.printStackTrace();
+         * }
+         */
     }
-
 
     private final TaskExecutor<Void> taskExecutor = new TaskExecutor<>();
 
-    /* 
-    private final TaskListener defaultListener = new TaskListener() {
-        long tStart = 0L;
-        long tStop = 0L;
-        String commandName = "";
-        Field field;
-        public void setField(String name, String state, long start, long stop, String err){
-            try {
-                field = TEL.getClass().getDeclaredField(name);
-                //field = TEL.getClass().getField(name);
-                String fieldstring = "commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "+stop+"; error: "+err;
-                field.set(TEL.getClass(), fieldstring);
-            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) { // | IllegalAccessException
-                e.printStackTrace();
-            }
-        }
+    /*
+     * private final TaskListener defaultListener = new TaskListener() {
+     * long tStart = 0L;
+     * long tStop = 0L;
+     * String commandName = "";
+     * Field field;
+     * public void setField(String name, String state, long start, long stop, String
+     * err){
+     * try {
+     * field = TEL.getClass().getDeclaredField(name);
+     * //field = TEL.getClass().getField(name);
+     * String fieldstring =
+     * "commandname: "+name+"; busy: "+state+"; tstart: "+start+"; tstop: "
+     * +stop+"; error: "+err;
+     * field.set(TEL.getClass(), fieldstring);
+     * } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+     * | IllegalAccessException e) { // | IllegalAccessException
+     * e.printStackTrace();
+     * }
+     * }
+     * 
+     * public void setCommandName(final String commandname){
+     * commandName = commandname;
+     * }
+     * 
+     * @Override
+     * public void onStart(final Object in) {
+     * commandName = String.valueOf(in);
+     * System.out.println("Task Started");
+     * tStart = System.currentTimeMillis();
+     * setField(commandName, "TRUE", tStart, 0L, "");
+     * }
+     * 
+     * @Override
+     * public void onWorking(final Object... v) {
+     * System.out.println("Task Working");
+     * tStop = System.currentTimeMillis();
+     * setField(commandName, "TRUE", tStart, tStop, "none");
+     * }
+     * 
+     * @Override
+     * public void onDone(final Object out) {
+     * System.out.println("Task Done");
+     * tStop = System.currentTimeMillis();
+     * setField(commandName, "FALSE", tStart, tStop, "none");
+     * }
+     * 
+     * @Override
+     * public void onError(final Object output) {
+     * tStop = System.currentTimeMillis();
+     * setField(commandName, "FALSE", tStart, tStop, String.valueOf(output));
+     * }
+     * 
+     * };
+     * //
+     */
 
-        public void setCommandName(final String commandname){
-            commandName = commandname;
-        }
+    // #region Errors
 
-        @Override
-        public void onStart(final Object in) {
-            commandName = String.valueOf(in);
-            System.out.println("Task Started");
-            tStart = System.currentTimeMillis();
-            setField(commandName, "TRUE", tStart, 0L, "");
-        }
-
-        @Override
-        public void onWorking(final Object... v) {
-            System.out.println("Task Working");
-            tStop = System.currentTimeMillis();
-            setField(commandName, "TRUE", tStart, tStop, "none");
-        }
-
-        @Override
-        public void onDone(final Object out) {
-            System.out.println("Task Done");
-            tStop = System.currentTimeMillis();
-            setField(commandName, "FALSE", tStart, tStop, "none");
-        }
-
-        @Override
-        public void onError(final Object output) {
-            tStop = System.currentTimeMillis();
-            setField(commandName, "FALSE", tStart, tStop, String.valueOf(output));
-        }
-
-    };
-    //*/
-
-
-
-
-    //#region Errors
-
-    private Map <Integer, String> errorMap = new HashMap <>() {
+    private Map<Integer, String> errorMap = new HashMap<>() {
         {
             put(1100, "Az axis connection issue during initialization");
             put(1200, "El axis connection issue during initialization");
@@ -452,13 +453,15 @@ public class TCS {
         }
     };
 
-
     // 800 per i Begin Errors, 700 per program, 900 per general
     // 101 settato un modo sbagliato
-    private final int[] nEncErr = new int[]{100,101,102,103,104,701,702,703,704,707,708,740,741,742,743,744,750,751,752,753,754,755,756,757,758,759,760,761,762,763,764,765,766,767,768,769,770,771,772,773,774,775,776,777,778,780,781,782,783,784,785,786,787,788,789,790,791,792,793,794,801,809,810,811,812,814,819,820,821,822,823,824,825,890,891,900,901,903,910,912,915,916,917,919,920,921,922,941,944,990,991};
+    private final int[] nEncErr = new int[] { 100, 101, 102, 103, 104, 701, 702, 703, 704, 707, 708, 740, 741, 742, 743,
+            744, 750, 751, 752, 753, 754, 755, 756, 757, 758, 759, 760, 761, 762, 763, 764, 765, 766, 767, 768, 769,
+            770, 771, 772, 773, 774, 775, 776, 777, 778, 780, 781, 782, 783, 784, 785, 786, 787, 788, 789, 790, 791,
+            792, 793, 794, 801, 809, 810, 811, 812, 814, 819, 820, 821, 822, 823, 824, 825, 890, 891, 900, 901, 903,
+            910, 912, 915, 916, 917, 919, 920, 921, 922, 941, 944, 990, 991 };
 
-    private static boolean check(final int[] arr, final int toCheckValue)
-    {
+    private static boolean check(final int[] arr, final int toCheckValue) {
         for (final int element : arr) {
             if (element == toCheckValue) {
                 return true;
@@ -467,8 +470,7 @@ public class TCS {
         return false;
     }
 
-
-    private Map <Integer, String> errEncMap = new HashMap <>(){
+    private Map<Integer, String> errEncMap = new HashMap<>() {
         {
             put(100, "initialization issue, mode not setted");
             put(101, "initialization issue, wrong mode setted");
@@ -476,13 +478,13 @@ public class TCS {
             put(103, "communication status is false during axes initialization");
             put(104, "relative position overflow");
             put(105, "overflow in input or output request (RIP,ROP,RSI,RIL,SHI,SLO)");
-        
-            put(701 , "rogram finished successfully (message)");
-            put(702 , "utomatic routine finished successfully (message)");
-            put(703 , "rogram is paused by user (message)");
-            put(704 , "rogram is in step mode (message)");
-            put(707 , "rogram was stopped by user. (message)");
-            put(708 , "fter a stop command: The program was not running (operational error)");
+
+            put(701, "rogram finished successfully (message)");
+            put(702, "utomatic routine finished successfully (message)");
+            put(703, "rogram is paused by user (message)");
+            put(704, "rogram is in step mode (message)");
+            put(707, "rogram was stopped by user. (message)");
+            put(708, "fter a stop command: The program was not running (operational error)");
             put(740, "command is not available under host protocol  (edit error)");
             put(741, "command can't be executed while a program is running (edit error)");
             put(742, "illegal range was specified (edit error)");
@@ -568,659 +570,647 @@ public class TCS {
         }
     };
 
-
-
-    
-
-    
-    //#region GET
-
+    // #region GET
 
     // GETTERS
-    
-    public boolean GetAzLsOpCw(){
+
+    public boolean GetAzLsOpCw() {
         return MotAZ.StatusLimitSwitchCW;
     }
 
-    public boolean GetAzLsOpCcw(){
+    public boolean GetAzLsOpCcw() {
         return MotAZ.StatusLimitSwitchCCW;
     }
 
-    public boolean GetElLsOpLow(){
+    public boolean GetElLsOpLow() {
         return MotEL.StatusLimitSwitchLow;
     }
-    
-    public boolean GetElLsOpHigh(){
+
+    public boolean GetElLsOpHigh() {
         return MotEL.StatusLimitSwitchHigh;
     }
 
-    public int GetAzMotorStatus(){
-        if (xAxisConnection){
-            tcsError(AsseX.GetMotorStatus(X),1151);
+    public int GetAzMotorStatus() {
+        if (xAxisConnection) {
+            tcsError(AsseX.GetMotorStatus(X), 1151);
             this.MotAZ.MotorStatus = AsseX.MOTORSTATUS[0];
         }
-        return MotAZ.MotorStatus; // cumulative status of the AZ motors: 0=both disabled; 1=both enabled; 2=degraded state i.e. 1 enabled; 1 in fault; 3=both in fault
+        return MotAZ.MotorStatus; // cumulative status of the AZ motors: 0=both disabled; 1=both enabled;
+                                  // 2=degraded state i.e. 1 enabled; 1 in fault; 3=both in fault
     }
 
-    public int GetElMotorStatus(){
-        if (yAxisConnection){
-            tcsError(AsseY.GetMotorStatus(X),1251);
+    public int GetElMotorStatus() {
+        if (yAxisConnection) {
+            tcsError(AsseY.GetMotorStatus(X), 1251);
             this.MotEL.MotorStatus = AsseY.MOTORSTATUS[0];
         }
         return MotEL.MotorStatus; // status of the EL motor: 0=disabled; 1=enabled; 2=fault
     }
 
-    public double GetAzTelPos(){
-        if (xAxisConnection){
-            tcsError(AsseX.GetMotPos(X),1152);
+    public double GetAzTelPos() {
+        if (xAxisConnection) {
+            tcsError(AsseX.GetMotPos(X), 1152);
             this.MotAZ.TelPos = AsseX.PositionAx[0];
         }
         return MotAZ.TelPos;
     }
 
-    public double GetAzActVel(){
-        if (xAxisConnection){
-            tcsError(AsseX.GetActualMotVel(X),1153);
+    public double GetAzActVel() {
+        if (xAxisConnection) {
+            tcsError(AsseX.GetActualMotVel(X), 1153);
             this.MotAZ.ActualVel = AsseX.ActualVelAx[0];
         }
         return MotAZ.ActualVel;
     }
 
-    public double GetAzActAcc(){
+    public double GetAzActAcc() {
         return MotAZ.ActualAcc;
     }
 
-    public double GetAzCommandedPos(){
-        if (xAxisConnection){
+    public double GetAzCommandedPos() {
+        if (xAxisConnection) {
             tcsError(AsseX.GetAbsTargPos(X), 1154);
             this.TEL.TargetAZ = AsseX.AbsTargPosAx[0];
         }
         return TEL.TargetAZ;
     }
 
-    public double GetAzCommandedVel(){
-        if (xAxisConnection){
-            tcsError(AsseX.GetMotVel(X),1155);
+    public double GetAzCommandedVel() {
+        if (xAxisConnection) {
+            tcsError(AsseX.GetMotVel(X), 1155);
             this.MotAZ.CommandedVel = AsseX.VelAx[0];
         }
         return MotAZ.CommandedVel;
     }
 
-    public double GetAzCommandedAcc(){
-        if (xAxisConnection){
-            tcsError(AsseX.GetMotAcc(X),1156);
+    public double GetAzCommandedAcc() {
+        if (xAxisConnection) {
+            tcsError(AsseX.GetMotAcc(X), 1156);
             this.MotAZ.CommandedAcc = AsseX.AccAx[0];
         }
         return MotAZ.CommandedAcc;
     }
 
-    public double GetCupolaPosition(){
-        
+    public double GetCupolaPosition() {
+
         long valo;
-        if (true){
-            //GetCupolaInfo();
-            if (true){
-                tcsError(AsseCupola.GetMotEncPos(X),1351);
+        if (true) {
+            // GetCupolaInfo();
+            if (true) {
+                tcsError(AsseCupola.GetMotEncPos(X), 1351);
                 valo = AsseCupola.VALUECR;
-                this.CUP.Pos = valo/AsseCupola.CONVFACTOR[0];
-                this.CUP.AZ = CUP.Pos/3600.0;
+                this.CUP.Pos = valo / AsseCupola.CONVFACTOR[0];
+                this.CUP.AZ = CUP.Pos / 3600.0;
                 if (CUP.AZ >= 360.0)
                     this.CUP.AZ -= 360.0;
             }
         }
         return CUP.AZ;
-    } 
+    }
 
-    public double GetElTelPos(){
-        if (yAxisConnection){
-            tcsError(AsseY.GetMotPos(X),1252);
+    public double GetElTelPos() {
+        if (yAxisConnection) {
+            tcsError(AsseY.GetMotPos(X), 1252);
             this.MotEL.TelPos = AsseY.PositionAx[0];
         }
         return MotEL.TelPos;
     }
 
-    public double GetElActVel(){
-        if (yAxisConnection){
-            tcsError(AsseY.GetActualMotVel(X),1253); 
+    public double GetElActVel() {
+        if (yAxisConnection) {
+            tcsError(AsseY.GetActualMotVel(X), 1253);
             this.MotEL.ActualVel = AsseY.ActualVelAx[0];
         }
         return MotEL.ActualVel;
     }
 
-    public double GetElActAcc(){
+    public double GetElActAcc() {
         return MotEL.ActualAcc;
     }
 
-    public double GetElCommandedPos(){
-        if (yAxisConnection){
-            tcsError(AsseY.GetAbsTargPos(X),1254);
+    public double GetElCommandedPos() {
+        if (yAxisConnection) {
+            tcsError(AsseY.GetAbsTargPos(X), 1254);
             this.TEL.TargetAZ = AsseY.AbsTargPosAx[0];
         }
         return TEL.TargetAZ;
     }
-    
-    public double GetElCommandedVel(){
-        if (yAxisConnection){
-            tcsError(AsseY.GetMotVel(X),1255);
+
+    public double GetElCommandedVel() {
+        if (yAxisConnection) {
+            tcsError(AsseY.GetMotVel(X), 1255);
             this.MotEL.ActualVel = AsseY.VelAx[0];
         }
         return MotEL.CommandedVel;
     }
 
-    public double GetElCommandedAcc(){
-        if (yAxisConnection){
-            tcsError(AsseY.GetMotAcc(X),1256);
+    public double GetElCommandedAcc() {
+        if (yAxisConnection) {
+            tcsError(AsseY.GetMotAcc(X), 1256);
             this.MotEL.CommandedAcc = AsseY.AccAx[0];
         }
         return MotEL.CommandedAcc;
     }
 
-    public int GetAzMotionState(){
-        if (xAxisConnection){
+    public int GetAzMotionState() {
+        if (xAxisConnection) {
             int MS = 0;
-            tcsError(AsseX.GetActualMotVel(X),1153);
+            tcsError(AsseX.GetActualMotVel(X), 1153);
             final double ActualVelocity1 = AsseX.ActualVelAx[0];
             Sleep(200);
-            tcsError(AsseX.GetActualMotVel(X),1153);
+            tcsError(AsseX.GetActualMotVel(X), 1153);
             final double ActualVelocity2 = AsseX.ActualVelAx[0];
             final double deltaV = ActualVelocity2 - ActualVelocity1;
-            tcsError(AsseX.GetMotionMode(X),1157);
+            tcsError(AsseX.GetMotionMode(X), 1157);
 
             if (AsseX.MOTIONMODE[0] == 0)
-                MS = 2; //slewing
+                MS = 2; // slewing
             else if (AsseX.MOTIONMODE[0] == 10)
-                MS = 3; // MS = 4   // tracking
+                MS = 3; // MS = 4 // tracking
 
             if (deltaV > 0 && deltaV < 200)
-                MS = 0;  // stopped
+                MS = 0; // stopped
             else if (deltaV < 0)
-                MS = 1;  // stopping
+                MS = 1; // stopping
 
             this.MotAZ.MotionState = MS;
         }
         return MotAZ.MotionState;
     }
 
-    public int GetElMotionState(){
-        if (yAxisConnection){
+    public int GetElMotionState() {
+        if (yAxisConnection) {
             int MS = 0;
-            tcsError(AsseY.GetActualMotVel(X),1253);
+            tcsError(AsseY.GetActualMotVel(X), 1253);
             final double ActualVelocity1 = AsseY.ActualVelAx[0];
             Sleep(200);
-            tcsError(AsseY.GetActualMotVel(X),1253);
+            tcsError(AsseY.GetActualMotVel(X), 1253);
             final double ActualVelocity2 = AsseY.ActualVelAx[0];
             final double deltaV = ActualVelocity2 - ActualVelocity1;
-            tcsError(AsseY.GetMotionMode(X),1257);
+            tcsError(AsseY.GetMotionMode(X), 1257);
 
             if (AsseY.MOTIONMODE[0] == 0)
-                MS = 2; //slewing
+                MS = 2; // slewing
             else if (AsseY.MOTIONMODE[0] == 10)
-                MS = 3; // MS = 4   // tracking
+                MS = 3; // MS = 4 // tracking
 
             if (deltaV > 0 && deltaV < 200)
-                MS = 0;  // stopped
+                MS = 0; // stopped
             else if (deltaV < 0)
-                MS = 1;  // stopping
+                MS = 1; // stopping
 
             this.MotEL.MotionState = MS;
         }
         return MotEL.MotionState;
     }
+
     // da eliminare?
-    public double GetAzEncOffset(){
+    public double GetAzEncOffset() {
         return MotAZ.EncOffset;
     }
+
     // da eliminare?
-    public double GetElEncOffset(){
+    public double GetElEncOffset() {
         return MotEL.EncOffset;
     }
 
-    public int GetMachineState(){
-        return TEL.MachineState;  // 0 off, 1 loaded, 2 standby, 3 online, 4 maintenance, 5 fault
+    public int GetMachineState() {
+        return TEL.MachineState; // 0 off, 1 loaded, 2 standby, 3 online, 4 maintenance, 5 fault
     }
 
-    public int GetMachineStatePhase(){
-        return TEL.MachineStatePhase;  // 0 entering, 1 active, 2 existing, 3 inactive, 4 unknown 
+    public int GetMachineStatePhase() {
+        return TEL.MachineStatePhase; // 0 entering, 1 active, 2 existing, 3 inactive, 4 unknown
     }
 
-    public int GetTCUMode(){
+    public int GetTCUMode() {
         return TEL.TCUMode;
     }
 
-    // INFO 
+    // INFO
 
-    public String GetGoLoadedInfo(){
+    public String GetGoLoadedInfo() {
         return TEL.GoLoadedInfo;
     }
 
-    public String GetGoStandbyInfo(){
+    public String GetGoStandbyInfo() {
         return TEL.GoStandbyInfo;
     }
 
-    public String GetGoOnlineInfo(){
+    public String GetGoOnlineInfo() {
         return TEL.GoOnlineInfo;
     }
 
-    public String GetGoMaintenanceInfo(){
+    public String GetGoMaintenanceInfo() {
         return TEL.GoMaintenanceInfo;
     }
 
-    public String GetAzEnableMotorsInfo(){
+    public String GetAzEnableMotorsInfo() {
         return TEL.EnableAzMotorsInfo;
     }
-    
-    public String GetAzDisableMotorsInfo(){
+
+    public String GetAzDisableMotorsInfo() {
         return TEL.DisableAzMotorsInfo;
     }
 
-    public String GetElEnableMotorsInfo(){
+    public String GetElEnableMotorsInfo() {
         return TEL.EnableElMotorsInfo;
     }
 
-    public String GetElDisableMotorsInfo(){
+    public String GetElDisableMotorsInfo() {
         return TEL.DisableElMotorsInfo;
     }
 
-    public String GetStartMotionInfo(){
+    public String GetStartMotionInfo() {
         return TEL.StartMotionInfo;
     }
 
-    public String GetStartTrackingInfo(){
+    public String GetStartTrackingInfo() {
         return TEL.StartTrackingInfo;
     }
 
-    public String GetStopMotionInfo(){
+    public String GetStopMotionInfo() {
         return TEL.StopMotionInfo;
     }
 
-    public String GetAzStartMotionInfo(){
+    public String GetAzStartMotionInfo() {
         return TEL.StartAzMotionInfo;
     }
-    
-    public String GetAzStopMotionInfo(){
+
+    public String GetAzStopMotionInfo() {
         return TEL.StopAzMotionInfo;
     }
 
-    public String GetElStartMotionInfo(){
+    public String GetElStartMotionInfo() {
         return TEL.StartElMotionInfo;
     }
 
-    public String GetElStopMotionInfo(){
+    public String GetElStopMotionInfo() {
         return TEL.StopElMotionInfo;
     }
 
-    public String GetElMoveUpInfo(){
+    public String GetElMoveUpInfo() {
         return TEL.ElMoveUpInfo;
     }
 
-    public String GetElMoveDownInfo(){
+    public String GetElMoveDownInfo() {
         return TEL.ElMoveUpInfo;
     }
 
-    public String GetAzMoveRightInfo(){
+    public String GetAzMoveRightInfo() {
         return TEL.AzMoveRightInfo;
     }
 
-    public String GetAzMoveLeftInfo(){
+    public String GetAzMoveLeftInfo() {
         return TEL.AzMoveLeftInfo;
     }
 
-    public String GetEmergencyStopInfo(){
+    public String GetEmergencyStopInfo() {
         return TEL.EmergencyStopInfo;
     }
 
-    public String GetHomeDomeInfo(){
+    public String GetHomeDomeInfo() {
         return TEL.HomeDomeInfo;
     }
 
-    public String GetOpenDomeInfo(){
+    public String GetOpenDomeInfo() {
         return TEL.OpenDomeInfo;
     }
 
-    public String GetCloseDomeInfo(){
+    public String GetCloseDomeInfo() {
         return TEL.CloseDomeInfo;
     }
 
-    public String GetStartPointingDomeInfo(){
+    public String GetStartPointingDomeInfo() {
         return TEL.StartPointingInfo;
     }
 
-    public String GetStartParkingDomeInfo(){
+    public String GetStartParkingDomeInfo() {
         return TEL.StartParkingInfo;
     }
-    
-    public String GetStopDomeInfo(){
+
+    public String GetStopDomeInfo() {
         return TEL.StopDomeInfo;
     }
-    
-    public String GetDomeWestInfo(){
+
+    public String GetDomeWestInfo() {
         return TEL.DomeWestInfo;
     }
-    
-    public String GetDomeEastInfo(){
+
+    public String GetDomeEastInfo() {
         return TEL.DomeEastInfo;
     }
-    
-    public String GetHomeTelInfo(){
+
+    public String GetHomeTelInfo() {
         return TEL.HomeTelInfo;
     }
 
-    public int GetErrorNumber(){ // adesso tiene il numero totale di errori ottenuti
-        // ultimo errore o numero totale di errori? Se lo metto come stringa posso avere entrambi
+    public int GetErrorNumber() { // adesso tiene il numero totale di errori ottenuti
+        // ultimo errore o numero totale di errori? Se lo metto come stringa posso avere
+        // entrambi
         this.GEN.ErrorNumber = nErrors;
         return GEN.ErrorNumber;
     }
 
-    public String GetErrorBuffer(){ // adesso tiene solo l'ultimo errore
-        this.GEN.ErrorBuffer = "{"+errorText+"}";
+    public String GetErrorBuffer() { // adesso tiene solo l'ultimo errore
+        this.GEN.ErrorBuffer = "{" + errorText + "}";
         return GEN.ErrorBuffer;
     }
-    
-    public boolean GetErrorBufferOutOfRange(){ // serve? Qual è il massimo?
+
+    public boolean GetErrorBufferOutOfRange() { // serve? Qual è il massimo?
         return GEN.ErrorBufferOutOfRange;
     }
 
-    public int GetErrorBufferSize(){ // serve saperlo?
+    public int GetErrorBufferSize() { // serve saperlo?
         return GEN.ErrorBufferSize;
     }
-    
-    public int GetHeartBeat(){ // come lo faccio?
+
+    public int GetHeartBeat() { // come lo faccio?
         return GEN.HeartBeat;
     }
 
+    // #region SET
 
-
-
-
-    
-    //#region SET
-
-    public void SetMotionType(final int value){ // 0 slew, 1 jog
-        if (xAxisConnection){
-            if (value == 0){
-                tcsError(AsseX.SetSlewMode(X),1165);
-                //tcsError(AsseX.SetMotVel(X, MotAZ.SlewVelocity),1166)
+    public void SetMotionType(final int value) { // 0 slew, 1 jog
+        if (xAxisConnection) {
+            if (value == 0) {
+                tcsError(AsseX.SetSlewMode(X), 1165);
+                // tcsError(AsseX.SetMotVel(X, MotAZ.SlewVelocity),1166)
+                AsseX.GetMotionMode(X);
+                System.out.println(AsseX.MOTIONMODE[0]);
+            } else if (value == 1) {
+                tcsError(AsseX.SetTrackMode(X), 1167);
+                // tcsError(AsseX.SetMotVel(X, MotAZ.JogVelocity),1166)
                 AsseX.GetMotionMode(X);
                 System.out.println(AsseX.MOTIONMODE[0]);
             }
-            else if (value == 1){
-                tcsError(AsseX.SetTrackMode(X),1167);
-                //tcsError(AsseX.SetMotVel(X, MotAZ.JogVelocity),1166)
-                AsseX.GetMotionMode(X);
-                System.out.println(AsseX.MOTIONMODE[0]);
-            }
+            AsseX.SetMotorOn(X);
         }
-        if (yAxisConnection){
-            if (value == 0){
-                tcsError(AsseY.SetSlewMode(X),1265);
-                //tcsError(AsseY.SetMotVel(X, MotEL.SlewVelocity),1266)
+        if (yAxisConnection) {
+            if (value == 0) {
+                tcsError(AsseY.SetSlewMode(X), 1265);
+                // tcsError(AsseY.SetMotVel(X, MotEL.SlewVelocity),1266)
+                AsseY.GetMotionMode(X);
+                System.out.println(AsseY.MOTIONMODE[0]);
+            } else if (value == 1) {
+                tcsError(AsseY.SetTrackMode(X), 1267);
+                // tcsError(AsseY.SetMotVel(X, MotEL.JogVelocity),1266)
                 AsseY.GetMotionMode(X);
                 System.out.println(AsseY.MOTIONMODE[0]);
             }
-            else if (value == 1){
-                tcsError(AsseY.SetTrackMode(X),1267);
-                //tcsError(AsseY.SetMotVel(X, MotEL.JogVelocity),1266)
-                AsseY.GetMotionMode(X);
-                System.out.println(AsseY.MOTIONMODE[0]);
-            }
+            AsseY.SetMotorOn(X);
         }
         this.TEL.MotionType = value;
     }
 
-    public void SetTrackingMode(){
+    public void SetTrackingMode() {
         SetMotionType(1);
     }
 
-    public void SetPointingMode(){
+    public void SetPointingMode() {
         SetMotionType(0);
     }
 
-    public void SetCupolaTargetPosition(final double value){
-        if (domeAxisConnection){
-            tcsError(AsseCupola.SetAbsTargPos(X, value),1360);
-            tcsError(AsseCupola.GetAbsTargPos(X),1351);
+    public void SetCupolaTargetPosition(final double value) {
+        if (domeAxisConnection) {
+            tcsError(AsseCupola.SetAbsTargPos(X, value), 1360);
+            tcsError(AsseCupola.GetAbsTargPos(X), 1351);
             this.CUP.CommandedAZ = AsseCupola.AbsTargPosAx[0];
         }
     }
 
-
-    public void SetAbsJogVelocity(final double value){
+    public void SetAbsJogVelocity(final double value) {
         this.MotAZ.AbsJogVelocity = value;
         this.MotEL.AbsJogVelocity = value;
     }
 
-
-    public void SetAzTelPosition(final double value){ // abs target 
-        if (xAxisConnection){
-            tcsError(AsseX.SetAbsTargPos(X, value),1160);
-            tcsError(AsseX.GetAbsTargPos(X),1154);
+    public void SetAzTelPosition(final double value) { // abs target
+        if (xAxisConnection) {
+            tcsError(AsseX.SetAbsTargPos(X, value), 1160);
+            tcsError(AsseX.GetAbsTargPos(X), 1154);
             this.TEL.TargetAZ = AsseX.AbsTargPosAx[0];
         }
     }
 
-    public void SetAzJogDirection(final int value){
+    public void SetAzJogDirection(final int value) {
         if (value == -1 || value == 1)
             this.MotAZ.JogDirection = value;
     }
 
-    public void SetAzJogVelocity(final double value){
+    public void SetAzJogVelocity(final double value) {
         AsseX.SetMotVel(X, value);
         this.MotAZ.JogVelocity = value;
 
-        /* 
-        boolean live = true;
-        if (live) {
-            AsseX.GetMotionMode(X);
-            if (AsseX.MOTIONMODE[0] == 10){
-                AsseX.SetMotVel(X, value);
-                this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
-            }
-        }
-        else{
-            this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
-        }*/
+        /*
+         * boolean live = true;
+         * if (live) {
+         * AsseX.GetMotionMode(X);
+         * if (AsseX.MOTIONMODE[0] == 10){
+         * AsseX.SetMotVel(X, value);
+         * this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
+         * }
+         * }
+         * else{
+         * this.MotAZ.JogVelocity = value*MotAZ.JogDirection;
+         * }
+         */
     }
 
-
-    public void SetElTelPosition(final double value){ // abs target
-        if (yAxisConnection){
-            tcsError(AsseY.SetAbsTargPos(X, value),1260);
-            tcsError(AsseY.GetAbsTargPos(X),1254);
+    public void SetElTelPosition(final double value) { // abs target
+        if (yAxisConnection) {
+            tcsError(AsseY.SetAbsTargPos(X, value), 1260);
+            tcsError(AsseY.GetAbsTargPos(X), 1254);
             this.TEL.TargetEL = AsseY.AbsTargPosAx[0];
         }
     }
 
-    public void SetElJogDirection(final int value){
+    public void SetElJogDirection(final int value) {
         if (value == -1 || value == 1)
             this.MotEL.JogDirection = value;
     }
 
-    public void SetElJogVelocity(final double value){
+    public void SetElJogVelocity(final double value) {
         AsseY.SetMotVel(X, value);
         this.MotEL.JogVelocity = value;
 
-        /* 
-        boolean live = true;
-        if (live){
-            AsseY.GetMotionMode(X);
-            if (AsseY.MOTIONMODE[0] == 10){
-                AsseY.SetMotVel(X, value);
-                this.MotEL.JogVelocity = value*MotEL.JogDirection;
-            }
-        }
-        else{
-            this.MotEL.JogVelocity = value*MotEL.JogDirection;
-        }*/
+        /*
+         * boolean live = true;
+         * if (live){
+         * AsseY.GetMotionMode(X);
+         * if (AsseY.MOTIONMODE[0] == 10){
+         * AsseY.SetMotVel(X, value);
+         * this.MotEL.JogVelocity = value*MotEL.JogDirection;
+         * }
+         * }
+         * else{
+         * this.MotEL.JogVelocity = value*MotEL.JogDirection;
+         * }
+         */
     }
-    
-    
-    public void SetAzSlewVelocity(final double value){
+
+    public void SetAzSlewVelocity(final double value) {
         boolean live = true;
         int sign = 1;
         if (value < 0)
             sign = -1;
 
-        if (live){
+        if (live) {
             AsseX.GetMotionMode(X);
-            if (AsseX.MOTIONMODE[0] == 0){
-                AsseX.SetMotVel(X, value*sign);
-                this.MotAZ.SlewVelocity = value*sign;
+            if (AsseX.MOTIONMODE[0] == 0) {
+                AsseX.SetMotVel(X, value * sign);
+                this.MotAZ.SlewVelocity = value * sign;
             }
+        } else {
+            this.MotAZ.SlewVelocity = value * sign;
         }
-        else{
-            this.MotAZ.SlewVelocity = value*sign;       
-        } 
     }
 
-    public void SetAzSlewAcceleration(final double value){
-        if (xAxisConnection){
-            tcsError(AsseX.SetMotAcc(X, value),1161);
-            tcsError(AsseX.GetMotAcc(X),1155);
+    public void SetAzSlewAcceleration(final double value) {
+        if (xAxisConnection) {
+            tcsError(AsseX.SetMotAcc(X, value), 1161);
+            tcsError(AsseX.GetMotAcc(X), 1155);
             this.MotAZ.SlewAcceleration = AsseX.AccAx[0];
-        }        
+        }
     }
 
-    public void SetAzSlewDeceleration(final double value){
-        if (xAxisConnection){
-            tcsError(AsseX.SetMotDec(X, value),1162);
-            tcsError(AsseX.GetMotDec(X),1158);
+    public void SetAzSlewDeceleration(final double value) {
+        if (xAxisConnection) {
+            tcsError(AsseX.SetMotDec(X, value), 1162);
+            tcsError(AsseX.GetMotDec(X), 1158);
             this.MotAZ.SlewAcceleration = AsseX.DecAx[0];
         }
     }
 
-
-    public void SetElSlewVelocity(final double value){
+    public void SetElSlewVelocity(final double value) {
         boolean live = true;
         int sign = 1;
         if (value < 0)
             sign = -1;
 
-        if (live){
+        if (live) {
             AsseY.GetMotionMode(X);
-            if (AsseY.MOTIONMODE[0] == 0){
-                AsseY.SetMotVel(X, value*sign);
-                this.MotEL.SlewVelocity = value*sign;
+            if (AsseY.MOTIONMODE[0] == 0) {
+                AsseY.SetMotVel(X, value * sign);
+                this.MotEL.SlewVelocity = value * sign;
             }
-        }
-        else{
-            this.MotEL.SlewVelocity = value*sign;
+        } else {
+            this.MotEL.SlewVelocity = value * sign;
         }
     }
 
-    public void SetElSlewAcceleration(final double value){
-        if (yAxisConnection){
-            tcsError(AsseY.SetMotAcc(X, value),1261);
-            tcsError(AsseY.GetMotAcc(X),1256);
+    public void SetElSlewAcceleration(final double value) {
+        if (yAxisConnection) {
+            tcsError(AsseY.SetMotAcc(X, value), 1261);
+            tcsError(AsseY.GetMotAcc(X), 1256);
             this.MotEL.SlewAcceleration = AsseY.AccAx[0];
         }
     }
 
-    public void SetElSlewDeceleration(final double value){
-        if (yAxisConnection){
-            tcsError(AsseY.SetMotDec(X, value),1262);
-            tcsError(AsseY.GetMotDec(X),1258);
+    public void SetElSlewDeceleration(final double value) {
+        if (yAxisConnection) {
+            tcsError(AsseY.SetMotDec(X, value), 1262);
+            tcsError(AsseY.GetMotDec(X), 1258);
             this.MotEL.SlewAcceleration = AsseY.AccAx[0];
         }
     }
 
     // MAX MIN
 
-    public void SetAzMinAcc(final double value){
-        if (xAxisConnection){
+    public void SetAzMinAcc(final double value) {
+        if (xAxisConnection) {
             AsseX.SetMaxMinAcc(X, MotAZ.MaxAcc, value);
             this.MotAZ.MinAcc = AsseX.MinAcc[0];
         }
     }
 
-    public void SetAzMaxAcc(final double value){
-        if (xAxisConnection){
+    public void SetAzMaxAcc(final double value) {
+        if (xAxisConnection) {
             AsseX.SetMaxMinAcc(X, value, MotAZ.MinAcc);
-            this.MotAZ.MaxAcc = value; //AsseX.MaxAcc[0];
+            this.MotAZ.MaxAcc = value; // AsseX.MaxAcc[0];
         }
-        
+
     }
 
-    public void SetAzMinDec(final double value){ 
+    public void SetAzMinDec(final double value) {
         this.MotAZ.MinDec = value;
     }
 
-    public void SetAzMaxDec(final double value){
+    public void SetAzMaxDec(final double value) {
         this.MotAZ.MaxDec = value;
     }
-    
-    public void SetAzMinVel(final double value){
-        if (xAxisConnection){
+
+    public void SetAzMinVel(final double value) {
+        if (xAxisConnection) {
             AsseX.SetMaxMinVel(X, MotAZ.MaxVel, value);
             this.MotAZ.MinVel = AsseX.MinVel[0];
         }
     }
 
-    public void SetAzMaxVel(final double value){
-        if (xAxisConnection){
+    public void SetAzMaxVel(final double value) {
+        if (xAxisConnection) {
             AsseX.SetMaxMinVel(X, value, MotAZ.MinVel);
-            this.MotAZ.MaxVel = AsseX.MaxVel[0];//AsseX.MaxVel[0];
+            this.MotAZ.MaxVel = AsseX.MaxVel[0];// AsseX.MaxVel[0];
         }
     }
 
-    public void SetAzTelMinPos(final double value){
-        if (xAxisConnection){
+    public void SetAzTelMinPos(final double value) {
+        if (xAxisConnection) {
             AsseX.SetMaxMinPos(X, MotAZ.TelMaxPos, value);
             this.MotAZ.TelMinPos = AsseX.MinPos[0];
         }
     }
 
-    public void SetAzTelMaxPos(final double value){
-        if (xAxisConnection){
+    public void SetAzTelMaxPos(final double value) {
+        if (xAxisConnection) {
             AsseX.SetMaxMinPos(X, value, MotAZ.TelMinPos);
             this.MotAZ.TelMaxPos = AsseX.MaxPos[0];
         }
     }
 
-    public void SetElMinAcc(final double value){
-        if (yAxisConnection){
+    public void SetElMinAcc(final double value) {
+        if (yAxisConnection) {
             AsseY.SetMaxMinAcc(X, MotEL.MaxAcc, value);
             this.MotEL.MinAcc = AsseY.MinAcc[0];
         }
     }
 
-    public void SetElMaxAcc(final double value){
-        if (yAxisConnection){
+    public void SetElMaxAcc(final double value) {
+        if (yAxisConnection) {
             AsseY.SetMaxMinAcc(X, value, MotEL.MinAcc);
             this.MotEL.MaxAcc = AsseY.MaxAcc[0];
         }
     }
 
-    public void SetElMinDec(final double value){
+    public void SetElMinDec(final double value) {
         this.MotEL.MinDec = value;
     }
 
-    public void SetElMaxDec(final double value){
+    public void SetElMaxDec(final double value) {
         this.MotEL.MaxDec = value;
     }
-    
-    public void SetElMinVel(final double value){
-        if (yAxisConnection){
+
+    public void SetElMinVel(final double value) {
+        if (yAxisConnection) {
             AsseY.SetMaxMinVel(X, MotEL.MaxVel, value);
             this.MotEL.MinVel = AsseY.MinVel[0];
         }
     }
 
-    public void SetElMaxVel(final double value){
-        if (yAxisConnection){
+    public void SetElMaxVel(final double value) {
+        if (yAxisConnection) {
             AsseY.SetMaxMinVel(X, value, MotEL.MinVel);
             this.MotEL.MaxVel = AsseY.MaxVel[0];
         }
     }
 
-    public void SetElTelMinPos(final double value){
-        if (yAxisConnection){
+    public void SetElTelMinPos(final double value) {
+        if (yAxisConnection) {
             AsseY.SetMaxMinPos(X, MotEL.TelMaxPos, value);
             this.MotEL.TelMinPos = AsseY.MinPos[0];
         }
     }
 
-    public void SetElTelMaxPos(final double value){
-        if (yAxisConnection){
+    public void SetElTelMaxPos(final double value) {
+        if (yAxisConnection) {
             AsseY.SetMaxMinPos(X, value, MotEL.TelMinPos);
             this.MotEL.TelMaxPos = AsseY.MaxPos[0];
         }
@@ -1228,367 +1218,386 @@ public class TCS {
 
     // OTHERS
 
-    public void SetAzLsOpCwPos(final double value){
+    public void SetAzLsOpCwPos(final double value) {
         this.MotAZ.LsOpCwPos = value;
     }
 
-    public void SetAzLsOpCcwPos(final double value){
+    public void SetAzLsOpCcwPos(final double value) {
         this.MotAZ.LsOpCcwPos = value;
     }
 
-    public void SetElLsOpLowPos(final double value){
+    public void SetElLsOpLowPos(final double value) {
         this.MotEL.LsOpLowPos = value;
     }
 
-    public void SetElLsOpHighPos(final double value){
+    public void SetElLsOpHighPos(final double value) {
         this.MotEL.LsOpHighPos = value;
     }
 
-    public void SetObserverLat(final double value){
-        this.OSS.Latitudine = value; // oppure disaccoppiare: ObserverLat 
+    public void SetObserverLat(final double value) {
+        this.OSS.Latitudine = value; // oppure disaccoppiare: ObserverLat
     }
 
-    public void SetObserverLong(final double value){
+    public void SetObserverLong(final double value) {
         this.OSS.Longitudine = value;
     }
 
-    public void SetObserverAlt(final int value){
+    public void SetObserverAlt(final int value) {
         this.OSS.Altitudine = value;
     }
 
-    public void SetTriggerAngleDome(final int value){
+    public void SetTriggerAngleDome(final int value) {
         this.CUP.TriggerAngleDome = value;
     }
 
     // TARGET
 
-    public void SetTarget(final String value){
-        if (value == ""){
+    public void SetTarget(final String value) {
+        if (value == "") {
             this.TEL.Target = new Target();
-            this.TEL.Target.setRa(TEL.TargetRA2000); //setRa2000 ?
-            this.TEL.Target.setDec(TEL.TargetDEC2000);  //setDec2000 ?
+            this.TEL.Target.setRa(TEL.TargetRA2000); // setRa2000 ?
+            this.TEL.Target.setDec(TEL.TargetDEC2000); // setDec2000 ?
             this.TEL.Target.setEpoch(0);
             Trajectory();
-        }
-        else{
+        } else {
             this.TEL.Target = new Target(value);
             this.TEL.TargetName = value;
-            //this.TEL.Target.setRa(21); //setRa2000 ?
-            //this.TEL.Target.setDec(13);  //setDec2000 ?
+            // this.TEL.Target.setRa(21); //setRa2000 ?
+            // this.TEL.Target.setDec(13); //setDec2000 ?
             this.TEL.TargetRA2000 = TEL.Target.getRa2000(); // getRa2000()
             this.TEL.TargetDEC2000 = TEL.Target.getDec2000(); // getDec2000()
 
             Trajectory();
-            
-            //System.out.println(TEL.TargetRA);
-            //System.out.println(TEL.TargetDEC);
+
+            // System.out.println(TEL.TargetRA);
+            // System.out.println(TEL.TargetDEC);
         }
     }
 
-    public void SetTarget(final double ra, final double dec){
+    public void SetTarget(final double ra, final double dec) {
         this.TEL.Target = new Target();
-        this.TEL.Target.setRa2000(ra); //setRa2000 ?
-        this.TEL.Target.setDec2000(dec);  //setDec2000 ?
+        this.TEL.Target.setRa2000(ra); // setRa2000 ?
+        this.TEL.Target.setDec2000(dec); // setDec2000 ?
         this.TEL.TargetRA2000 = ra; // getRa2000()
         this.TEL.TargetDEC2000 = dec;
         Trajectory();
     }
 
-    public void SetTargetAz(final double value){
+    public void SetTargetAz(final double value) {
         this.TEL.TargetAZ = value;
     }
 
-    public void SetTargetEl(final double value){
+    public void SetTargetEl(final double value) {
         this.TEL.TargetEL = value;
     }
-    
+
     // PARKING
-    public void SetAzParkingPosition(final double value){
+    public void SetAzParkingPosition(final double value) {
         this.MotAZ.ParkPos = value;
     }
 
-    public void SetElParkingPosition(final double value){
+    public void SetElParkingPosition(final double value) {
         this.MotEL.ParkPos = value;
     }
 
-    public void SetCupolaParkingPosition(final double value){
+    public void SetCupolaParkingPosition(final double value) {
         this.CUP.ParkPos = value;
     }
-    
-    //#region CMD 
 
-    public void CmdGoLoaded(final boolean value){ // OK 
-        if (value){
+    // #region CMD
+
+    public void CmdGoLoaded(final boolean value) { // OK
+        if (value) {
             try {
                 goloadedTask.setTaskListener(new DefaultListener(TEL));
-                taskExecutor.runTask(goloadedTask,  new DefaultListener(TEL));
+                taskExecutor.runTask(goloadedTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "GoLoadedInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "GoLoadedInfo", "FALSE", 0L, 0L, "")
             this.TEL.GoLoadedInfo = "commandname: CommandGoLoaded; busy: FALSE; tstart: 0; tstop: 0; error:";
 
-            //initHwStateMachine(LOADED)  
+            // initHwStateMachine(LOADED)
         }
     }
 
-    public void CmdGoStandby(final boolean value){ // OK 
-        if (value){
+    public void CmdGoStandby(final boolean value) { // OK
+        if (value) {
             try {
-                taskExecutor.runTask(gostandbyTask,  new DefaultListener(TEL));
+                taskExecutor.runTask(gostandbyTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "GoStandbyInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "GoStandbyInfo", "FALSE", 0L, 0L, "")
             this.TEL.GoStandbyInfo = "commandname: CommandGoStandby; busy: FALSE; tstart: 0; tstop: 0; error:";
 
-
-            /*long tStart = System.currentTimeMillis();
-            this.TEL.GoStandbyInfo = "commandname: CommandGoStandby; busy: TRUE; tstart: "+tStart+"; tstop: 0; error:";
-            if (getMcsStateMachine().isAcceptable(STANDBY)){
-                getMcsStateMachine().transition(STANDBY);
-                TEL.MachineState = mcsStateMachine.getCurrentState().value;
-                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
-                Sleep(5000);
-                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                this.TEL.GoStandbyInfo = "commandname: CommandGoStandby busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error:";
-            }
-            else{
-                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
-                this.TEL.GoStandbyInfo = "commandname: CommandGoStandby; busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: "+error;
-            }
-            //initHwStateMachine(STANDBY)*/
+            /*
+             * long tStart = System.currentTimeMillis();
+             * this.TEL.GoStandbyInfo =
+             * "commandname: CommandGoStandby; busy: TRUE; tstart: "
+             * +tStart+"; tstop: 0; error:";
+             * if (getMcsStateMachine().isAcceptable(STANDBY)){
+             * getMcsStateMachine().transition(STANDBY);
+             * TEL.MachineState = mcsStateMachine.getCurrentState().value;
+             * TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+             * Sleep(5000);
+             * TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
+             * this.TEL.GoStandbyInfo =
+             * "commandname: CommandGoStandby busy: FALSE; tstart: "+tStart+"; tstop: "
+             * +System.currentTimeMillis()+"; error:";
+             * }
+             * else{
+             * logger.warn("Transition not allowed from this state {}",mcsStateMachine.
+             * getCurrentState().name);
+             * this.TEL.GoStandbyInfo =
+             * "commandname: CommandGoStandby; busy: FALSE; tstart: "+tStart+"; tstop: "
+             * +System.currentTimeMillis()+"; error: "+error;
+             * }
+             * //initHwStateMachine(STANDBY)
+             */
         }
     }
 
-    public void CmdGoOnline(final boolean value){ // OK 
-        if (value){
+    public void CmdGoOnline(final boolean value) { // OK
+        if (value) {
 
             try {
-                taskExecutor.runTask(goonlineTask,  new DefaultListener(TEL));
+                taskExecutor.runTask(goonlineTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "GoOnlineInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "GoOnlineInfo", "FALSE", 0L, 0L, "")
             this.TEL.GoOnlineInfo = "commandname: CommandGoOnline; busy: FALSE; tstart: 0; tstop: 0; error:";
 
             /*
-            long tStart = System.currentTimeMillis();
-            this.TEL.GoOnlineInfo = "commandname: CommandGoOnline; busy: TRUE; tstart: "+tStart+"; tstop: 0; error:";
-            if (getMcsStateMachine().isAcceptable(ONLINE)){
-                getMcsStateMachine().transition(ONLINE);
-                TEL.MachineState = mcsStateMachine.getCurrentState().value;
-                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+             * long tStart = System.currentTimeMillis();
+             * this.TEL.GoOnlineInfo = "commandname: CommandGoOnline; busy: TRUE; tstart: "
+             * +tStart+"; tstop: 0; error:";
+             * if (getMcsStateMachine().isAcceptable(ONLINE)){
+             * getMcsStateMachine().transition(ONLINE);
+             * TEL.MachineState = mcsStateMachine.getCurrentState().value;
+             * TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+             * 
+             * // funzioni da eseguire nella transizione
+             * Sleep(5000);
+             * 
+             * TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
+             * this.TEL.GoOnlineInfo =
+             * "commandname: CommandGoOnline busy: FALSE; tstart: "+tStart+"; tstop: "
+             * +System.currentTimeMillis()+"; error:";
+             * }
+             * else{
+             * logger.warn("Transition not allowed from this state {}",mcsStateMachine.
+             * getCurrentState().name);
+             * this.TEL.GoOnlineInfo =
+             * "commandname: CommandGoOnline; busy: FALSE; tstart: "+tStart+"; tstop: "
+             * +System.currentTimeMillis()+"; error: "+error;
+             * }
+             * //initHwStateMachine(ONLINE)
+             */
 
-                // funzioni da eseguire nella transizione
-                Sleep(5000);
-
-                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                this.TEL.GoOnlineInfo = "commandname: CommandGoOnline busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error:";
-            }
-            else{
-                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
-                this.TEL.GoOnlineInfo = "commandname: CommandGoOnline; busy: FALSE; tstart: "+tStart+"; tstop: "+System.currentTimeMillis()+"; error: "+error;
-            }
-            //initHwStateMachine(ONLINE)*/
-
-            /* 
-            if (getMcsStateMachine().isAcceptable(ONLINE)){
-                getMcsStateMachine().transition(ONLINE);
-                TEL.MachineState = mcsStateMachine.getCurrentState().value;
-                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
-                Sleep(5000);
-                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-            }
-            else{
-                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
-            }
-                //initHwStateMachine(ONLINE)*/
+            /*
+             * if (getMcsStateMachine().isAcceptable(ONLINE)){
+             * getMcsStateMachine().transition(ONLINE);
+             * TEL.MachineState = mcsStateMachine.getCurrentState().value;
+             * TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+             * Sleep(5000);
+             * TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
+             * }
+             * else{
+             * logger.warn("Transition not allowed from this state {}",mcsStateMachine.
+             * getCurrentState().name);
+             * }
+             * //initHwStateMachine(ONLINE)
+             */
         }
     }
 
-    public void CmdGoMaintenance(final boolean value){ // OK 
-        if (value){
-            
+    public void CmdGoMaintenance(final boolean value) { // OK
+        if (value) {
+
             try {
-                taskExecutor.runTask(gomaintenanceTask,  new DefaultListener(TEL));
+                taskExecutor.runTask(gomaintenanceTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "GoMaintenanceInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "GoMaintenanceInfo", "FALSE", 0L, 0L, "")
             this.TEL.GoMaintenanceInfo = "commandname: CommandGoMaintenance; busy: FALSE; tstart: 0; tstop: 0; error:";
 
-            
             /*
-            if (getMcsStateMachine().isAcceptable(MAINTENANCE)){
-                getMcsStateMachine().transition(MAINTENANCE);
-                TEL.MachineState = mcsStateMachine.getCurrentState().value;
-                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
-                Sleep(5000);
-                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-            }
-            else{
-                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
-            }
-            //initHwStateMachine(MAINTENANCE)*/
+             * if (getMcsStateMachine().isAcceptable(MAINTENANCE)){
+             * getMcsStateMachine().transition(MAINTENANCE);
+             * TEL.MachineState = mcsStateMachine.getCurrentState().value;
+             * TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+             * Sleep(5000);
+             * TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
+             * }
+             * else{
+             * logger.warn("Transition not allowed from this state {}",mcsStateMachine.
+             * getCurrentState().name);
+             * }
+             * //initHwStateMachine(MAINTENANCE)
+             */
         }
     }
 
-    
-    public void CmdEnableAzMotors(final boolean value){ // OK 
-        if (value && xAxisConnection){
+    public void CmdEnableAzMotors(final boolean value) { // OK
+        if (value && xAxisConnection) {
             long tStart = System.currentTimeMillis();
-            this.TEL.EnableAzMotorsInfo = "commandname: EnableAzMotors; busy: TRUE; tstart:"+tStart+"; tstop: 0; error:";
-            tcsError(AsseX.SetMotorOn(X),1170);
-            this.TEL.EnableAzMotorsInfo = "commandname: EnableAzMotors; busy: FALSE; tstart:"+tStart+"; tstop:"+System.currentTimeMillis()+"; error:"+errorBuffer;
+            this.TEL.EnableAzMotorsInfo = "commandname: EnableAzMotors; busy: TRUE; tstart:" + tStart
+                    + "; tstop: 0; error:";
+            tcsError(AsseX.SetMotorOn(X), 1170);
+            this.TEL.EnableAzMotorsInfo = "commandname: EnableAzMotors; busy: FALSE; tstart:" + tStart + "; tstop:"
+                    + System.currentTimeMillis() + "; error:" + errorBuffer;
             if (TemporaryErr == -1)
                 this.TEL.EnableAzMotorsInfo = "commandname: EnableAzMotors; busy: FALSE; tstart: 0; tstop: 0; error:";
         }
     }
 
-    public void CmdDisableAzMotors(final boolean value){ // OK 
-        if (value && xAxisConnection){
+    public void CmdDisableAzMotors(final boolean value) { // OK
+        if (value && xAxisConnection) {
             long tStart = System.currentTimeMillis();
-            this.TEL.DisableAzMotorsInfo = "commandname: DisableAzMotors; busy: TRUE; tstart:"+tStart+"; tstop: 0; error:";
-            if (AsseX.IsMoving(X) == 1){
-                tcsError(AsseX.StopMove(X),1171);
+            this.TEL.DisableAzMotorsInfo = "commandname: DisableAzMotors; busy: TRUE; tstart:" + tStart
+                    + "; tstop: 0; error:";
+            if (AsseX.IsMoving(X) == 1) {
+                tcsError(AsseX.StopMove(X), 1171);
             }
-            tcsError(AsseX.SetMotorOff(X),1172);
-            this.TEL.DisableAzMotorsInfo = "commandname: DisableAzMotors; busy: FALSE; tstart:"+tStart+"; tstop:"+System.currentTimeMillis()+"; error:"+errorBuffer;
+            tcsError(AsseX.SetMotorOff(X), 1172);
+            this.TEL.DisableAzMotorsInfo = "commandname: DisableAzMotors; busy: FALSE; tstart:" + tStart + "; tstop:"
+                    + System.currentTimeMillis() + "; error:" + errorBuffer;
             if (TemporaryErr == -1)
                 this.TEL.DisableAzMotorsInfo = "commandname: DisableAzMotors; busy: FALSE; tstart: 0; tstop: 0; error:";
-                
+
         }
     }
 
-    public void CmdEnableElMotors(final boolean value){ // OK 
-        if (value && yAxisConnection){
+    public void CmdEnableElMotors(final boolean value) { // OK
+        if (value && yAxisConnection) {
             long tStart = System.currentTimeMillis();
-            this.TEL.EnableElMotorsInfo = "commandname: EnableElMotors; busy: TRUE; tstart:"+tStart+"; tstop: 0; error:";
-            tcsError(AsseY.SetMotorOn(X),1270);
-            this.TEL.EnableElMotorsInfo = "commandname: EnableElMotors; busy: FALSE; tstart:"+tStart+"; tstop:"+System.currentTimeMillis()+"; error:"+errorBuffer;
+            this.TEL.EnableElMotorsInfo = "commandname: EnableElMotors; busy: TRUE; tstart:" + tStart
+                    + "; tstop: 0; error:";
+            tcsError(AsseY.SetMotorOn(X), 1270);
+            this.TEL.EnableElMotorsInfo = "commandname: EnableElMotors; busy: FALSE; tstart:" + tStart + "; tstop:"
+                    + System.currentTimeMillis() + "; error:" + errorBuffer;
             if (TemporaryErr == -1)
                 this.TEL.EnableElMotorsInfo = "commandname: EnableElMotors; busy: FALSE; tstart: 0; tstop: 0; error:";
         }
     }
 
-    public void CmdDisableElMotors(final boolean value){ // OK 
-        if (value && yAxisConnection){
+    public void CmdDisableElMotors(final boolean value) { // OK
+        if (value && yAxisConnection) {
             long tStart = System.currentTimeMillis();
-            this.TEL.DisableElMotorsInfo = "commandname: DisableElMotors; busy: TRUE; tstart:"+tStart+"; tstop: 0; error:";
-            if (AsseY.IsMoving(X) == 1){
-                tcsError(AsseY.StopMove(X),1271);
+            this.TEL.DisableElMotorsInfo = "commandname: DisableElMotors; busy: TRUE; tstart:" + tStart
+                    + "; tstop: 0; error:";
+            if (AsseY.IsMoving(X) == 1) {
+                tcsError(AsseY.StopMove(X), 1271);
             }
-            tcsError(AsseY.SetMotorOff(X),1272);
-            this.TEL.DisableElMotorsInfo = "commandname: DisableElMotors; busy: FALSE; tstart:"+tStart+"; tstop:"+System.currentTimeMillis()+"; error:"+errorBuffer;
+            tcsError(AsseY.SetMotorOff(X), 1272);
+            this.TEL.DisableElMotorsInfo = "commandname: DisableElMotors; busy: FALSE; tstart:" + tStart + "; tstop:"
+                    + System.currentTimeMillis() + "; error:" + errorBuffer;
             if (TemporaryErr == -1)
                 this.TEL.DisableElMotorsInfo = "commandname: DisableElMotors; busy: FALSE; tstart: 0; tstop: 0; error:";
         }
     }
 
-    // motion (slew) to position 
+    // motion (slew) to position
     /*
-    public void CmdMoveToPosition(final boolean value){ // OK
-        if (value && xAxisConnection && yAxisConnection){
-            try {
-                taskExecutor.runTask(pointingTask, new DefaultListener(TEL));
-            } catch (ExecutionException | TimeoutException e) {
-                logger.error(e.getMessage());
-            }
-            //setFieldCmd(this.TEL, "MoveToPositionInfo", "FALSE", 0L, 0L, "")
-        }
-    }*/
-    
-    public void CmdStopMotion(final boolean value){ // OK 
-        if (value && xAxisConnection && yAxisConnection){
+     * public void CmdMoveToPosition(final boolean value){ // OK
+     * if (value && xAxisConnection && yAxisConnection){
+     * try {
+     * taskExecutor.runTask(pointingTask, new DefaultListener(TEL));
+     * } catch (ExecutionException | TimeoutException e) {
+     * logger.error(e.getMessage());
+     * }
+     * //setFieldCmd(this.TEL, "MoveToPositionInfo", "FALSE", 0L, 0L, "")
+     * }
+     * }
+     */
+
+    public void CmdStopMotion(final boolean value) { // OK
+        if (value && xAxisConnection && yAxisConnection) {
             try {
                 taskExecutor.runTask(stopmotionTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "")
-        }
-        else if(value && xAxisConnection){
+            // setFieldCmd(this.TEL, "StopMotionInfo", "FALSE", 0L, 0L, "")
+        } else if (value && xAxisConnection) {
             CmdStopAzMotion(value);
-        }
-        else if(value && yAxisConnection){
+        } else if (value && yAxisConnection) {
             CmdStopElMotion(value);
         }
     }
 
-    
-    public void CmdStopAzMotion(final boolean value){ // OK 
-        if (value && xAxisConnection){
+    public void CmdStopAzMotion(final boolean value) { // OK
+        if (value && xAxisConnection) {
             try {
                 taskExecutor.runTask(stopAZmotionTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StopAzMotionInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "StopAzMotionInfo", "FALSE", 0L, 0L, "")
         }
     }
-    
-    public void CmdStopElMotion(final boolean value){ // OK 
-        if (value && yAxisConnection){
+
+    public void CmdStopElMotion(final boolean value) { // OK
+        if (value && yAxisConnection) {
             try {
                 taskExecutor.runTask(stopELmotionTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StopElMotionInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "StopElMotionInfo", "FALSE", 0L, 0L, "")
         }
     }
 
-    
-    public void CmdElMoveUp(final boolean value){
-        if (value && yAxisConnection){
+    public void CmdElMoveUp(final boolean value) {
+        if (value && yAxisConnection) {
             try {
                 taskExecutor.runTask(elMoveUpTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "ElMoveUpInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "ElMoveUpInfo", "FALSE", 0L, 0L, "")
         }
     }
 
-    public void CmdElMoveDown(final boolean value){
-        if (value && yAxisConnection){
+    public void CmdElMoveDown(final boolean value) {
+        if (value && yAxisConnection) {
             try {
                 taskExecutor.runTask(elMoveDownTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "ElMoveDownInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "ElMoveDownInfo", "FALSE", 0L, 0L, "")
         }
     }
 
-    public void CmdAzMoveRight(final boolean value){
-        if (value && xAxisConnection){
+    public void CmdAzMoveRight(final boolean value) {
+        if (value && xAxisConnection) {
             try {
                 taskExecutor.runTask(azMoveRightTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "AzMoveRightInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "AzMoveRightInfo", "FALSE", 0L, 0L, "")
         }
     }
 
-    public void CmdAzMoveLeft(final boolean value){
-        if (value && xAxisConnection){
+    public void CmdAzMoveLeft(final boolean value) {
+        if (value && xAxisConnection) {
             try {
                 taskExecutor.runTask(azMoveLeftTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
 
-
-            //setFieldCmd(this.TEL, "AzMoveLeftInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "AzMoveLeftInfo", "FALSE", 0L, 0L, "")
         }
     }
 
-
-    public void CmdEmergencyStop(final boolean value){
-        if (value){
+    public void CmdEmergencyStop(final boolean value) {
+        if (value) {
             EmergencyStop();
 
             Sleep(300);
@@ -1604,253 +1613,248 @@ public class TCS {
 
     // PARKING
 
-    public void CmdStartParking(final boolean value){   
-        if (value){
+    public void CmdStartParking(final boolean value) {
+        if (value) {
             CmdStartAzParking(value);
             CmdStartElParking(value);
             CmdStartCupolaParking(value);
         }
     }
 
-    public void CmdStartAzParking(final boolean value){
-        if (value){
+    public void CmdStartAzParking(final boolean value) {
+        if (value) {
             SetAzTelPosition(MotAZ.ParkPos);
             CmdStartAzPointing(true);
         }
     }
 
-    public void CmdStartElParking(final boolean value){
-        if (value){
+    public void CmdStartElParking(final boolean value) {
+        if (value) {
             SetElTelPosition(MotEL.ParkPos);
             CmdStartElPointing(true);
         }
     }
 
-
-
-
-    public void CmdStartTracking(final boolean value){
-        if (value && xAxisConnection && yAxisConnection){
+    public void CmdStartTracking(final boolean value) {
+        if (value && xAxisConnection && yAxisConnection) {
             try {
-                taskExecutor.runTask(trackingTask,  new DefaultListener(TEL));
+                taskExecutor.runTask(trackingTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StartTrackingInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "StartTrackingInfo", "FALSE", 0L, 0L, "")
         }
     }
 
-    public void CmdStopTracking(final boolean value){
+    public void CmdStopTracking(final boolean value) {
         if (value)
             CmdStopMotion(value);
     }
 
-    /* fare il pointing come loop mantenendo un errore di posizione per controllo dopo il primo step (o anche no)*/
-    public void CmdStartPointing(final boolean value){
+    /*
+     * fare il pointing come loop mantenendo un errore di posizione per controllo
+     * dopo il primo step (o anche no)
+     */
+    public void CmdStartPointing(final boolean value) {
         CmdStartAzPointing(value);
         CmdStartElPointing(value);
     }
 
-    public void CmdStartAzPointing(final boolean value){
-        /*if (value){
-            SetMotionType(0);
-            CmdStartMotion(value);}*/
-        if (value && xAxisConnection){
+    public void CmdStartAzPointing(final boolean value) {
+        /*
+         * if (value){
+         * SetMotionType(0);
+         * CmdStartMotion(value);}
+         */
+        if (value && xAxisConnection) {
             try {
                 taskExecutor.runTask(pointingAzTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "")
         }
     }
 
-    public void CmdStartElPointing(final boolean value){
-        /*if (value){
-            SetMotionType(0);
-            CmdStartMotion(value);}*/
-        if (value && yAxisConnection){
+    public void CmdStartElPointing(final boolean value) {
+        /*
+         * if (value){
+         * SetMotionType(0);
+         * CmdStartMotion(value);}
+         */
+        if (value && yAxisConnection) {
             try {
                 taskExecutor.runTask(pointingElTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "")
+            // setFieldCmd(this.TEL, "StartPointingInfo", "FALSE", 0L, 0L, "")
         }
     }
 
-    public void CmdStopPointing(final boolean value){
+    public void CmdStopPointing(final boolean value) {
         if (value)
             CmdStopMotion(value);
     }
 
-    public void CmdHomeTel(final boolean value){ // OK   
+    public void CmdHomeTel(final boolean value) { // OK
         if (value && xAxisConnection && yAxisConnection)
             try {
                 taskExecutor.runTask(hometelTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "HomeTelInfo", "FALSE", 0L, 0L, "")
+        // setFieldCmd(this.TEL, "HomeTelInfo", "FALSE", 0L, 0L, "")
     }
 
-    public void CmdStopPointMotion(final boolean value){
+    public void CmdStopPointMotion(final boolean value) {
         if (value && xAxisConnection && yAxisConnection)
             FermaMoto();
     }
 
-    //  task apertura e chiusura cupola. aggiungere status movimento cupola come boolean nei get dell'icd. anche per l'inizializzazione, true o false sul set a zero della cupola.
+    // task apertura e chiusura cupola. aggiungere status movimento cupola come
+    // boolean nei get dell'icd. anche per l'inizializzazione, true o false sul set
+    // a zero della cupola.
 
-    public void CmdOpenCupola(final boolean value){ // OK 
+    public void CmdOpenCupola(final boolean value) { // OK
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(opendomeTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "OpenDomeInfo", "FALSE", 0L, 0L, "")
+        // setFieldCmd(this.TEL, "OpenDomeInfo", "FALSE", 0L, 0L, "")
     }
 
-    public void CmdCloseCupola(final boolean value){ // OK 
+    public void CmdCloseCupola(final boolean value) { // OK
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(closedomeTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "CloseDomeInfo", "FALSE", 0L, 0L, "")
+        // setFieldCmd(this.TEL, "CloseDomeInfo", "FALSE", 0L, 0L, "")
     }
 
-    public void CmdStartCupolaPointing(final boolean value) { // OK 
+    public void CmdStartCupolaPointing(final boolean value) { // OK
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(startcupolapointingTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StartPointingDomeInfo", "FALSE", 0L, 0L, "")
+        // setFieldCmd(this.TEL, "StartPointingDomeInfo", "FALSE", 0L, 0L, "")
     }
 
-    public void CmdStartCupolaParking(final boolean value) { // OK 
-        if (value && domeAxisConnection){
+    public void CmdStartCupolaParking(final boolean value) { // OK
+        if (value && domeAxisConnection) {
             this.TEL.TargetAZ = CUP.ParkPos;
             CmdStartCupolaPointing(true);
         }
     }
 
-    public void CmdStopCupola(final boolean value){ // OK 
+    public void CmdStopCupola(final boolean value) { // OK
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(stopdomeTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "StopDomeInfo", "FALSE", 0L, 0L, "")
+        // setFieldCmd(this.TEL, "StopDomeInfo", "FALSE", 0L, 0L, "")
     }
 
-    public void CmdHomeCupola(final boolean value){ // OK 
+    public void CmdHomeCupola(final boolean value) { // OK
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(homedomeTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //this.TEL.HomeDomeInfo = "commandname: HomeDomeInfo; busy: FALSE; tstart: 0; tstop: 0; error:"
-            //setFieldCmd(this.TEL, "HomeDomeInfo", "FALSE", 0L, 0L, "")
+        // this.TEL.HomeDomeInfo = "commandname: HomeDomeInfo; busy: FALSE; tstart: 0;
+        // tstop: 0; error:"
+        // setFieldCmd(this.TEL, "HomeDomeInfo", "FALSE", 0L, 0L, "")
     }
 
-    public void CmdCupolaOvest(final boolean value){ // OK 
+    public void CmdCupolaOvest(final boolean value) { // OK
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(domewestTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            
-            //setFieldCmd(this.TEL, "DomeWestInfo", "FALSE", 0L, 0L, "")
+
+        // setFieldCmd(this.TEL, "DomeWestInfo", "FALSE", 0L, 0L, "")
     }
 
-    public void CmdCupolaEst(final boolean value){ // OK 
+    public void CmdCupolaEst(final boolean value) { // OK
         if (value && domeAxisConnection)
             try {
                 taskExecutor.runTask(domeeastTask, new DefaultListener(TEL));
             } catch (ExecutionException | TimeoutException e) {
                 logger.error(e.getMessage());
             }
-            //setFieldCmd(this.TEL, "DomeEastInfo", "FALSE", 0L, 0L, "")
+        // setFieldCmd(this.TEL, "DomeEastInfo", "FALSE", 0L, 0L, "")
     }
 
-    public void CmdHome(final boolean value){
+    public void CmdHome(final boolean value) {
         CmdHomeCupola(value);
         CmdHomeTel(value);
     }
 
+    // #region TASK
 
-
-
-
-
-    //#region TASK
-    
-
-
-
-
-
-
-
-
-    //#region T goloaded
+    // #region T goloaded
     private final Task<Void> goloadedTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("GoLoadedInfo");
-                
-            if (getMcsStateMachine().isAcceptable(LOADED)){
+
+            if (getMcsStateMachine().isAcceptable(LOADED)) {
                 getMcsStateMachine().transition(LOADED);
                 TEL.MachineState = mcsStateMachine.getCurrentState().value;
-                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+                TEL.MachineStatePhase = EHardwareStatePhase.ENTERING.ordinal();
 
                 // Funzioni da eseguire in questa transizione
-                int k=0;
-                while (isInterrupted && k<30) {
-                    //System.out.println("I'm a double callable");
+                int k = 0;
+                while (isInterrupted && k < 30) {
+                    // System.out.println("I'm a double callable");
                     System.out.println("Entering Loaded functions are running");
-                    //listener.onWorking(null);
-                    if(listener!=null)
+                    // listener.onWorking(null);
+                    if (listener != null)
                         listener.onWorking(null);
                     TimeUnit.SECONDS.sleep(1);
                     k++;
                 }
 
-                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                if(listener!=null)
+                TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
+                if (listener != null)
                     listener.onDone(null);
                 isInterrupted = false;
+            } else {
+                logger.warn("Transition not allowed from this state {}", mcsStateMachine.getCurrentState().name);
+                if (listener != null)
+                    listener.onError(String.format("Transition not allowed from this state {}",
+                            mcsStateMachine.getCurrentState().name));
             }
-            else{
-                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
-                if(listener!=null)
-                    listener.onError(String.format("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name));
-            }
-            
+
             return v;
         }
 
         @Override
         public void setVal(final Void v) {
-          // Does this method need to be implemented?
+            // Does this method need to be implemented?
         }
 
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -1861,51 +1865,51 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
-    
-    //#region T gostandby
-    private final Task<Void> gostandbyTask = new Task<Void>(){
+
+    // #region T gostandby
+    private final Task<Void> gostandbyTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("GoStandbyInfo");
-                
-            if (getMcsStateMachine().isAcceptable(STANDBY)){
+
+            if (getMcsStateMachine().isAcceptable(STANDBY)) {
                 getMcsStateMachine().transition(STANDBY);
                 TEL.MachineState = mcsStateMachine.getCurrentState().value;
-                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+                TEL.MachineStatePhase = EHardwareStatePhase.ENTERING.ordinal();
 
                 // Funzioni da eseguire in questa transizione
-                int k=0;
-                while (isInterrupted && k<30) {
-                    //System.out.println("I'm a double callable");
+                int k = 0;
+                while (isInterrupted && k < 30) {
+                    // System.out.println("I'm a double callable");
                     System.out.println("Entering Standby functions are running");
-                    //listener.onWorking(null);
-                    if(listener!=null)
+                    // listener.onWorking(null);
+                    if (listener != null)
                         listener.onWorking(null);
                     TimeUnit.SECONDS.sleep(1);
                     k++;
                 }
 
-                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                if(listener!=null)
+                TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
+                if (listener != null)
                     listener.onDone(null);
                 isInterrupted = false;
+            } else {
+                logger.warn("Transition not allowed from this state {}", mcsStateMachine.getCurrentState().name);
+                if (listener != null)
+                    listener.onError(String.format("Transition not allowed from this state {}",
+                            mcsStateMachine.getCurrentState().name));
             }
-            else{
-                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
-                if(listener!=null)
-                    listener.onError(String.format("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name));
-            }
-            
+
             return v;
         }
 
@@ -1916,7 +1920,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -1927,51 +1931,51 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    //#region T goonline
+    // #region T goonline
     private final Task<Void> goonlineTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("GoOnlineInfo");
-                
-            if (getMcsStateMachine().isAcceptable(ONLINE)){
+
+            if (getMcsStateMachine().isAcceptable(ONLINE)) {
                 getMcsStateMachine().transition(ONLINE);
                 TEL.MachineState = mcsStateMachine.getCurrentState().value;
-                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+                TEL.MachineStatePhase = EHardwareStatePhase.ENTERING.ordinal();
 
                 // Funzioni da eseguire in questa transizione
-                int k=0;
-                while (isInterrupted && k<30) {
-                    //System.out.println("I'm a double callable");
+                int k = 0;
+                while (isInterrupted && k < 30) {
+                    // System.out.println("I'm a double callable");
                     System.out.println("Entering Online functions are running");
-                    //listener.onWorking(null);
-                    if(listener!=null)
+                    // listener.onWorking(null);
+                    if (listener != null)
                         listener.onWorking(null);
                     TimeUnit.SECONDS.sleep(1);
                     k++;
                 }
 
-                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                if(listener!=null)
+                TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
+                if (listener != null)
                     listener.onDone(null);
                 isInterrupted = false;
+            } else {
+                logger.warn("Transition not allowed from this state {}", mcsStateMachine.getCurrentState().name);
+                if (listener != null)
+                    listener.onError(String.format("Transition not allowed from this state {}",
+                            mcsStateMachine.getCurrentState().name));
             }
-            else{
-                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
-                if(listener!=null)
-                    listener.onError(String.format("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name));
-            }
-            
+
             return v;
         }
 
@@ -1982,7 +1986,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -1993,52 +1997,51 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    
-    //#region T gomainten
+    // #region T gomainten
     private final Task<Void> gomaintenanceTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("GoMaintenanceInfo");
-                
-            if (getMcsStateMachine().isAcceptable(MAINTENANCE)){
+
+            if (getMcsStateMachine().isAcceptable(MAINTENANCE)) {
                 getMcsStateMachine().transition(MAINTENANCE);
                 TEL.MachineState = mcsStateMachine.getCurrentState().value;
-                TEL.MachineStatePhase=EHardwareStatePhase.ENTERING.ordinal();
+                TEL.MachineStatePhase = EHardwareStatePhase.ENTERING.ordinal();
 
                 // Funzioni da eseguire in questa transizione
-                int k=0;
-                while (isInterrupted && k<30) {
-                    //System.out.println("I'm a double callable");
+                int k = 0;
+                while (isInterrupted && k < 30) {
+                    // System.out.println("I'm a double callable");
                     System.out.println("Entering Maintenance functions are running");
-                    //listener.onWorking(null);
-                    if(listener!=null)
+                    // listener.onWorking(null);
+                    if (listener != null)
                         listener.onWorking(null);
                     TimeUnit.SECONDS.sleep(1);
                     k++;
                 }
 
-                TEL.MachineStatePhase=EHardwareStatePhase.ACTIVE.ordinal();
-                if(listener!=null)
+                TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
+                if (listener != null)
                     listener.onDone(null);
                 isInterrupted = false;
+            } else {
+                logger.warn("Transition not allowed from this state {}", mcsStateMachine.getCurrentState().name);
+                if (listener != null)
+                    listener.onError(String.format("Transition not allowed from this state {}",
+                            mcsStateMachine.getCurrentState().name));
             }
-            else{
-                logger.warn("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name);
-                if(listener!=null)
-                    listener.onError(String.format("Transition not allowed from this state {}",mcsStateMachine.getCurrentState().name));
-            }
-            
+
             return v;
         }
 
@@ -2049,7 +2052,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2060,44 +2063,43 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-    //#region T homedome
+    // #region T homedome
     private final Task<Void> homedomeTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; 
-        
+        private TaskListener listener;
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("HomeDomeInfo");
-                
-            tcsError(AsseCupola.ExecProg("HOMECUP"),1387);
-            
-            while(isInterrupted){
-                if(listener!=null)
+
+            tcsError(AsseCupola.ExecProg("HOMECUP"), 1387);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(5000);
                 AsseCupola.IsProgramRunning();
-                //System.out.println("The dome going in Home position ... "+AsseCupola.isRunning);
+                // System.out.println("The dome going in Home position ...
+                // "+AsseCupola.isRunning);
                 if (!AsseCupola.isRunning)
                     isInterrupted = false;
             }
 
-            //CUP.StatusRotazione = 0;
-            //CUP.Direzione = 0;
+            // CUP.StatusRotazione = 0;
+            // CUP.Direzione = 0;
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2108,7 +2110,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2119,44 +2121,41 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    
-
-
-    //#region T hometel
+    // #region T hometel
     private final Task<Void> hometelTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("HomeTelInfo");
-                
+
             HomePosition();
-            
-            while(isInterrupted){
-                if(listener!=null)
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(10000);
                 AsseX.IsProgramRunning();
                 AsseY.IsProgramRunning();
-                //System.out.println("Az and El are going in home position ... Az: "+AsseX.isRunning+", El: "+AsseY.isRunning);
+                // System.out.println("Az and El are going in home position ... Az:
+                // "+AsseX.isRunning+", El: "+AsseY.isRunning);
                 if (!AsseX.isRunning && !AsseY.isRunning)
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2167,7 +2166,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2178,42 +2177,39 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-
-    //#region T opendome
+    // #region T opendome
     private final Task<Void> opendomeTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("OpenDomeInfo");
-                
-            tcsError(AsseCupola.ExecProg("APRICUP"),1380);
-                
-            while(isInterrupted){
-                if(listener!=null)
+
+            tcsError(AsseCupola.ExecProg("APRICUP"), 1380);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(3000);
                 AsseCupola.IsProgramRunning();
-                //System.out.println("Dome is opening ... ");
+                // System.out.println("Dome is opening ... ");
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2224,7 +2220,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2235,42 +2231,39 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    
-
-    //#region T closedome
+    // #region T closedome
     private final Task<Void> closedomeTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("CloseDomeInfo");
-                
-            tcsError(AsseCupola.ExecProg("CHIUDCUP"),1381);
-                
-            while(isInterrupted){
-                if(listener!=null)
+
+            tcsError(AsseCupola.ExecProg("CHIUDCUP"), 1381);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(3000);
                 AsseCupola.IsProgramRunning();
-                System.out.println("Dome is closing ... ");                
+                System.out.println("Dome is closing ... ");
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2281,7 +2274,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2292,30 +2285,27 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    
-
-
-    //#region T domepoint
+    // #region T domepoint
     private final Task<Void> startcupolapointingTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("StartPointingDomeInfo");
-                
+
             PuntaCupola(TEL.TargetAZ);
-                
-            while(isInterrupted){
-                if(listener!=null)
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(5000);
                 AsseCupola.IsProgramRunning();
@@ -2327,11 +2317,10 @@ public class TCS {
             CUP.StatusRotazione = 0;
             CUP.Direzione = 0;
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2342,7 +2331,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2353,32 +2342,31 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-    //#region T stopdome
+    // #region T stopdome
     private final Task<Void> stopdomeTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; 
-        
+        private TaskListener listener;
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("StopDomeInfo");
-                
-            tcsError(AsseCupola.ExecProg("FERMACUP"),1382);
-                
-            while(isInterrupted){
-                if(listener!=null)
+
+            tcsError(AsseCupola.ExecProg("FERMACUP"), 1382);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(2000);
                 AsseCupola.IsProgramRunning();
-                System.out.println("Dome is stopping ... ");                
+                System.out.println("Dome is stopping ... ");
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
             }
@@ -2386,11 +2374,10 @@ public class TCS {
             CUP.StatusRotazione = 0;
             CUP.Direzione = 0;
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2401,7 +2388,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2412,31 +2399,29 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-
-    //#region T domewest
+    // #region T domewest
     private final Task<Void> domewestTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; 
-        
+        private TaskListener listener;
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("DomeWestInfo");
-                
-            tcsError(AsseCupola.ExecProg("SXCUP"),1383);
+
+            tcsError(AsseCupola.ExecProg("SXCUP"), 1383);
             CUP.StatusRotazione = 1;
             CUP.Direzione = 1;
 
-            while(isInterrupted){
-                if(listener!=null)
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(2000);
                 AsseCupola.IsProgramRunning();
@@ -2448,11 +2433,10 @@ public class TCS {
             CUP.StatusRotazione = 0;
             CUP.Direzione = 0;
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2463,7 +2447,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2474,31 +2458,29 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    
-
-    //#region T domeeast
+    // #region T domeeast
     private final Task<Void> domeeastTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; 
-        
+        private TaskListener listener;
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("DomeEastInfo");
-                
-            tcsError(AsseCupola.ExecProg("DXCUP"),1384);
+
+            tcsError(AsseCupola.ExecProg("DXCUP"), 1384);
             CUP.StatusRotazione = 1;
             CUP.Direzione = -1;
 
-            while(isInterrupted){
-                if(listener!=null)
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(2000);
                 AsseCupola.IsProgramRunning();
@@ -2510,11 +2492,10 @@ public class TCS {
             CUP.StatusRotazione = 0;
             CUP.Direzione = 0;
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2525,7 +2506,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2536,37 +2517,35 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-
-    //#region T tracking
+    // #region T tracking
     private final Task<Void> trackingTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("StartTrackingInfo");
-                
-                if (TEL.MotionType != 1)
-                    SetTrackingMode();
 
-                IsAzTracking(true);
-                IsElTracking(true);
+            if (TEL.MotionType != 1)
+                SetTrackingMode();
 
-                TraiettoriaX();
-                TraiettoriaY();
-                Trajectory();
+            IsAzTracking(true);
+            IsElTracking(true);
 
-            while(isInterrupted){
-                if(listener!=null)
+            TraiettoriaX();
+            TraiettoriaY();
+            Trajectory();
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(1000);
 
@@ -2575,15 +2554,15 @@ public class TCS {
 
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
-                //System.out.println("Tracking...");
+                // System.out.println("Tracking...");
                 if (!AsseX.isMoving && !AsseY.isMoving)
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
+
             return v;
         }
 
@@ -2594,7 +2573,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2605,48 +2584,49 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    //#region T pointing Az
+    // #region T pointing Az
 
-    // fare il pointing come loop mantenendo un errore di posizione per controllo dopo il primo step (o anche no)
+    // fare il pointing come loop mantenendo un errore di posizione per controllo
+    // dopo il primo step (o anche no)
     private final Task<Void> pointingAzTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("StartMotionInfo");
-                
+
             if (TEL.MotionType != 0)
                 SetPointingMode();
-        
-            StartPointingMotion(true,false);
-            
-            while(isInterrupted){
-                if(listener!=null)
+
+            StartPointingMotion(true, false);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(1000); // da spostare alla fine del while?
                 AsseX.IsMoving(X);
-                if (!AsseX.isMoving){
+                if (!AsseX.isMoving) {
                     IsAzPointing(false);
                     isInterrupted = false;
                 }
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
+
         @Override
         public void setVal(final Void v) {
         }
@@ -2654,7 +2634,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2665,48 +2645,47 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    //#region T pointing El
-
+    // #region T pointing El
 
     private final Task<Void> pointingElTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("StartMotionInfo");
-                
+
             if (TEL.MotionType != 0)
                 SetPointingMode();
-        
-            StartPointingMotion(false,true);
-            
-            while(isInterrupted){
-                if(listener!=null)
+
+            StartPointingMotion(false, true);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(1000); // da spostare alla fine del while?
                 AsseY.IsMoving(X);
-                if (!AsseY.isMoving){
+                if (!AsseY.isMoving) {
                     IsElPointing(false);
                     isInterrupted = false;
                 }
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
+
         @Override
         public void setVal(final Void v) {
         }
@@ -2714,7 +2693,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2725,53 +2704,50 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    //#region T pointing
+    // #region T pointing
     private final Task<Void> pointingTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("MoveToPositionInfo");
-                
 
             if (TEL.MotionType != 0)
                 SetPointingMode();
 
             SetPointingMode();
 
-            StartPointingMotion(true,true);
-            
-            
-            while(isInterrupted){
-                if(listener!=null)
+            StartPointingMotion(true, true);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(3000);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
-                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+                System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
                 Sleep(3000);
-                System.out.println("Az and El are moving ... Az: "+AsseX.isMoving+", El: "+AsseY.isMoving);
+                System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
 
-                if (!AsseX.isMoving && !AsseY.isMoving){
+                if (!AsseX.isMoving && !AsseY.isMoving) {
                     MovementDone();
                     isInterrupted = false;
                 }
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2782,7 +2758,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2793,47 +2769,43 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-
-    
-    //#region T stop
+    // #region T stop
     private final Task<Void> stopmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
-        private TaskListener listener; 
-        
+        private TaskListener listener;
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("StopMotionInfo");
-                
+
             if (AsseX.IsMoving(X) == 1)
-                tcsError(AsseX.StopMove(X),1171);
+                tcsError(AsseX.StopMove(X), 1171);
             if (AsseY.IsMoving(X) == 1)
-                tcsError(AsseY.StopMove(X),1271);
-            
-            while(isInterrupted){
-                if(listener!=null)
+                tcsError(AsseY.StopMove(X), 1271);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(100);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
-                //System.out.println("Az and El are stopping ... ");
+                // System.out.println("Az and El are stopping ... ");
                 if (AsseX.isMoving && AsseY.isMoving)
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2844,7 +2816,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2855,42 +2827,40 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-    //#region T stop AZ
+    // #region T stop AZ
     private final Task<Void> stopAZmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("StopAzMotionInfo");
-                
+
             if (AsseX.IsMoving(X) == 1)
-                tcsError(AsseX.StopMove(X),1171);
-                
-            while(isInterrupted){
-                if(listener!=null)
+                tcsError(AsseX.StopMove(X), 1171);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(100);
                 AsseX.IsMoving(X);
-                //System.out.println("Az is stopping ... ");
+                // System.out.println("Az is stopping ... ");
                 if (AsseX.isMoving)
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2901,7 +2871,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2912,43 +2882,40 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-
-    //#region T stop EL
+    // #region T stop EL
     private final Task<Void> stopELmotionTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("StopElMotionInfo");
-                
+
             if (AsseY.IsMoving(X) == 1)
-                tcsError(AsseY.StopMove(X),1271);
-                
-            while(isInterrupted){
-                if(listener!=null)
+                tcsError(AsseY.StopMove(X), 1271);
+
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(100);
                 AsseY.IsMoving(X);
-                //System.out.println("El is stopping ... ");
+                // System.out.println("El is stopping ... ");
                 if (AsseY.isMoving)
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -2959,7 +2926,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -2970,35 +2937,33 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-
-    //#region T El Up
+    // #region T El Up
     private final Task<Void> elMoveUpTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("ElMoveUpInfo");
-                
+
             if (TEL.MotionType != 1)
                 SetTrackingMode();
 
-            //AsseY.ExecProg("MUOVIDX")
-            //AsseY.Move
-            SetElJogVelocity(1*MotEL.AbsJogVelocity);
+            // AsseY.ExecProg("MUOVIDX")
+            // AsseY.Move
+            SetElJogVelocity(1 * MotEL.AbsJogVelocity);
             AsseY.StartMove(X);
 
-            while(isInterrupted){
-                if(listener!=null)
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(200);
                 AsseY.IsMoving(X);
@@ -3006,11 +2971,10 @@ public class TCS {
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -3021,7 +2985,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -3032,32 +2996,32 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    //#region T El Down
+    // #region T El Down
     private final Task<Void> elMoveDownTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("ElMoveDownInfo");
-                
+
             if (TEL.MotionType != 1)
                 SetTrackingMode();
 
-            //AsseY.ExecProg("MUOVISX")
-            SetElJogVelocity(-1*MotEL.AbsJogVelocity);
+            // AsseY.ExecProg("MUOVISX")
+            SetElJogVelocity(-1 * MotEL.AbsJogVelocity);
             AsseY.StartMove(X);
 
-            while(isInterrupted){
-                if(listener!=null)
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(200);
                 AsseY.IsMoving(X);
@@ -3065,11 +3029,10 @@ public class TCS {
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -3080,7 +3043,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -3091,33 +3054,33 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-    //#region T Az Right
+    // #region T Az Right
     private final Task<Void> azMoveRightTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("AzMoveRightInfo");
-            
+
             if (TEL.MotionType != 1)
                 SetTrackingMode();
 
-            //AsseX.ExecProg("MUOVIDX");
+            // AsseX.ExecProg("MUOVIDX");
 
-            SetAzJogVelocity(1*MotAZ.AbsJogVelocity);
+            SetAzJogVelocity(1 * MotAZ.AbsJogVelocity);
             AsseX.StartMove(X);
 
-            while(isInterrupted){
-                if(listener!=null)
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(200);
                 AsseX.IsMoving(X);
@@ -3125,11 +3088,10 @@ public class TCS {
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -3140,7 +3102,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -3151,33 +3113,32 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-    //#region T Az Left
+    // #region T Az Left
     private final Task<Void> azMoveLeftTask = new Task<Void>() {
         boolean isInterrupted = true;
         private TaskListener listener;
-        
+
         private Void v;
+
         @Override
         public Void call() throws Exception {
-            if(listener!=null)
+            if (listener != null)
                 listener.onStart("AzMoveLeftInfo");
-                
+
             if (TEL.MotionType != 1)
                 SetTrackingMode();
 
-            //AsseX.ExecProg("MUOVISX");
-            SetAzJogVelocity(-1*MotAZ.AbsJogVelocity);
+            // AsseX.ExecProg("MUOVISX");
+            SetAzJogVelocity(-1 * MotAZ.AbsJogVelocity);
             AsseX.StartMove(X);
 
-            while(isInterrupted){
-                if(listener!=null)
+            while (isInterrupted) {
+                if (listener != null)
                     listener.onWorking(null);
                 Sleep(200);
                 AsseX.IsMoving(X);
@@ -3185,11 +3146,10 @@ public class TCS {
                     isInterrupted = false;
             }
 
-            if(listener!=null)
+            if (listener != null)
                 listener.onDone(null);
             isInterrupted = false;
-            
-            
+
             return v;
         }
 
@@ -3200,7 +3160,7 @@ public class TCS {
         @Override
         public void interrupt() {
             isInterrupted = false;
-            if(listener!=null)
+            if (listener != null)
                 listener.onError("task interrupted");
         }
 
@@ -3211,41 +3171,11 @@ public class TCS {
 
         @Override
         public String getCurrentVal() {
-           return null;
+            return null;
         }
 
-        
     };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
@@ -3256,40 +3186,48 @@ public class TCS {
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
 
-    //#region FUNCTIONS
+    // #region FUNCTIONS
 
     // FUNZIONI COMPLESSE DA FARE
-    public void InitStar(){}
-    public void Puntamento(){}
-    public void ComandiTastierino(){}
-    
-    public void IsAzPointing(boolean value){
+    public void InitStar() {
+    }
+
+    public void Puntamento() {
+    }
+
+    public void ComandiTastierino() {
+    }
+
+    public void IsAzPointing(boolean value) {
         this.AzPointing = value;
     }
-    public void IsAzTracking(boolean value){
+
+    public void IsAzTracking(boolean value) {
         this.AzTracking = value;
     }
-    public void IsElPointing(boolean value){
+
+    public void IsElPointing(boolean value) {
         this.ElPointing = value;
     }
-    public void IsElTracking(boolean value){
+
+    public void IsElTracking(boolean value) {
         this.ElTracking = value;
     }
 
-    public void TraiettoriaX(){
+    public void TraiettoriaX() {
         double Vmax, Amax, Tnew = 0, Tmin = 0.1;
         double Told = 0, Vm, Dp;
         double Pi, Pf, Vi, Vf, Vs;
         double d, h, az, el, vaz, vel;
         double P0;
-        
+
         // Telescopio
         GetTelInfoX();
         P0 = TEL.AZ * 3600;
         Vi = 0.0; // m_telescopeInfo.TrackVelX;
         Amax = TEL.MaxAccX;
         Vmax = MotAZ.MaxVel;
-        
+
         // Oggetto
         // OggettoPuntato.CalcStarPos();
         // CALCOLO DELLA POSIZIONE OGGETTO
@@ -3298,7 +3236,7 @@ public class TCS {
         Pf = TEL.TargetAZ * 3600;
         Vs = TEL.TargetVelAZ;
         Vf = Vs;
-    
+
         do {
             Told = Tnew;
             double DP = Vs * Told; // ricalcolo le posizioni finali al tempo Told
@@ -3306,7 +3244,8 @@ public class TCS {
             double Dir = Dp / Math.abs(Dp);
             double A = Dir * Amax;
             Vm = Math.sqrt(A * Dp + 2.0 * (Vi * Vi + Vf * Vf));
-            if (Vm > Vmax) Vm = Vmax;
+            if (Vm > Vmax)
+                Vm = Vmax;
             Vm = Dir * Vm;
             double T1 = (Vm - Vi) / A;
             double S1 = Vi * T1 + A * T1 * T1 / 2;
@@ -3314,28 +3253,29 @@ public class TCS {
             double S3 = Vm * T3 - A * T3 * T3 / 2;
             double S2 = Dp - S1 - S3;
             double T2 = S2 / Vm;
-            if (T1 <= 0.0 || T2 <= 0.0 || T3 <= 0.0) break; // Puntare senza rampe;
+            if (T1 <= 0.0 || T2 <= 0.0 || T3 <= 0.0)
+                break; // Puntare senza rampe;
             Tnew = T1 + T2 + T3;
         } while ((Tnew > Tmin) && (Math.abs(Tnew - Told) > Tmin));
-    
-        //TEL.SlewTimeX = Tnew;
+
+        // TEL.SlewTimeX = Tnew;
         TEL.SlewVelX = Math.abs(Vm);
         CorreggiAZ(TEL.TargetAZ, TEL.TargetEL);
         TEL.TargetPosX = (180 * 3600 - (P0 + Dp)) + CostX[0];
     }
 
-    public void TraiettoriaY(){
+    public void TraiettoriaY() {
         double Vmax, Amax, Tnew = 0, Tmin = 0.1;
         double Told, Vm, Dp;
         double Pi, Pf, Vi, Vf;
-        
+
         // Telescopio
         GetTelInfoY();
         Pi = TEL.PosY;
         Vi = 0.0; // m_telescopeInfo.TrackVelX;
         Amax = TEL.MaxAccY;
         Vmax = MotEL.MaxVel;
-        
+
         // Oggetto
         // OggettoPuntato.CalcStarPos();
         // CALCOLO DELLA POSIZIONE OGGETTO
@@ -3343,7 +3283,7 @@ public class TCS {
 
         Pf = TEL.TargetEL * 3600;
         Vf = TEL.TargetVelEL;
-    
+
         do {
             Told = Tnew;
             double DP = Vf * Told; // ricalcolo le posizioni finali al tempo Told
@@ -3351,7 +3291,8 @@ public class TCS {
             double Dir = Dp / Math.abs(Dp);
             double A = Dir * Amax;
             Vm = Math.sqrt(A * Dp + 2.0 * (Vi * Vi + Vf * Vf));
-            if (Vm > Vmax) Vm = Vmax;
+            if (Vm > Vmax)
+                Vm = Vmax;
             Vm = Dir * Vm;
             double T1 = (Vm - Vi) / A;
             double S1 = Vi * T1 + A * T1 * T1 / 2;
@@ -3359,37 +3300,44 @@ public class TCS {
             double S3 = Vm * T3 - A * T3 * T3 / 2;
             double S2 = Dp - S1 - S3;
             double T2 = S2 / Vm;
-            if (T1 <= 0.0 || T2 <= 0.0 || T3 <= 0.0) break; // Puntare senza rampe;
+            if (T1 <= 0.0 || T2 <= 0.0 || T3 <= 0.0)
+                break; // Puntare senza rampe;
             Tnew = T1 + T2 + T3;
         } while ((Tnew > Tmin) && (Math.abs(Tnew - Told) > Tmin));
-    
-        //TEL.SlewTimeY = Tnew;
+
+        // TEL.SlewTimeY = Tnew;
         TEL.SlewVelY = Math.abs(Vm);
         CorreggiEL(TEL.TargetAZ, TEL.TargetEL);
         TEL.TargetPosY = ((Pi + Dp)) + CostY[0];
     }
 
-
-    public void Target(){
-        //this.TEL.Target = new Target(TEL.TargetName);
+    public void Target() {
+        // this.TEL.Target = new Target(TEL.TargetName);
         double pmRa = 0;
         double pmDec = 0;
         double px = 0;
         double rv = 0;
-        this.TEL.Target = new Target(TEL.TargetRA, TEL.TargetDEC, pmRa, pmDec, px, rv, "unknown"); //double ra2000, double dec2000, double pmRA, double pmDec, double px, double rv, String name
+        this.TEL.Target = new Target(TEL.TargetRA, TEL.TargetDEC, pmRa, pmDec, px, rv, "unknown"); // double ra2000,
+                                                                                                   // double dec2000,
+                                                                                                   // double pmRA,
+                                                                                                   // double pmDec,
+                                                                                                   // double px, double
+                                                                                                   // rv, String name
     }
 
-    public void Target(double tRA, double tDec){
-        //this.TEL.Target = new Target(TEL.TargetName);
+    public void Target(double tRA, double tDec) {
+        // this.TEL.Target = new Target(TEL.TargetName);
         double pmRa = 0;
         double pmDec = 0;
         double px = 0;
         double rv = 0;
-        this.TEL.Target = new Target(tRA, tDec, pmRa, pmDec, px, rv, "unknown"); //double ra2000, double dec2000, double pmRA, double pmDec, double px, double rv, String name
+        this.TEL.Target = new Target(tRA, tDec, pmRa, pmDec, px, rv, "unknown"); // double ra2000, double dec2000,
+                                                                                 // double pmRA, double pmDec, double
+                                                                                 // px, double rv, String name
     }
 
-    public void Trajectory(){
-        ///*
+    public void Trajectory() {
+        /// *
         TrajectoryManager tm = new TrajectoryManager();
         String BASE_DIR = "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/";
         String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
@@ -3399,15 +3347,14 @@ public class TCS {
                 487);
 
         boolean wheaterconnection = CheckWheater(weatherdata);
-        //double press = 1000.;
-        //double temp = 15.0;
-        //double hum = 0.5;
-        //Weather atm = new Weather(press, temp, hum);
+        // double press = 1000.;
+        // double temp = 15.0;
+        // double hum = 0.5;
+        // Weather atm = new Weather(press, temp, hum);
         Weather atm;
-        if (wheaterconnection){
-            atm = new Weather(OSS.Pressure*1000, OSS.Temperature, OSS.Humidity/100);
-        }
-        else{
+        if (wheaterconnection) {
+            atm = new Weather(OSS.Pressure * 1000, OSS.Temperature, OSS.Humidity / 100);
+        } else {
             atm = new Weather(1000, 15, 0.5);
             System.out.println("Wheather not connected. Standard parameters used");
         }
@@ -3428,7 +3375,7 @@ public class TCS {
             tra = tm.generateTrajectory(jd);
             tm.printTrajectory();
         }
-        
+
         this.tf = new TrajectoryFitter(tra);
         this.tf.fit(5); // posso provare polinomi diversi
 
@@ -3436,121 +3383,111 @@ public class TCS {
 
         // TimeUtil.getCurrentJuliandDay()
 
-        //*/
+        // */
     }
 
-    public void InstantTrajectory(){  // serparare la traiettoria dal loop che aggiorna?
+    public void InstantTrajectory() { // serparare la traiettoria dal loop che aggiorna?
 
     }
 
-    
-    public void CorreggiAZ(double az, double el){
-        double azr = az*D2R;
-        double elr = el*D2R;
+    public void CorreggiAZ(double az, double el) {
+        double azr = az * D2R;
+        double elr = el * D2R;
         double coel = Math.cos(elr);
-        double daz = CostX[1];//+874.98 - 892.4*coel -256.*sin(elr) -24.*coel*sin(2*azr)
-            //+ 36.*coel*sin(3.*azr);
+        double daz = CostX[1];// +874.98 - 892.4*coel -256.*sin(elr) -24.*coel*sin(2*azr)
+        // + 36.*coel*sin(3.*azr);
         CostX[0] = daz;
 
     }
 
-    public void CorreggiEL(double az, double el){
-        double azr = az*D2R;
-        double elr = el*D2R;
+    public void CorreggiEL(double az, double el) {
+        double azr = az * D2R;
+        double elr = el * D2R;
         double coel = Math.cos(elr);
-        double del = CostY[1];//+874.98 - 892.4*coel -256.*sin(elr) -24.*coel*sin(2*azr) 
-            //+ 36.*coel*sin(3.*azr);
+        double del = CostY[1];// +874.98 - 892.4*coel -256.*sin(elr) -24.*coel*sin(2*azr)
+        // + 36.*coel*sin(3.*azr);
         CostY[0] = del;
     }
 
-
-    public void Tracking(){
+    public void Tracking() {
         char[] buf = new char[80];
         char[] buf1 = new char[80];
         double DPX = 0;
         double DPY = 0;
         long val = 0;
 
-        //OggettoPuntato.calcStarPos(); 
+        // OggettoPuntato.calcStarPos();
         // CALCOLO DELLA POSIZIONE OGGETTO
-        
+
         // va sempre riletta la posizione per aggiornare Az ed El
 
-        //CostX[2]=1.1;
-		//CostY[2]=1.05;
+        // CostX[2]=1.1;
+        // CostY[2]=1.05;
 
         GetTelInfo();
 
         DPX = (TEL.AZ - TEL.TargetAZ) * 3600;
         DPY = (TEL.EL - TEL.TargetEL) * 3600;
-        
+
         if (!AzPointing) { // Az ha finito di puntare
             if (AzTracking) { // Az è nel tracking
-                if (Math.abs(DPX) > 1.0 && (SetTrackY == 1)) { 
+                if (Math.abs(DPX) > 1.0 && (SetTrackY == 1)) {
                     if (DPX > 0.)
                         AsseX.SetMotVel(X, (1. * TEL.TargetVelAZ / CostX[2]));
                     if (DPX < 0.)
                         AsseX.SetMotVel(X, -1. * TEL.TargetVelAZ * CostY[2]);
-                }
-                else
+                } else
                     AsseX.SetMotVel(X, MotAZ.JogDirection * TEL.TargetVelAZ);
             }
-        }
-        else{ // Az sta ancora puntando
+        } else { // Az sta ancora puntando
             if (ElTracking) { // El è nel tracking
-                if (Math.abs(DPX) >= 1.0) { 
+                if (Math.abs(DPX) >= 1.0) {
                     if (DPX > 0.0)
-                        AsseX.SetMotVel(X, (TEL.TargetVelAZ + DPX/1.5));
+                        AsseX.SetMotVel(X, (TEL.TargetVelAZ + DPX / 1.5));
                     if (DPX < 0.0)
-                        AsseX.SetMotVel(X, -1*(TEL.TargetVelAZ + Math.abs(DPX)/3));
-                }
-                else{
-                    AsseX.SetMotVel(X, -1*TEL.TargetVelAZ);
+                        AsseX.SetMotVel(X, -1 * (TEL.TargetVelAZ + Math.abs(DPX) / 3));
+                } else {
+                    AsseX.SetMotVel(X, -1 * TEL.TargetVelAZ);
                     SetPointX = 0;
                 }
             }
-        }    
-
-
+        }
 
         if (!ElPointing) { // El ha finito di puntare
-            if (ElTracking){ // El è nel tracking
-                if(Math.abs(DPY) >= 0.5 && (SetTrackX == 1)){
-                    if (DPY > 0.0){
-                        if(TEL.TargetVelEL<0.)
-                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL*1.1);
+            if (ElTracking) { // El è nel tracking
+                if (Math.abs(DPY) >= 0.5 && (SetTrackX == 1)) {
+                    if (DPY > 0.0) {
+                        if (TEL.TargetVelEL < 0.)
+                            AsseY.SetMotVel(X, MotEL.JogDirection * TEL.TargetVelEL * 1.1);
                         else
-                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL/1.1);
+                            AsseY.SetMotVel(X, MotEL.JogDirection * TEL.TargetVelEL / 1.1);
                     }
-                    if (DPY < 0.0){
-                        if(TEL.TargetVelEL < 0.0)
-                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL/1.1);
+                    if (DPY < 0.0) {
+                        if (TEL.TargetVelEL < 0.0)
+                            AsseY.SetMotVel(X, MotEL.JogDirection * TEL.TargetVelEL / 1.1);
                         else
-                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL*1.1);
+                            AsseY.SetMotVel(X, MotEL.JogDirection * TEL.TargetVelEL * 1.1);
                     }
-                }
-                else{
+                } else {
                     AsseY.SetMotVel(X, TEL.TargetVelEL);
                 }
             }
-        }
-        else{ // El sta ancora puntando
-            if (AzTracking){ // Az è nel tracking
-                if (Math.abs(DPY) >= 0.5){
-                    if (DPY > 0.0){
+        } else { // El sta ancora puntando
+            if (AzTracking) { // Az è nel tracking
+                if (Math.abs(DPY) >= 0.5) {
+                    if (DPY > 0.0) {
                         if (TEL.TargetVelEL < 0.0)
-                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL*1.15);
+                            AsseY.SetMotVel(X, MotEL.JogDirection * TEL.TargetVelEL * 1.15);
                         else
-                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL/1.15);
+                            AsseY.SetMotVel(X, MotEL.JogDirection * TEL.TargetVelEL / 1.15);
                     }
-                    if (DPY < 0.0){
+                    if (DPY < 0.0) {
                         if (TEL.TargetVelEL < 0.0)
-                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL/1.15);
+                            AsseY.SetMotVel(X, MotEL.JogDirection * TEL.TargetVelEL / 1.15);
                         else
-                            AsseY.SetMotVel(X, MotEL.JogDirection*TEL.TargetVelEL*1.15);
+                            AsseY.SetMotVel(X, MotEL.JogDirection * TEL.TargetVelEL * 1.15);
                     }
-                }
-                else{
+                } else {
                     AsseY.SetMotVel(X, TEL.TargetVelEL);
                     SetPointY = 0;
                 }
@@ -3558,22 +3495,22 @@ public class TCS {
         }
     }
 
-    public void UpdateInfoTarget(boolean printinfo){
+    public void UpdateInfoTarget(boolean printinfo) {
         double timeJDnow = TimeUtil.getCurrentJuliandDay();
         this.TEL.TargetAZ = tf.Az(timeJDnow);
         this.TEL.TargetVelAZ = tf.velocityAz(timeJDnow);
         this.TEL.TargetEL = tf.El(timeJDnow);
         this.TEL.TargetVelEL = tf.velocityEl(timeJDnow);
-        if (printinfo){
+        if (printinfo) {
             System.out.println("Target Az and El setted: ");
-            System.out.println("Az: "+TEL.TargetAZ);
-            System.out.println("El: "+TEL.TargetEL);
+            System.out.println("Az: " + TEL.TargetAZ);
+            System.out.println("El: " + TEL.TargetEL);
         }
     }
 
-    public boolean CheckWheater(WeatherData wd){
+    public boolean CheckWheater(WeatherData wd) {
         boolean connected = wd.connected;
-        if (connected){
+        if (connected) {
             Object object[] = wd.ExtractAllData();
             this.OSS.Pressure = (double) object[3];
             this.OSS.Temperature = (double) object[5];
@@ -3581,110 +3518,111 @@ public class TCS {
         }
         return connected;
     }
-    
 
-    public void CoordinatesConversion(double ra, double dec){
+    public void CoordinatesConversion(double ra, double dec) {
         double conversione = 1.0;
-        SetAzTelPosition(dec*conversione);
-        SetElTelPosition(ra*conversione);
+        SetAzTelPosition(dec * conversione);
+        SetElTelPosition(ra * conversione);
     }
-    
 
-    public void FermaMoto(){  // era dentro setta pos home
+    public void FermaMoto() { // era dentro setta pos home
         AsseX.CommandMot("PS");
         AsseY.CommandMot("PS");
 
         AsseX.StopMove(X);
         AsseY.StopMove(X);
     }
-    
-    public void StartPointingMotion(boolean AzAxis, boolean ElAxis){
+
+    public void StartPointingMotion(boolean AzAxis, boolean ElAxis) {
         this.TEL.TelIsMoving = true;
-        if(AzAxis && AsseX.IsMoving(X) == 1){
-            tcsError(AsseX.StopMove(X),1171);
+        if (AzAxis && AsseX.IsMoving(X) == 1) {
+            tcsError(AsseX.StopMove(X), 1171);
             Sleep(100);
         }
-        if(ElAxis && AsseY.IsMoving(X) == 1){
-            tcsError(AsseY.StopMove(X),1271);
+        if (ElAxis && AsseY.IsMoving(X) == 1) {
+            tcsError(AsseY.StopMove(X), 1271);
             Sleep(100);
         }
-        if(TEL.MotionType == 0){ // slew
+        if (TEL.MotionType == 0) { // slew
             // accelerazione necessaria? Non basta nell'inizializzazione?
-            if (AzAxis){
-                tcsError(AsseX.SetMotAcc(X, MotAZ.MaxAcc),1161);
-                tcsError(AsseX.SetMotDec(X, MotAZ.MaxAcc),1162);
+            if (AzAxis) {
+                tcsError(AsseX.SetMotAcc(X, MotAZ.MaxAcc), 1161);
+                tcsError(AsseX.SetMotDec(X, MotAZ.MaxAcc), 1162);
             }
-            if (ElAxis){
-                tcsError(AsseY.SetMotAcc(X, MotEL.MaxAcc),1261);
-                tcsError(AsseY.SetMotDec(X, MotEL.MaxAcc),1262);
+            if (ElAxis) {
+                tcsError(AsseY.SetMotAcc(X, MotEL.MaxAcc), 1261);
+                tcsError(AsseY.SetMotDec(X, MotEL.MaxAcc), 1262);
             }
 
-            if (AzAxis){
-                tcsError(AsseX.Move(X, TEL.TargetAZ, MotAZ.SlewVelocity),1190); // TEL.SlewVelX
+            if (AzAxis) {
+                tcsError(AsseX.Move(X, TEL.TargetAZ, MotAZ.SlewVelocity), 1190); // TEL.SlewVelX
             }
-            if (ElAxis){
-                tcsError(AsseY.Move(X, TEL.TargetEL, MotEL.SlewVelocity),1290); // TEL.SlewVelY
+            if (ElAxis) {
+                tcsError(AsseY.Move(X, TEL.TargetEL, MotEL.SlewVelocity), 1290); // TEL.SlewVelY
             }
         }
-        
-        /*if(TEL.MotionType == 1){
-            AsseX.SetMotAcc(X, MotAZ.JogVelocity);
-            //AsseX.SetMotDec(X, MotAZ.JogVelocity);
-            AsseY.SetMotAcc(X, MotEL.JogVelocity);
-            //AsseY.SetMotDec(X, MotEL.JogVelocity);
 
-            AsseX.Move(X, MotAZ.TelPosition, MotAZ.JogVelocity); // TEL.SlewVelX
-            AsseY.Move(X, MotEL.TelPosition, MotEL.JogVelocity); // TEL.SlewVelY
-        }*/
+        /*
+         * if(TEL.MotionType == 1){
+         * AsseX.SetMotAcc(X, MotAZ.JogVelocity);
+         * //AsseX.SetMotDec(X, MotAZ.JogVelocity);
+         * AsseY.SetMotAcc(X, MotEL.JogVelocity);
+         * //AsseY.SetMotDec(X, MotEL.JogVelocity);
+         * 
+         * AsseX.Move(X, MotAZ.TelPosition, MotAZ.JogVelocity); // TEL.SlewVelX
+         * AsseY.Move(X, MotEL.TelPosition, MotEL.JogVelocity); // TEL.SlewVelY
+         * }
+         */
     }
 
-    public void MovementDone(){
+    public void MovementDone() {
         this.TEL.TelIsMoving = false;
     }
 
-    public void WaitMovement(int milliseconds){
-        while(TEL.TelIsMoving){
+    public void WaitMovement(int milliseconds) {
+        while (TEL.TelIsMoving) {
             Sleep(milliseconds);
         }
         System.out.println("Telescopio arrivato");
     }
 
-    public void WaitMovement(){
+    public void WaitMovement() {
         Sleep(2000);
-        while(TEL.TelIsMoving){
+        while (TEL.TelIsMoving) {
             Sleep(1000);
         }
         System.out.println("Telescopio arrivato");
     }
 
     /*
-    public void Controllore(){} // vari, utilizza funzione consolle
-    public void PuntamentoCoordinate(){}
-    public void PuntamentoMinimo(){}
-    public void UpdateTime(){}
-    public void UpdatePos(){}
-    public void Inizializzazione(){}
-    public void SettaTempo(){}
-    public void SettaMeteo(){}
-    public void FormatCoord(){}
-    public void VerificaVisibilitaAstro(){}
-    public void PuntamentoCatalogo(){}
-    public void TelescopioJoystic(){}
-    public void TelescopioSettaZeroStar(){} */
+     * public void Controllore(){} // vari, utilizza funzione consolle
+     * public void PuntamentoCoordinate(){}
+     * public void PuntamentoMinimo(){}
+     * public void UpdateTime(){}
+     * public void UpdatePos(){}
+     * public void Inizializzazione(){}
+     * public void SettaTempo(){}
+     * public void SettaMeteo(){}
+     * public void FormatCoord(){}
+     * public void VerificaVisibilitaAstro(){}
+     * public void PuntamentoCatalogo(){}
+     * public void TelescopioJoystic(){}
+     * public void TelescopioSettaZeroStar(){}
+     */
 
-    public void VecchioEseguiPuntamento(){ 
+    public void VecchioEseguiPuntamento() {
         final int setTrackCup = 0;
         final int setTrackY = 0;
         final int setTracX = 0;
         final int noCentered = 0;
-        if (AsseX.CommStatus && AsseY.CommStatus){
+        if (AsseX.CommStatus && AsseY.CommStatus) {
             // killertimer (2)
             AsseX.StopMove(X);
             if (AsseX.IsMoving(X) == 1)
-                Sleep(200) ;
+                Sleep(200);
             AsseY.StopMove(X);
             if (AsseY.IsMoving(X) == 1)
-                Sleep(200) ;
+                Sleep(200);
 
             AsseX.SetSlewMode(X);
             AsseY.SetSlewMode(X);
@@ -3702,109 +3640,106 @@ public class TCS {
     }
 
     // incompleto
-    public void SetZeroStar(){
+    public void SetZeroStar() {
         double valAZ, valEL;
-        //calcolo astronomico
+        // calcolo astronomico
         Trajectory();
-        //if (TEL.MonType == 0){}
-        valAZ = (180 - TEL.TargetAZ)*3600;
-        valEL = TEL.TargetEL*3600;
+        // if (TEL.MonType == 0){}
+        valAZ = (180 - TEL.TargetAZ) * 3600;
+        valEL = TEL.TargetEL * 3600;
         AsseX.GetMotEncPos(X);
         AsseY.GetMotEncPos(X);
         this.TEL.PosX = AsseX.EncoderPos[0];
         this.TEL.PosY = AsseY.EncoderPos[0];
-        this.DPX = TEL.PosX - valAZ; //desired position x
+        this.DPX = TEL.PosX - valAZ; // desired position x
         this.DPY = TEL.PosY - valEL;
 
         AsseX.SetAxisZeroPos(X, valAZ);
         AsseY.SetAxisZeroPos(X, valEL);
-        //AsseCupola.SetAxisZeroPos(X, valAZ);
+        // AsseCupola.SetAxisZeroPos(X, valAZ);
 
-        //modifica zeri dat file
+        // modifica zeri dat file
     }
 
     // Inizializzazione assi, procedura home telescope position
-    public void HomePosition(){ // OK
+    public void HomePosition() { // OK
         long ValoX = 0, ValoY = 0;
-        
+
         // aprire file Zeri.dat e prendere ValoX e ValoY
-        /* 
-        String filezeri = "zeri.txt";
+        /*
+         * String filezeri = "zeri.txt";
+         * 
+         * try (BufferedReader br = new BufferedReader(new FileReader(filezeri))) {
+         * String line = br.readLine();
+         * if (line != null) {
+         * ValoX = Integer.parseInt(line.trim()); // Double.parseDouble
+         * }
+         * line = br.readLine();
+         * if (line != null) {
+         * ValoY = Integer.parseInt(line.trim()); // Double.parseDouble
+         * }
+         * } catch (IOException e) {
+         * e.printStackTrace();
+         * }
+         */
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filezeri))) {
-            String line = br.readLine();
-            if (line != null) {
-                ValoX = Integer.parseInt(line.trim()); // Double.parseDouble
-            }
-            line = br.readLine();
-            if (line != null) {
-                ValoY = Integer.parseInt(line.trim()); // Double.parseDouble
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        */
+        final long ZeroX = this.PZ.ZeroX;
+        final long ZeroY = this.PZ.ZeroY; // non sono assegnati, vengono dal file?
 
-        final long ZeroX=this.PZ.ZeroX;
-        final long ZeroY=this.PZ.ZeroY; // non sono assegnati, vengono dal file?
-
-        ValoX += (long) (ZeroX*3600*AsseX.CONVFACTOR[0] + 0.5 - 30*AsseX.CONVFACTOR[0]);
+        ValoX += (long) (ZeroX * 3600 * AsseX.CONVFACTOR[0] + 0.5 - 30 * AsseX.CONVFACTOR[0]);
         AsseX.CommandArray("AVSE", 8, (int) ValoX);
         ValoX = AsseX.VALUECR;
-        tcsError(AsseX.ExecProg("HOMEX"),1192);
+        tcsError(AsseX.ExecProg("HOMEX"), 1192);
 
-        //ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
-        //AsseY.CommandArray("AVSE", 8, (int) ValoY);
-        //ValoY = AsseY.VALUECR;
-        //tcsError(AsseY.ExecProg("HOMEX"),1291);
+        // ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
+        // AsseY.CommandArray("AVSE", 8, (int) ValoY);
+        // ValoY = AsseY.VALUECR;
+        // tcsError(AsseY.ExecProg("HOMEX"),1291);
     }
 
-
-    public void SetZeroFromFile(){
+    public void SetZeroFromFile() {
         final int valx = 1, valy = 1, valc = 1;
         // input da file lastpos.dat
         final byte[] istruzione = AsseX.sbld("SXZP");
-        AsseX.CommandSet(istruzione,valx);
+        AsseX.CommandSet(istruzione, valx);
         Sleep(100);
-        AsseY.CommandSet(istruzione,valy);
+        AsseY.CommandSet(istruzione, valy);
         Sleep(100);
-        AsseCupola.CommandSet(istruzione,valc);
+        AsseCupola.CommandSet(istruzione, valc);
     }
 
-
-
-    /* 
-
-    // TELESCOPIO
-    public void SetTelTrackVel(){}
-    public void TelescoFermaMoto(){}
-    public void OnTelescoStartMotoOrario(){}
-    public void OnTelescoStopInseguimento(){}
-    public void OnTelescoInitAssi(){}
-    public void OnTelescoInitAsseX(){}
-    public void OnTelescoInitAsseY(){}
-    public void OnTelescoInitAsseZ(){}
-    public void OnTelescoParametri(){}
-    public void OnTelescoVerificap(){}
-
-    // altro
-    public void OnPuntamentoPianeti(){}
-    public void OnExecuteRemote(){}   
-    public void OnSetGPStime(){}
-    public void OnGetGPStime(){}
-    public void OnMostraDatiMeteo(){}
-    public void OnExternalObj(){}
-    public void ReadCostPun(){}
-    public void OnSettaZeroTelFile(){}
-    public void CorreggiAZ(){}
-    public void CorreggiEL(){}
-
-    */
+    /*
+     * 
+     * // TELESCOPIO
+     * public void SetTelTrackVel(){}
+     * public void TelescoFermaMoto(){}
+     * public void OnTelescoStartMotoOrario(){}
+     * public void OnTelescoStopInseguimento(){}
+     * public void OnTelescoInitAssi(){}
+     * public void OnTelescoInitAsseX(){}
+     * public void OnTelescoInitAsseY(){}
+     * public void OnTelescoInitAsseZ(){}
+     * public void OnTelescoParametri(){}
+     * public void OnTelescoVerificap(){}
+     * 
+     * // altro
+     * public void OnPuntamentoPianeti(){}
+     * public void OnExecuteRemote(){}
+     * public void OnSetGPStime(){}
+     * public void OnGetGPStime(){}
+     * public void OnMostraDatiMeteo(){}
+     * public void OnExternalObj(){}
+     * public void ReadCostPun(){}
+     * public void OnSettaZeroTelFile(){}
+     * public void CorreggiAZ(){}
+     * public void CorreggiEL(){}
+     * 
+     */
 
     // FUNZIONI come apm
 
     // INCOMPLETO
-    public void Exit(){
+    public void Exit() {
         // ofstream lastopos("lastpos.dat")
         long ValoX;
         final long ValoY;
@@ -3813,8 +3748,8 @@ public class TCS {
         // KillTimer(1);
         // KillTimer(2);
 
-        if (AsseX.CommStatus){
-            if (AsseX.IsMoving(X) == 1){
+        if (AsseX.CommStatus) {
+            if (AsseX.IsMoving(X) == 1) {
                 AsseX.StopMove(X);
                 // update tcs log
             }
@@ -3824,8 +3759,8 @@ public class TCS {
             AsseX.CloseComm();
         }
 
-        if (AsseY.CommStatus){
-            if (AsseY.IsMoving(X) == 1){
+        if (AsseY.CommStatus) {
+            if (AsseY.IsMoving(X) == 1) {
                 AsseY.StopMove(X);
                 // update tcs log
             }
@@ -3835,63 +3770,59 @@ public class TCS {
             AsseX.CloseComm();
         }
 
-        if (AsseCupola.CommStatus){
-            if (CUP.StatusApertura == 1){
+        if (AsseCupola.CommStatus) {
+            if (CUP.StatusApertura == 1) {
                 CupolaChiusura();
                 Sleep(8000);
             }
-            
+
             err = AsseCupola.GetMotEncPos(X);
             ValoC = AsseCupola.VALUECR;
         }
 
-        // AGGIORNARE LASTPOS E CONNESSIONE REMOTA 
+        // AGGIORNARE LASTPOS E CONNESSIONE REMOTA
 
         Sleep(1000);
     }
 
-
-
-
     // SEMPLICI GET FATTI
 
-    public void GetTelInfo(){
-        //double ra;
+    public void GetTelInfo() {
+        // double ra;
         GetTelInfoX();
         GetTelInfoY();
-        
-        
-            //double[] hadec = AzEl2HaDec(TEL.AZ, TEL.EL, OSS.Latitudine);
-            //TEL.H = hadec[0];
-            //TEL.DEC = hadec[1];
-            //double teltimegetlsathour = 0; // ???
-            //ra = teltimegetlsathour - TEL.H;
-            //if (ra < 0.0)
-            //    ra += 24.0;
-            //if (ra > 24.0)
-            //    ra -= 24.0;
-            //TEL.RA = ra;
-            //double[] azel = HaDec2AzEl(TEL.H, TEL.DEC, OSS.Latitudine);
-            //TEL.AZ = azel[0];
-            //TEL.EL = azel[1];
-        
+
+        // double[] hadec = AzEl2HaDec(TEL.AZ, TEL.EL, OSS.Latitudine);
+        // TEL.H = hadec[0];
+        // TEL.DEC = hadec[1];
+        // double teltimegetlsathour = 0; // ???
+        // ra = teltimegetlsathour - TEL.H;
+        // if (ra < 0.0)
+        // ra += 24.0;
+        // if (ra > 24.0)
+        // ra -= 24.0;
+        // TEL.RA = ra;
+        // double[] azel = HaDec2AzEl(TEL.H, TEL.DEC, OSS.Latitudine);
+        // TEL.AZ = azel[0];
+        // TEL.EL = azel[1];
+
     }
 
-    public void GetTelInfoX(){
+    public void GetTelInfoX() {
         double PosX;
         long valo;
         int err;
 
-        if (AsseX.CommStatus){
+        if (AsseX.CommStatus) {
             // caso TelMonTipo = 0
-            
+
             err = AsseX.GetMotEncPos(X);
             valo = AsseX.VALUECR;
-            PosX = valo/AsseX.CONVFACTOR[0] - CostX[0];
+            PosX = valo / AsseX.CONVFACTOR[0] - CostX[0];
             TEL.PosX = PosX;
-            PosX = (180*3600.0 - PosX);
-            TEL.AZ = PosX/3600.0;
-        
+            PosX = (180 * 3600.0 - PosX);
+            TEL.AZ = PosX / 3600.0;
+
             err = AsseX.GetMotVel(X);
             TEL.SlewVelX = AsseX.VelAx[0];
 
@@ -3900,18 +3831,18 @@ public class TCS {
         }
     }
 
-    public void GetTelInfoY(){
+    public void GetTelInfoY() {
         double PosY;
         long valo;
         int err;
 
-        if (AsseY.CommStatus){
+        if (AsseY.CommStatus) {
             err = AsseY.GetMotEncPos(X);
             valo = AsseY.VALUECR;
-            PosY = valo/AsseY.CONVFACTOR[0] - CostY[0];
+            PosY = valo / AsseY.CONVFACTOR[0] - CostY[0];
             TEL.PosY = PosY;
-            PosY = (180*3600 - PosY);
-            TEL.EL = PosY/3600.0;
+            PosY = (180 * 3600 - PosY);
+            TEL.EL = PosY / 3600.0;
 
             err = AsseY.GetMotVel(X);
             TEL.SlewVelY = AsseY.VelAx[0];
@@ -3921,17 +3852,17 @@ public class TCS {
         }
     }
 
-    public void GetTelInfoZ(){
+    public void GetTelInfoZ() {
         double PosZ;
         long valo;
         int err;
 
-        if (AsseZ.CommStatus){
+        if (AsseZ.CommStatus) {
             err = AsseZ.GetMotEncPos(X);
             valo = AsseZ.VALUECR;
-            PosZ = valo/AsseZ.CONVFACTOR[0];
+            PosZ = valo / AsseZ.CONVFACTOR[0];
             TEL.PosZ = PosZ;
-            TEL.PA = PosZ/3600.0;
+            TEL.PA = PosZ / 3600.0;
 
             err = AsseZ.GetMotVel(X);
             TEL.SlewVelZ = AsseZ.VelAx[0];
@@ -3941,463 +3872,187 @@ public class TCS {
         }
     }
 
-    public double gettargetRA(){
+    public double gettargetRA() {
         return TEL.TargetRA2000;
     }
 
-    public double gettargetDEC(){
+    public double gettargetDEC() {
         return TEL.TargetDEC2000;
     }
 
-    public double gettargetAZ(){
+    public double gettargetAZ() {
         return TEL.TargetAZ;
     }
 
-    public double gettargetEL(){
+    public double gettargetEL() {
         return TEL.TargetEL;
     }
 
     // CUPOLA
 
-    public int CupolaApertura(){
+    public int CupolaApertura() {
         int Err;
-        if (AsseCupola.CommStatus){
+        if (AsseCupola.CommStatus) {
             Err = AsseCupola.ExecProg("APRICUP");
-        }
-        else{
+        } else {
             Err = 0;
         }
         return Err;
     }
 
-    public int CupolaChiusura(){
+    public int CupolaChiusura() {
         int Err;
-        if (AsseCupola.CommStatus){
+        if (AsseCupola.CommStatus) {
             Err = AsseCupola.ExecProg("CHIUDCUP");
-        }
-        else{
+        } else {
             Err = 0;
         }
         return Err;
     }
 
-    public int CupolaOvest(){
+    public int CupolaOvest() {
         int Err;
-        if (AsseCupola.CommStatus){
+        if (AsseCupola.CommStatus) {
             Err = AsseCupola.ExecProg("SXCUP");
             CUP.StatusRotazione = 1;
             CUP.Direzione = 1;
-        }
-        else{
+        } else {
             Err = 0;
         }
         return Err;
     }
 
-    public int CupolaEst(){
+    public int CupolaEst() {
         int Err;
-        if (AsseCupola.CommStatus){
+        if (AsseCupola.CommStatus) {
             Err = AsseCupola.ExecProg("DXCUP");
             CUP.StatusRotazione = 1;
             CUP.Direzione = -1;
-        }
-        else{
+        } else {
             Err = 0;
         }
         return Err;
     }
 
-    public int CupolaSetZero(){
+    public int CupolaSetZero() {
         int Err;
-        if (AsseCupola.CommStatus){
+        if (AsseCupola.CommStatus) {
             Err = AsseCupola.ExecProg("HOMECUP");
-        }
-        else{
+        } else {
             Err = 0;
         }
         return Err;
     }
 
-    /*public int CupolaVai(double az){
+    /*
+     * public int CupolaVai(double az){
+     * 
+     * if (AsseCupola.CommStatus){
+     * int azi = (int) (3600*az*AsseCupola.CONVFACTOR[0]);
+     * int Err;
+     * byte[] command = AsseCupola.sbld("AVSE");
+     * AsseCupola.CommandArray(command, 10, azi);
+     * Err = AsseCupola.ExecProg("PUNTA");
+     * if (Err != -1){
+     * return Err;
+     * }
+     * }
+     * CUP.StatusRotazione = 1;
+     * CUP.Direzione = -1;
+     * 
+     * return -1;
+     * }
+     */
 
-        if (AsseCupola.CommStatus){
-            int azi = (int) (3600*az*AsseCupola.CONVFACTOR[0]);
-            int Err;
-            byte[] command = AsseCupola.sbld("AVSE");
-            AsseCupola.CommandArray(command, 10, azi);
-		    Err = AsseCupola.ExecProg("PUNTA");
-            if (Err != -1){
-                return Err;
-            }
-        }
-        CUP.StatusRotazione = 1;
-        CUP.Direzione = -1;
-
-        return -1;
-    }
-    */
-
-    public int FermaCupola(){
-        if (AsseCupola.CommStatus){
-            tcsError(AsseCupola.ExecProg("FERMACUP"),1382);
+    public int FermaCupola() {
+        if (AsseCupola.CommStatus) {
+            tcsError(AsseCupola.ExecProg("FERMACUP"), 1382);
             this.CUP.StatusRotazione = 0;
             this.CUP.Direzione = 0;
         }
         return -1;
     }
 
-    public int PuntaCupola(final double azObj){
-        if (AsseCupola.CommStatus){
-            final int az = (int) (3600*azObj*AsseCupola.CONVFACTOR[0]);
+    public int PuntaCupola(final double azObj) {
+        if (AsseCupola.CommStatus) {
+            final int az = (int) (3600 * azObj * AsseCupola.CONVFACTOR[0]);
             final byte[] command = AsseCupola.sbld("AVSE");
             AsseCupola.CommandArray(command, 10, az);
-            tcsError(AsseCupola.ExecProg("PUNTA"),1386);
+            tcsError(AsseCupola.ExecProg("PUNTA"), 1386);
         }
         this.CUP.StatusRotazione = 1;
         this.CUP.Direzione = -1;
         return -1;
     }
 
-    public int PuntaCupola(){
-        if (AsseCupola.CommStatus){
-            final int az = (int) (3600*CUP.CommandedAZ*AsseCupola.CONVFACTOR[0]);
+    public int PuntaCupola() {
+        if (AsseCupola.CommStatus) {
+            final int az = (int) (3600 * CUP.CommandedAZ * AsseCupola.CONVFACTOR[0]);
             final byte[] command = AsseCupola.sbld("AVSE");
             AsseCupola.CommandArray(command, 10, az);
-            tcsError(AsseCupola.ExecProg("PUNTA"),1386);
+            tcsError(AsseCupola.ExecProg("PUNTA"), 1386);
         }
         this.CUP.StatusRotazione = 1;
         this.CUP.Direzione = -1;
         return -1;
     }
 
-    /* public int PuntaCupolaAngle(double angle){
-        int az = (int) (3600*angle*AsseCupola.CONVFACTOR[0]);
-        int Err;
-        byte[] command = AsseCupola.sbld("AVSE");
-        AsseCupola.CommandArray(command, 10, az);
-        Err = AsseCupola.ExecProg("PUNTA");
-        if (Err != -1){
-            return Err;
-        }
-        return -1;
-    }
-    */
+    /*
+     * public int PuntaCupolaAngle(double angle){
+     * int az = (int) (3600*angle*AsseCupola.CONVFACTOR[0]);
+     * int Err;
+     * byte[] command = AsseCupola.sbld("AVSE");
+     * AsseCupola.CommandArray(command, 10, az);
+     * Err = AsseCupola.ExecProg("PUNTA");
+     * if (Err != -1){
+     * return Err;
+     * }
+     * return -1;
+     * }
+     */
 
-    public void GetCupolaInfo(){
+    public void GetCupolaInfo() {
         long valo;
-        if (AsseCupola.CommStatus){
+        if (AsseCupola.CommStatus) {
             AsseCupola.GetMotEncPos(X);
             valo = AsseCupola.VALUECR;
-            CUP.Pos = valo/AsseCupola.CONVFACTOR[0];
-            CUP.AZ = CUP.Pos/3600.0;
+            CUP.Pos = valo / AsseCupola.CONVFACTOR[0];
+            CUP.AZ = CUP.Pos / 3600.0;
             if (CUP.AZ >= 360.0)
                 CUP.AZ -= 360.0;
         }
     }
 
-    public void CupolaInseguimento(){}
+    public void CupolaInseguimento() {
+    }
 
-    public void EmergencyStop(){
+    public void EmergencyStop() {
 
-            if (xAxisConnection)
-                AsseX.StopMove(X);
-            if (yAxisConnection)
-                AsseY.StopMove(X);
-            if (domeAxisConnection)
-                FermaCupola();
-
+        if (xAxisConnection)
+            AsseX.StopMove(X);
+        if (yAxisConnection)
+            AsseY.StopMove(X);
+        if (domeAxisConnection)
+            FermaCupola();
 
     }
 
 
-
-
-
-
-    //#region TASTIERINO
-
-    public void print(String string){
+    public void print(String string) {
         System.out.println(string);
     }
 
-   
+    // #region MAIN
 
+    public static void main(final String[] a) { // sudo chmod 777 /dev/ttyS0 sudo chmod 777 /dev/ttyUSB0
 
-
-
-
-    //#region MAIN
-
-
-
-
-    public static void main(final String[] a){ // sudo chmod 777 /dev/ttyS0     sudo chmod 777 /dev/ttyUSB0
-        //System.out.println("\nHello World\n");
-
-        boolean conditionTest = false;
-
-        // inizializzazione
         TCS tcs = new TCS();
 
-        if (tcs.xAxisConnection){
-            System.out.println("Before Connection: ");
-            System.out.println("comm status: "+tcs.AsseX.CommStatus);
-            System.out.print("Encoder Res: ");
-            System.out.println(tcs.AsseX.ENCODERRES[0]);  // 18000
-            System.out.print("Convfactor: ");
-            System.out.println(tcs.AsseX.CONVFACTOR[0]); // 20
-            System.out.print("Max Velocity: ");
-            System.out.println(tcs.AsseX.MaxVel[0]);
-            System.out.print("Max Absolute Velocity: ");
-            System.out.println(tcs.AsseX.MaxAbsVel[0]);
-            System.out.print("Max Acceleration: ");
-            System.out.println(tcs.AsseX.MaxAcc[0]);
-            System.out.print("Max Absolute Acceleration: ");
-            System.out.println(tcs.AsseX.MaxAbsAcc[0]);
-
-            // connect and initialization
-            tcs.connect();
-            
-            System.out.println("-----------------------------");
-
-            System.out.println("After Connection: ");
-            System.out.println("comm status: "+tcs.AsseX.CommStatus);
-            System.out.print("Encoder Res: ");
-            System.out.println(tcs.AsseX.ENCODERRES[0]);  // 18000
-            System.out.print("Convfactor: ");
-            System.out.println(tcs.AsseX.CONVFACTOR[0]); // 20
-            System.out.print("Max Velocity: ");
-            System.out.println(tcs.AsseX.MaxVel[0]);
-            System.out.print("Max Absolute Velocity: ");
-            System.out.println(tcs.AsseX.MaxAbsVel[0]);
-            System.out.print("Max Acceleration: ");
-            System.out.println(tcs.AsseX.MaxAcc[0]);
-            System.out.print("Max Absolute Acceleration: ");
-            System.out.println(tcs.AsseX.MaxAbsAcc[0]);
-
-
-            System.out.println("-----------------------------");
-
-            tcs.AsseX.GetMotMaxMinPos("X");
-            System.out.println("Max Min Pos: "+tcs.AsseX.MaxPos[0]+" , "+tcs.AsseX.MinPos[0]);
-        }
-
-        if (tcs.yAxisConnection){
-            System.out.println("Before Connection: ");
-            System.out.println("comm status: "+tcs.AsseY.CommStatus);
-            System.out.print("Encoder Res: ");
-            System.out.println(tcs.AsseY.ENCODERRES[0]);  // 18000
-            System.out.print("Convfactor: ");
-            System.out.println(tcs.AsseY.CONVFACTOR[0]); // 20
-            System.out.print("Max Velocity: ");
-            System.out.println(tcs.AsseY.MaxVel[0]);
-            System.out.print("Max Absolute Velocity: ");
-            System.out.println(tcs.AsseY.MaxAbsVel[0]);
-            System.out.print("Max Acceleration: ");
-            System.out.println(tcs.AsseY.MaxAcc[0]);
-            System.out.print("Max Absolute Acceleration: ");
-            System.out.println(tcs.AsseY.MaxAbsAcc[0]);
-
-            // connect and initialization
-            tcs.connect();
-            
-            System.out.println("-----------------------------");
-
-            System.out.println("After Connection: ");
-            System.out.println("comm status: "+tcs.AsseY.CommStatus);
-            System.out.print("Encoder Res: ");
-            System.out.println(tcs.AsseY.ENCODERRES[0]);  // 18000
-            System.out.print("Convfactor: ");
-            System.out.println(tcs.AsseY.CONVFACTOR[0]); // 20
-            System.out.print("Max Velocity: ");
-            System.out.println(tcs.AsseY.MaxVel[0]);
-            System.out.print("Max Absolute Velocity: ");
-            System.out.println(tcs.AsseY.MaxAbsVel[0]);
-            System.out.print("Max Acceleration: ");
-            System.out.println(tcs.AsseY.MaxAcc[0]);
-            System.out.print("Max Absolute Acceleration: ");
-            System.out.println(tcs.AsseY.MaxAbsAcc[0]);
-
-
-            System.out.println("-----------------------------");
-
-            tcs.AsseY.GetMotMaxMinPos("X");
-            System.out.println("Max Min Pos: "+tcs.AsseY.MaxPos[0]+" , "+tcs.AsseY.MinPos[0]);
-
-        }
-
-
-        GUItcs gui = new GUItcs(tcs);
-        gui.showGui();
-
-
-    
-
-        // settare orario (in automatico?)
-
-        // apertura cupola
-        //tcs.CmdCloseCupola(true);
-
-        if (conditionTest){
-            System.out.println("----------------TCS dome position-------------------");
-            System.out.println(tcs.GetCupolaPosition());
-            System.out.println("------------------------------------");
-        }
-
-
-        // home position di telescopio e cupola
-        //tcs.CmdHome(true); // ha al suo interno sia cupola che telescopio
-
-        // settare una stella luminosa target per poi fare gli zeri
-        if (conditionTest){
-            tcs.SetTarget("HIP69673"); // prende le coordinate in J2000  "HIP69673"
-            System.out.println(tcs.TEL.TargetName);
-            System.out.println(tcs.TEL.TargetRA2000);
-            System.out.println(tcs.TEL.TargetDEC2000);
-        }
-
-        // muoversi al target
-    
-
-        if (conditionTest){
-            tcs.CmdStartPointing(true); 
-        /*
-         * manda il task (pointingTask) che muove azimuth ed elevazione,
-         * dove viene utilizzata la funzione StartMotion.
-         * In input vuole Azimuth ed Elevazione, quindi bisogna prima settarle trasformando da J2000
-        */
-        // controllare che sia arrivato
-            System.out.println("waiting...");
-            tcs.Sleep(10000);
-            tcs.WaitMovement(2000);
-
-        // aggiustamento posizione
-            tcs.CmdStartPointing(true); 
-            tcs.WaitMovement(500);
-        }
-
-        // centrare il target con il tastierino
-
-
-        
-        
-
-        // settare gli zeri sulla stella nota 
-        if (conditionTest)
-            tcs.SetZeroStar();
-
-        // settare un target per l'osservazione
-        if (conditionTest){
-        tcs.SetTarget("M5");
-            System.out.println(tcs.TEL.TargetName);
-            System.out.println(tcs.TEL.TargetRA2000);
-            System.out.println(tcs.TEL.TargetDEC2000);
-        }
-
-        // arrivare al target e iniziare il tracking per l'osservazione
-        if (conditionTest){
-            tcs.CmdStartPointing(true);
-            tcs.WaitMovement(); 
-            tcs.CmdStartPointing(true); 
-            tcs.WaitMovement(); 
-        }
-
-        // iniziare a seguire un nuovo target
-        if (conditionTest){
-            tcs.CmdStartTracking(true);
-        }
-
-
-
-        // interrompere il moto
-
-        // parcheggiare il telescopio nella park position
-
-        // spegnere tutto
-
-
-
-
-
-
-
-
-
-        //tcs.Trajectory();
-        
-
-
-
-        /*
-
-        if (tcs.domeAxisConnection){
-            double angoloC = tcs.GetCupolaPosition();
-            System.out.println("Posizione cupola: "+angoloC);
-
-        //tcs.CmdHomeCupola(true);
-        }
-        //tcs.CmdGoStandby(true);
-
-
-        if (tcs.xAxisConnection){
-            tcs.Sleep(1000);
-            System.out.println("...");
-            double angoloAZ = tcs.GetAzTelPos();
-            System.out.println("Posizione Azimuth: "+angoloAZ);
-        }
-
-
-        if (tcs.yAxisConnection){
-            tcs.Sleep(1000);
-            System.out.println("...");
-            double angoloEL = tcs.GetElTelPos();
-            System.out.println("Posizione Elevazione: "+angoloEL);
-        }
-
-
-        */
-
-
-        //tcs.CmdSetHomePos(true);
-
-
-        //tcs.CupolaApertura();
-        /*
-        //tcs.CmdCloseCupola(true);
-        tcs.Sleep(3000);
-        double angolo = tcs.GetCupolaPosition();
-        System.out.println("Posizione cupola: "+angolo);
-        tcs.SetCupolaTargetPosition(angolo-20.5);
-
-        tcs.Sleep(3000);
-        tcs.PuntaCupola();
-        
-        //tcs.CmdCupolaEst(true);
-        tcs.Sleep(30000);
-        tcs.FermaCupola();
-        tcs.Sleep(3000);
-        angolo = tcs.GetCupolaPosition();
-        System.out.println("Posizione cupola: "+angolo);
-        //tcs.Sleep(5000);
-        //
-
-
-
-
-
-        
-        System.out.println("tutto okay");
-
-        //if (connecting){
-        tcs.Sleep(2000);
-        tcs.disconnect();
-        
-        System.out.println("fine.");
-
-        */
-
-
-      }
-
+        SwingUtilities.invokeLater(() -> {
+            GUItcs gui = new GUItcs(tcs);
+            gui.showGui();
+        });
+
+    }
 
 }

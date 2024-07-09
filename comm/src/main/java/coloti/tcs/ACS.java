@@ -634,18 +634,19 @@ public class ACS {
   }
 
   public int SetMotorOn(String ax){ // VERIFICATO 
-    if (GetMotorStatus(ax) == 0) {
+    if (true) {
       byte[] command = sbld("S%sMO", ax);
       int ErroreCode = CommandSet(command, 1);
       if (ErroreCode == -1) {
         this.MOTORSTATUS[AxesNumber(ax)] = 1;
-        System.out.println("OKAY");
+        System.out.println("MOTOR ON");
         return ACSOK;
       } else {
-        System.out.println("NO");
+        System.out.println("MOTOR OFF");
         return ErroreCode;
       }
     } else {
+      System.out.println("MOTOR already ON");
       return ACSOK;
     }
   }
