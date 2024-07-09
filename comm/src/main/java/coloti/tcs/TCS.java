@@ -109,7 +109,7 @@ public class TCS {
     public boolean yAxisConnection = false;
     public boolean domeAxisConnection = false;
     boolean weatherConnection = false;
-    boolean tcsConnection = false;
+    public boolean tcsConnection = false;
     private EHardwareStatePhase statePhase;
     private static final Logger logger = LoggerFactory.getLogger(App.class);
     public int TemporaryErr;
@@ -252,6 +252,7 @@ public class TCS {
             initHwStateMachine(OFF);
             TEL.MachineState = mcsStateMachine.getCurrentState().value;
             TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
+            this.tcsConnection = true;
             return true;
         } else
             return false;

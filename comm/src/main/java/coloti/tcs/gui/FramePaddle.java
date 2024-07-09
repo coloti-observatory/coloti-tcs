@@ -40,7 +40,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JRadioButton slewButton;
   JRadioButton jogButton;
 
-  JLabel labelTimer;
+  
   JLabel labelVelocity;
   JLabel labelVelocity2;
   JLabel labelTargetRa;
@@ -167,10 +167,6 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.add(textSetVel);
 
 
-    labelTimer = new JLabel("");
-    labelTimer.setBounds(950, 30, 250, 30);
-    this.add(labelTimer);
-    this.timer.start();
 
     labelVelocity = new JLabel("");
     labelVelocity.setBounds(750, 70, 400, 30);
@@ -351,12 +347,12 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.actionMediumSpeed = action -> {
       print("Set medium speed");
-      tcs.SetAbsJogVelocity(150);
+      tcs.SetAbsJogVelocity(1000); //1000
     };
 
     this.actionFastSpeed = action -> {
       print("Set fast speed");
-      tcs.SetAbsJogVelocity(180);
+      tcs.SetAbsJogVelocity(1500); //180
     };
 
     this.actionJogMode = action -> {
@@ -452,17 +448,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   //  this.timerUP = new 
   // }
 
-  Timer timer = new Timer(2000, new ActionListener() {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        // Update the JTextField with current time (for example)
-        labelTimer.setText("Current Time: ");// + System.currentTimeMillis());
-    }
-  });
 
   Timer timerVelocity = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
+      if (tcs.xAxisConnection && tcs.tcsConnection)
         labelVelocity.setText("AZ vel. - commanded: " + format.format(tcs.GetAzCommandedVel()) + " ,  current: "+ format.format(tcs.GetAzActVel()) );
     }
   });
@@ -470,6 +460,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   Timer timerVelocity2 = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
+      if (tcs.yAxisConnection && tcs.tcsConnection)
         labelVelocity2.setText("EL vel. - commanded: " + format.format(tcs.GetElCommandedVel()) + " ,  current: "+ format.format(tcs.GetElActVel()) );
     }
   });
@@ -494,7 +485,12 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     @Override
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
-        labelCurrentPosition.setText("Current Posizion (AZ,DEC):  " + format.format(tcs.GetAzTelPos()) + " , "+ format.format(tcs.GetElTelPos()));
+        if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
+          labelCurrentPosition.setText("Current Posizion (AZ,DEC):  " + format.format(tcs.GetAzTelPos()) + " , "+ format.format(tcs.GetElTelPos()));
+        else if (tcs.xAxisConnection && tcs.tcsConnection)
+          labelCurrentPosition.setText("Current Posizion (AZ,DEC):  " + format.format(tcs.GetAzTelPos()) + " , 0");
+        else
+          labelCurrentPosition.setText("Current Posizion (AZ,DEC):  0, 0");
     }
   });
 

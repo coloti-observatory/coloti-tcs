@@ -92,7 +92,7 @@
 
 
 
-        //*/
+        //     /usr/bin/env /usr/lib/jvm/java-11-openjdk-amd64/bin/java @/tmp/cp_dty5h9amzech4p1v08iugt6u4.argfile coloti.tcs.TCS 
 
         // settare orario (in automatico?)
 
