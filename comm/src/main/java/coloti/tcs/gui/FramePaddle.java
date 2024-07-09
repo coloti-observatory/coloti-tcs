@@ -487,11 +487,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
         if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Posizion (AZ,DEC):  " + format.format(tcs.GetAzTelPos()) + " , "+ format.format(tcs.GetElTelPos()));
+          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  " + format.format(tcs.GetAzTelPos()/3600) + " , "+ format.format(tcs.GetElTelPos()/3600));
         else if (tcs.xAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Posizion (AZ,DEC):  " + format.format(tcs.GetAzTelPos()) + " , 0");
+          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  " + format.format(tcs.GetAzTelPos()/3600) + " , 0");
         else
-          labelCurrentPosition.setText("Current Posizion (AZ,DEC):  0, 0");
+          labelCurrentPosition.setText("Current Posizion (AZ,EL):  0, 0");
     }
   });
 

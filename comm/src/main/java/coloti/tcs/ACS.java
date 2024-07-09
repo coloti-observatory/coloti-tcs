@@ -242,23 +242,23 @@ public class ACS {
     switch (um) {
       case RAD:
         this.UM = RAD;
-        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[RAD];
+        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI]*4 / this.MAXMIS[RAD];
         return CONVFACTOR[axI]; //break;
 
       case GRAD:
         this.UM = GRAD;
-        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[GRAD];
+        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] *4/ this.MAXMIS[GRAD];
         return CONVFACTOR[axI]; //break;
 
       case HOUR:
         this.UM = HOUR;
-        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] / this.MAXMIS[HOUR];
+        this.CONVFACTOR[axI] = gr * this.ENCODERRES[axI] *4 / this.MAXMIS[HOUR];
         return CONVFACTOR[axI];
 
       case ARCSECS:
         this.UM = ARCSECS;
-        this.CONVFACTOR[axI] = gr * ENCODERRES[axI] / MAXMIS[ARCSECS];
-        if (PRINT){
+        this.CONVFACTOR[axI] = gr * ENCODERRES[axI] * 4 / MAXMIS[ARCSECS];
+        if (true){
           System.out.println("INFO UNITS: ");
           System.out.println("gr: "+gr);
           System.out.println("Encoderres: "+ENCODERRES[axI]);
@@ -954,7 +954,7 @@ public class ACS {
     this.VALUECR = 0L;
     byte[] command = sbld("R%sCP", ax);
     int Err = CommandReport(command, false);
-    this.PositionAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
+    this.PositionAx[AxesNumber(ax)] = this.VALUECR/this.CONVFACTOR[AxesNumber(ax)];
     return Err;
   }
 

@@ -30,9 +30,6 @@ import java.util.concurrent.ExecutionException;
 //import coloti.tcs.ConfigurationClass;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import javax.swing.JFrame;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -214,6 +211,7 @@ public class TCS {
             this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima * 3600, -MotAZ.VelocitaMassima * 3600);
             this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup * 3600, MotAZ.PosizioneLimiteInf * 3600);
             AsseX.SetMotorOn(X);
+            AsseX.SetAxisZeroPos(X, 0);
         }
 
         // ELEVATION
