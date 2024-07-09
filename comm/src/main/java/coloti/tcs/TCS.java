@@ -4252,6 +4252,8 @@ public class TCS {
         }
 
 
+        GUItcs gui = new GUItcs(tcs);
+        gui.showGui();
 
 
     
@@ -4302,9 +4304,7 @@ public class TCS {
         // centrare il target con il tastierino
 
 
-        GUItcs gui = new GUItcs(tcs);
-        gui.showGui();
-
+        
         
 
         // settare gli zeri sulla stella nota 
