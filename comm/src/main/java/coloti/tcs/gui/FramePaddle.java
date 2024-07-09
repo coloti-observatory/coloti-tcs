@@ -31,6 +31,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JButton buttonDomeWEST;
   JLabel l1;
   String targetString;
+  double commandedVelocity;
 
   JRadioButton slowButton;
   JRadioButton mediumButton;
@@ -79,6 +80,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionHomeDome;
   ActionListener actionHomeTel;
   ActionListener actionTarget;
+  ActionListener actionVelocity;
   ActionListener actionConnect;
   ActionListener actionDisconnect;
   ActionListener actionPoint;
@@ -410,6 +412,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     
     this.actionTarget = action -> tcs.SetTarget(targetString);
 
+    this.actionVelocity = action -> tcs.SetAbsJogVelocity(commandedVelocity);
+
     this.actionConnect = action -> tcs.connect();
 
     this.actionDisconnect = action -> tcs.disconnect();
@@ -502,6 +506,10 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.targetString = string;
   }
 
+  public void writeVelocity(double value){
+    this.commandedVelocity = (double) value;
+  }
+
 
 
   public void setButtonTarget(){
@@ -512,6 +520,16 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
             labelTarget.setText("Target: "+targetString);
             textTarget.setText("");
             actionTarget.actionPerformed(null);
+        }
+        });
+  }
+
+  public void setButtonVelocity(){
+    this.buttonSetVel.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            writeVelocity(Double.parseDouble(textSetVel.getText()));
+            actionVelocity.actionPerformed(null);
         }
         });
   }

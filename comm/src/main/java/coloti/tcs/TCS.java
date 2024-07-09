@@ -940,20 +940,28 @@ public class TCS {
             if (value == 0){
                 tcsError(AsseX.SetSlewMode(X),1165);
                 //tcsError(AsseX.SetMotVel(X, MotAZ.SlewVelocity),1166)
+                AsseX.GetMotionMode(X);
+                System.out.println(AsseX.MOTIONMODE[0]);
             }
             else if (value == 1){
                 tcsError(AsseX.SetTrackMode(X),1167);
                 //tcsError(AsseX.SetMotVel(X, MotAZ.JogVelocity),1166)
+                AsseX.GetMotionMode(X);
+                System.out.println(AsseX.MOTIONMODE[0]);
             }
         }
         if (yAxisConnection){
             if (value == 0){
                 tcsError(AsseY.SetSlewMode(X),1265);
                 //tcsError(AsseY.SetMotVel(X, MotEL.SlewVelocity),1266)
+                AsseY.GetMotionMode(X);
+                System.out.println(AsseY.MOTIONMODE[0]);
             }
             else if (value == 1){
                 tcsError(AsseY.SetTrackMode(X),1267);
                 //tcsError(AsseY.SetMotVel(X, MotEL.JogVelocity),1266)
+                AsseY.GetMotionMode(X);
+                System.out.println(AsseY.MOTIONMODE[0]);
             }
         }
         this.TEL.MotionType = value;
@@ -961,7 +969,6 @@ public class TCS {
 
     public void SetTrackingMode(){
         SetMotionType(1);
-
     }
 
     public void SetPointingMode(){
