@@ -237,6 +237,7 @@ public class TCS {
         if (domeAxisConnection) {
             this.domeAxisConnection = AsseCupola.SetSimpleStart(0);
             Sleep(500);
+            AsseCupola.SetMotorOn(X);
             // tcsError(AsseCupola.InitAxes(), 1300) ?
         }
 

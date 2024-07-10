@@ -455,6 +455,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     public void actionPerformed(ActionEvent e) {
       if (tcs.xAxisConnection && tcs.tcsConnection)
         labelVelocity.setText("AZ vel. - commanded: " + format.format(tcs.GetAzCommandedVel()) + " ,  current: "+ format.format(tcs.GetAzActVel()) );
+      else
+        labelVelocity.setText("AZ vel. - commanded: 0,  current: 0");
     }
   });
 
@@ -463,7 +465,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     public void actionPerformed(ActionEvent e) {
       if (tcs.yAxisConnection && tcs.tcsConnection)
         labelVelocity2.setText("EL vel. - commanded: " + format.format(tcs.GetElCommandedVel()) + " ,  current: "+ format.format(tcs.GetElActVel()) );
-    }
+      else
+        labelVelocity2.setText("EL vel. - commanded: 0,  current: 0");
+      }
   });
 
   Timer timerTargetRa = new Timer(2000, new ActionListener() {
