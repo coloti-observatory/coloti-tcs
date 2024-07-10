@@ -700,7 +700,7 @@ public class TCS {
     public double GetElCommandedVel() {
         if (yAxisConnection) {
             tcsError(AsseY.GetMotVel(X), 1255);
-            this.MotEL.ActualVel = AsseY.VelAx[0];
+            this.MotEL.CommandedVel = AsseY.VelAx[0];
         }
         return MotEL.CommandedVel;
     }
@@ -1060,6 +1060,7 @@ public class TCS {
                 AsseX.SetMotVel(X, value * sign);
                 this.MotAZ.SlewVelocity = value * sign;
             }
+            GetAzCommandedVel();
         } else {
             this.MotAZ.SlewVelocity = value * sign;
         }
@@ -1091,7 +1092,7 @@ public class TCS {
             AsseY.GetMotionMode(X);
             if (AsseY.MOTIONMODE[0] == 0) {
                 AsseY.SetMotVel(X, value * sign);
-                this.MotEL.SlewVelocity = value * sign;
+                getcommandedvelAZ();
             }
         } else {
             this.MotEL.SlewVelocity = value * sign;
@@ -3509,6 +3510,13 @@ public class TCS {
         }
     }
 
+    public void UpdateTelData(){
+        GetAzTelPos();
+        GetElTelPos();
+        GetAzActVel();
+        GetElActVel();
+    }
+
     public boolean CheckWheater(WeatherData wd) {
         boolean connected = wd.connected;
         if (connected) {
@@ -3888,6 +3896,31 @@ public class TCS {
     public double gettargetEL() {
         return TEL.TargetEL;
     }
+
+    public double getactualvelAZ(){
+        return MotAZ.ActualVel;
+    }
+
+    public double getactualvelEL(){
+        return MotEL.ActualVel;
+    }
+
+    public double getcurrentposAZ(){
+        return MotAZ.TelPos;
+    }
+
+    public double getcurrentposEL(){
+        return MotEL.TelPos;
+    }
+
+    public double getcommandedvelAZ(){
+        return MotAZ.CommandedVel;
+    }
+
+    public double getcommandedvelEL(){
+        return MotEL.CommandedVel;
+    }
+
 
     // CUPOLA
 

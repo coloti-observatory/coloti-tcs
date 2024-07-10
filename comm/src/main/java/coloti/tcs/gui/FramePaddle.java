@@ -326,13 +326,17 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.actionstopEL = action -> {
       if (tcs.yAxisConnection)
         tcs.CmdStopElMotion(true);
+      else
+        print("EL not connected");
       print("done.");
     };
 
     this.actionstopAZ = action -> {
       if (tcs.xAxisConnection)
             tcs.CmdStopAzMotion(true);
-          print("done.");
+      else
+        print("AZ not connected");
+      print("done.");
     };
 
     this.actionSTOP = action -> {
@@ -454,7 +458,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     @Override
     public void actionPerformed(ActionEvent e) {
       if (tcs.xAxisConnection && tcs.tcsConnection)
-        labelVelocity.setText("AZ vel. - commanded: " + format.format(tcs.GetAzCommandedVel()) + " ,  current: "+ format.format(tcs.GetAzActVel()) );
+        labelVelocity.setText("AZ vel. - commanded: " + format.format(tcs.getcommandedvelAZ()) + " ,  current: "+ format.format(tcs.getactualvelAZ()) );
       else
         labelVelocity.setText("AZ vel. - commanded: 0,  current: 0");
     }
@@ -464,7 +468,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     @Override
     public void actionPerformed(ActionEvent e) {
       if (tcs.yAxisConnection && tcs.tcsConnection)
-        labelVelocity2.setText("EL vel. - commanded: " + format.format(tcs.GetElCommandedVel()) + " ,  current: "+ format.format(tcs.GetElActVel()) );
+        labelVelocity2.setText("EL vel. - commanded: " + format.format(tcs.getcommandedvelEL()) + " ,  current: "+ format.format(tcs.getactualvelEL()) );
       else
         labelVelocity2.setText("EL vel. - commanded: 0,  current: 0");
       }
@@ -491,9 +495,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
         if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  " + format.format(tcs.GetAzTelPos()/3600) + " , "+ format.format(tcs.GetElTelPos()/3600));
+          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , "+ format.format(tcs.getcurrentposEL()/3600));
         else if (tcs.xAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  " + format.format(tcs.GetAzTelPos()/3600) + " , 0");
+          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , 0");
+        else if (tcs.yAxisConnection && tcs.tcsConnection)
+          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  0 , " + format.format(tcs.getcurrentposAZ()/3600));
         else
           labelCurrentPosition.setText("Current Posizion (AZ,EL):  0, 0");
     }
