@@ -633,26 +633,40 @@ public class ACS {
     return Err;
   }
 
+  public int SetKillDeceleration(String ax, double dec) { // VERIFICATO 
+    int Value = 0;
+    if (dec > MaxAcc[AxesNumber(ax)])
+      dec = MaxAcc[AxesNumber(ax)];
+
+    Value = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * dec);
+    byte[] command = sbld("S%sKD", ax);
+    int Err = CommandSet(command, Value);
+    return Err;
+  }
+
+
+
   public int SetMotorOn(String ax){ // VERIFICATO 
-    if (GetMotorStatus(ax) != 1) {
+    if (GetMotorOnOff(ax) != 1) {
       byte[] command = sbld("S%sMO", ax);
       int ErroreCode = CommandSet(command, 1);
+      this.MOTORSTATUS[AxesNumber(ax)] = 1;
       if (ErroreCode == -1) {
         this.MOTORSTATUS[AxesNumber(ax)] = 1;
-        System.out.println("MOTOR ON");
+        //System.out.println("MOTOR ON");
         return ACSOK;
       } else {
-        System.out.println("MOTOR OFF");
+        //System.out.println("MOTOR OFF");
         return ErroreCode;
       }
     } else {
-      System.out.println("MOTOR already ON");
+      //System.out.println("MOTOR already ON");
       return ACSOK;
     }
   }
 
   public int SetMotorOff(String ax){ // VERIFICATO 
-    if (GetMotorStatus(ax) == 1) {
+    if (GetMotorOnOff(ax) == 1) {
       byte[] command = sbld("S%sMO", ax);
       int ErroreCode = CommandSet(command, 0);
       if (ErroreCode == -1) {
@@ -887,6 +901,16 @@ public class ACS {
     return ErrorCode;
   }
 
+  public int GetMotorOnOff(String ax) { // VERIFICATO 
+    this.VALUECR = 0L;
+    int axI = AxesNumber(ax);
+    byte[] command = sbld("R%sMO", ax);
+    int ErrorCode = CommandReport(command, PRINT);
+    this.MOTIONMODE[axI] = (int) this.VALUECR;
+    //System.out.println(MOTIONMODE[axI]);
+    return ErrorCode;
+  }
+
   public int GetMotMaxMinPos(String ax) { // VERIFICATO 
     this.VALUECR = 0L;
     int axI = AxesNumber(ax);
@@ -1004,6 +1028,14 @@ public class ACS {
   public int GetMotDec(String ax) { // VERIFICATO 
     this.VALUECR = 0L;
     byte[] command = sbld("R%sLD", ax);
+    int Err = CommandReport(command, false);
+    this.DecAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
+    return Err;
+  }
+
+  public int GetKillDeceleration(String ax) { // VERIFICATO 
+    this.VALUECR = 0L;
+    byte[] command = sbld("R%sKD", ax);
     int Err = CommandReport(command, false);
     this.DecAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
     return Err;
