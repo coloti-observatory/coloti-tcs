@@ -587,7 +587,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
             writeTarget(textTarget.getText());
             labelTarget.setText("Target: "+targetString);
             textTarget.setText("");
-            actionTarget.actionPerformed(null);
+            if (!targetString.equals(""))
+              actionTarget.actionPerformed(null);
         }
         });
   }
@@ -596,8 +597,13 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.buttonSetVel.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseReleased(MouseEvent e) {
-            writeVelocity(Double.parseDouble(textSetVel.getText()));
-            actionVelocity.actionPerformed(null);
+            String absvelString = textSetVel.getText();
+            if (!absvelString.equals("")){
+              double absvel = Double.parseDouble(absvelString);
+              writeVelocity(absvel);
+              textSetVel.setText("");
+              actionVelocity.actionPerformed(null);
+            }
         }
         });
   }
