@@ -54,6 +54,7 @@ public class TELESCOPIO {
     public String GoOnlineInfo;
     public String GoMaintenanceInfo;
     public String StartMotionInfo;
+    public String PointTrackInfo;
     public String StopMotionInfo;
     public String EmergencyStopInfo;
     public String StartParkingInfo; 
@@ -128,6 +129,7 @@ public class TELESCOPIO {
     public int TargetCoordFrame;
     public int TargetCoordType;
     public boolean TelIsMoving;
+    
 
 
 

@@ -829,6 +829,10 @@ public class TCS {
         return TEL.StartTrackingInfo;
     }
 
+    public String GetPointTrackInfo(){
+        return TEL.PointTrackInfo;
+    }
+
     public String GetStopMotionInfo() {
         return TEL.StopMotionInfo;
     }
@@ -1653,6 +1657,19 @@ public class TCS {
             CmdStopMotion(value);
     }
 
+
+    public void CmdPointTrack(final boolean value) {
+        CmdStartPointing(value);
+        if (value && xAxisConnection && yAxisConnection) {
+            try {
+                taskExecutor.runTask(pointtrackTask, new DefaultListener(TEL));
+            } catch (ExecutionException | TimeoutException e) {
+                logger.error(e.getMessage());
+            }
+        }
+
+    }
+
     /*
      * fare il pointing come loop mantenendo un errore di posizione per controllo
      * dopo il primo step (o anche no)
@@ -2141,6 +2158,7 @@ public class TCS {
                 listener.onStart("HomeTelInfo");
 
             HomePosition();
+            MovementOnGoing();
 
             while (isInterrupted) {
                 if (listener != null)
@@ -2150,8 +2168,10 @@ public class TCS {
                 AsseY.IsProgramRunning();
                 // System.out.println("Az and El are going in home position ... Az:
                 // "+AsseX.isRunning+", El: "+AsseY.isRunning);
-                if (!AsseX.isRunning && !AsseY.isRunning)
+                if (!AsseX.isRunning && !AsseY.isRunning){
+                    MovementDone();
                     isInterrupted = false;
+                }
             }
 
             if (listener != null)
@@ -2546,6 +2566,8 @@ public class TCS {
             TraiettoriaY();
             Trajectory();
 
+            MovementOnGoing();
+
             while (isInterrupted) {
                 if (listener != null)
                     listener.onWorking(null);
@@ -2557,8 +2579,10 @@ public class TCS {
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
                 // System.out.println("Tracking...");
-                if (!AsseX.isMoving && !AsseY.isMoving)
+                if (!AsseX.isMoving && !AsseY.isMoving){
+                    MovementDone();
                     isInterrupted = false;
+                }
             }
 
             if (listener != null)
@@ -2610,6 +2634,7 @@ public class TCS {
                 SetPointingMode();
 
             StartPointingMotion(true, false);
+            MovementOnGoing();
 
             while (isInterrupted) {
                 if (listener != null)
@@ -2669,6 +2694,7 @@ public class TCS {
                 SetPointingMode();
 
             StartPointingMotion(false, true);
+            MovementOnGoing();
 
             while (isInterrupted) {
                 if (listener != null)
@@ -2729,6 +2755,7 @@ public class TCS {
             SetPointingMode();
 
             StartPointingMotion(true, true);
+            MovementOnGoing();
 
             while (isInterrupted) {
                 if (listener != null)
@@ -2745,6 +2772,102 @@ public class TCS {
                     isInterrupted = false;
                 }
             }
+
+            if (listener != null)
+                listener.onDone(null);
+            isInterrupted = false;
+
+            return v;
+        }
+
+        @Override
+        public void setVal(final Void v) {
+        }
+
+        @Override
+        public void interrupt() {
+            isInterrupted = false;
+            if (listener != null)
+                listener.onError("task interrupted");
+        }
+
+        @Override
+        public void setTaskListener(final TaskListener listen) {
+            listener = listen;
+        }
+
+        @Override
+        public String getCurrentVal() {
+            return null;
+        }
+
+    };
+
+    // #region T PointTrack
+    private final Task<Void> pointtrackTask = new Task<Void>() {
+        boolean isInterrupted = true;
+        private TaskListener listener;
+
+        private Void v;
+
+        @Override
+        public Void call() throws Exception {
+            if (listener != null)
+                listener.onStart("PointTrackInfo");
+
+            if (TEL.MotionType != 0)
+                SetPointingMode();
+
+            SetPointingMode();
+
+            StartPointingMotion(true, true);
+            MovementOnGoing();
+
+            while (TEL.TelIsMoving) {
+                if (listener != null)
+                    listener.onWorking(null);
+                Sleep(1000);
+                AsseX.IsMoving(X);
+                AsseY.IsMoving(X);
+                //System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
+                Sleep(1000);
+                //System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
+
+                if (!AsseX.isMoving && !AsseY.isMoving) {
+                    MovementDone();
+                }
+            }
+
+
+            if (TEL.MotionType != 1)
+                SetTrackingMode();
+
+            IsAzTracking(true);
+            IsElTracking(true);
+
+            TraiettoriaX();
+            TraiettoriaY();
+            Trajectory();
+
+            MovementOnGoing();
+
+            while (isInterrupted) {
+                if (listener != null)
+                    listener.onWorking(null);
+                Sleep(1000);
+
+                UpdateInfoTarget(false);
+                Tracking();
+
+                AsseX.IsMoving(X);
+                AsseY.IsMoving(X);
+                // System.out.println("Tracking...");
+                if (!AsseX.isMoving && !AsseY.isMoving){
+                    MovementDone();
+                    isInterrupted = false;
+                }
+            }
+
 
             if (listener != null)
                 listener.onDone(null);
@@ -3178,6 +3301,8 @@ public class TCS {
 
     };
 
+
+
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
@@ -3588,11 +3713,15 @@ public class TCS {
         this.TEL.TelIsMoving = false;
     }
 
+    public void MovementOnGoing() {
+        this.TEL.TelIsMoving = true;
+    }
+
     public void WaitMovement(int milliseconds) {
         while (TEL.TelIsMoving) {
             Sleep(milliseconds);
         }
-        System.out.println("Telescopio arrivato");
+        //System.out.println("Telescopio arrivato");
     }
 
     public void WaitMovement() {
@@ -3600,7 +3729,7 @@ public class TCS {
         while (TEL.TelIsMoving) {
             Sleep(1000);
         }
-        System.out.println("Telescopio arrivato");
+        //System.out.println("Telescopio arrivato");
     }
 
     /*
