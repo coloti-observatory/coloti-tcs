@@ -15,14 +15,14 @@ public class TELESCOPIO {
 
     // info
     public int MonType = 0;
-    public double PosX;
-    public double PosY;
-    public double PosZ;
+    public double PosX = 0;
+    public double PosY = 0;
+    public double PosZ = 0;
     public double H;
-    public double AZ;
-    public double RA;
-    public double EL;
-    public double DEC;
+    public double AZ = 0;
+    public double RA = 0;
+    public double EL = 0;
+    public double DEC = 0;
     public double PA;
     public double SlewVelX;
     public double AccX;

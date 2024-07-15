@@ -211,7 +211,7 @@ public class TCS {
             this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima * 3600, -MotAZ.VelocitaMassima * 3600); // 0.5*3600
             this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup * 3600, MotAZ.PosizioneLimiteInf * 3600);
             AsseX.SetMotorOn(X);
-            //sseX.SetAxisZeroPos(X, 0);
+            // sseX.SetAxisZeroPos(X, 0);
         }
 
         // ELEVATION
@@ -230,7 +230,7 @@ public class TCS {
             this.AsseY.SetMaxMinVel(X, MotEL.VelocitaMassima * 3600, -MotEL.VelocitaMassima * 3600); // 0.25*3600
             this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup * 3600, MotEL.PosizioneLimiteInf * 3600);
             AsseY.SetMotorOn(X);
-            //AsseY.SetAxisZeroPos(X, 0);
+            // AsseY.SetAxisZeroPos(X, 0);
         }
 
         // DOME
@@ -655,17 +655,16 @@ public class TCS {
     public double GetCupolaPosition() {
 
         long valo;
-        if (true) {
-            // GetCupolaInfo();
-            if (true) {
-                tcsError(AsseCupola.GetMotEncPos(X), 1351);
-                valo = AsseCupola.VALUECR;
-                this.CUP.Pos = valo / AsseCupola.CONVFACTOR[0];
-                this.CUP.AZ = CUP.Pos / 3600.0;
-                if (CUP.AZ >= 360.0)
-                    this.CUP.AZ -= 360.0;
-            }
+        if (domeAxisConnection) {
+            tcsError(AsseCupola.GetMotEncPos(X), 1351);
+            valo = AsseCupola.VALUECR;
+            this.CUP.Pos = valo / AsseCupola.CONVFACTOR[0];
+
+            this.CUP.AZ = CUP.Pos / 3600.0;
+            if (CUP.AZ >= 360.0)
+                this.CUP.AZ -= 360.0;
         }
+
         return CUP.AZ;
     }
 
@@ -829,7 +828,7 @@ public class TCS {
         return TEL.StartTrackingInfo;
     }
 
-    public String GetPointTrackInfo(){
+    public String GetPointTrackInfo() {
         return TEL.PointTrackInfo;
     }
 
@@ -1261,8 +1260,8 @@ public class TCS {
     public void SetTarget(final String value) {
         if (value == "") {
             this.TEL.Target = new Target();
-            this.TEL.Target.setRa(TEL.TargetRA2000); // setRa2000 ?
-            this.TEL.Target.setDec(TEL.TargetDEC2000); // setDec2000 ?
+            this.TEL.Target.setRa2000(TEL.TargetRA2000); // setRa2000 ?
+            this.TEL.Target.setDec2000(TEL.TargetDEC2000); // setDec2000 ?
             this.TEL.Target.setEpoch(0);
             Trajectory();
         } else {
@@ -1284,6 +1283,7 @@ public class TCS {
         this.TEL.Target = new Target();
         this.TEL.Target.setRa2000(ra); // setRa2000 ?
         this.TEL.Target.setDec2000(dec); // setDec2000 ?
+        this.TEL.Target.setEpoch(0);
         this.TEL.TargetRA2000 = ra; // getRa2000()
         this.TEL.TargetDEC2000 = dec;
         Trajectory();
@@ -1656,7 +1656,6 @@ public class TCS {
         if (value)
             CmdStopMotion(value);
     }
-
 
     public void CmdPointTrack(final boolean value) {
         CmdStartPointing(value);
@@ -2106,6 +2105,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(5000);
                 AsseCupola.IsProgramRunning();
+                UpdateTelData();
                 // System.out.println("The dome going in Home position ...
                 // "+AsseCupola.isRunning);
                 if (!AsseCupola.isRunning)
@@ -2166,9 +2166,10 @@ public class TCS {
                 Sleep(10000);
                 AsseX.IsProgramRunning();
                 AsseY.IsProgramRunning();
+                UpdateTelData();
                 // System.out.println("Az and El are going in home position ... Az:
                 // "+AsseX.isRunning+", El: "+AsseY.isRunning);
-                if (!AsseX.isRunning && !AsseY.isRunning){
+                if (!AsseX.isRunning && !AsseY.isRunning) {
                     MovementDone();
                     isInterrupted = false;
                 }
@@ -2331,6 +2332,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(5000);
                 AsseCupola.IsProgramRunning();
+                UpdateTelData();
                 System.out.println("Dome is pointing ... ");
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
@@ -2447,7 +2449,8 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(2000);
                 AsseCupola.IsProgramRunning();
-                System.out.println("Dome is moving to west ... ");
+                UpdateTelData();
+                //System.out.println("Dome is moving to west ... ");
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
             }
@@ -2506,7 +2509,8 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(2000);
                 AsseCupola.IsProgramRunning();
-                System.out.println("Dome is moving to east ... ");
+                UpdateTelData();
+                //System.out.println("Dome is moving to east ... ");
                 if (AsseCupola.isRunning)
                     isInterrupted = false;
             }
@@ -2578,8 +2582,9 @@ public class TCS {
 
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
+                UpdateTelData();
                 // System.out.println("Tracking...");
-                if (!AsseX.isMoving && !AsseY.isMoving){
+                if (!AsseX.isMoving && !AsseY.isMoving) {
                     MovementDone();
                     isInterrupted = false;
                 }
@@ -2641,6 +2646,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(1000); // da spostare alla fine del while?
                 AsseX.IsMoving(X);
+                UpdateTelData();
                 if (!AsseX.isMoving) {
                     IsAzPointing(false);
                     isInterrupted = false;
@@ -2701,6 +2707,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(1000); // da spostare alla fine del while?
                 AsseY.IsMoving(X);
+                UpdateTelData();
                 if (!AsseY.isMoving) {
                     IsElPointing(false);
                     isInterrupted = false;
@@ -2763,9 +2770,12 @@ public class TCS {
                 Sleep(3000);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
-                //System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
-                Sleep(3000);
-                //System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
+                UpdateTelData();
+                // System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El:
+                // " + AsseY.isMoving);
+                //Sleep(3000);
+                // System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El:
+                // " + AsseY.isMoving);
 
                 if (!AsseX.isMoving && !AsseY.isMoving) {
                     MovementDone();
@@ -2829,15 +2839,12 @@ public class TCS {
                 Sleep(1000);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
-                //System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
-                Sleep(1000);
-                //System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
+                UpdateTelData();
 
                 if (!AsseX.isMoving && !AsseY.isMoving) {
                     MovementDone();
                 }
             }
-
 
             if (TEL.MotionType != 1)
                 SetTrackingMode();
@@ -2861,13 +2868,13 @@ public class TCS {
 
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
+                UpdateTelData();
                 // System.out.println("Tracking...");
-                if (!AsseX.isMoving && !AsseY.isMoving){
+                if (!AsseX.isMoving && !AsseY.isMoving) {
                     MovementDone();
                     isInterrupted = false;
                 }
             }
-
 
             if (listener != null)
                 listener.onDone(null);
@@ -3092,6 +3099,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(200);
                 AsseY.IsMoving(X);
+                UpdateTelData();
                 if (!AsseY.isMoving)
                     isInterrupted = false;
             }
@@ -3150,6 +3158,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(200);
                 AsseY.IsMoving(X);
+                UpdateTelData();
                 if (!AsseY.isMoving)
                     isInterrupted = false;
             }
@@ -3209,6 +3218,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(200);
                 AsseX.IsMoving(X);
+                UpdateTelData();
                 if (!AsseX.isMoving)
                     isInterrupted = false;
             }
@@ -3267,6 +3277,7 @@ public class TCS {
                     listener.onWorking(null);
                 Sleep(200);
                 AsseX.IsMoving(X);
+                UpdateTelData();
                 if (!AsseX.isMoving)
                     isInterrupted = false;
             }
@@ -3300,8 +3311,6 @@ public class TCS {
         }
 
     };
-
-
 
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
@@ -3635,11 +3644,12 @@ public class TCS {
         }
     }
 
-    public void UpdateTelData(){
+    public void UpdateTelData() {
         GetAzTelPos();
         GetElTelPos();
         GetAzActVel();
         GetElActVel();
+        GetCupolaPosition();
     }
 
     public boolean CheckWheater(WeatherData wd) {
@@ -3677,7 +3687,7 @@ public class TCS {
             tcsError(AsseY.StopMove(X), 1271);
             Sleep(100);
         }
-         // slew
+        // slew
         // accelerazione necessaria? Non basta nell'inizializzazione?
         if (xAxis && xAxisConnection) {
             tcsError(AsseX.SetMotAcc(X, MotAZ.MaxAcc), 1161);
@@ -3694,7 +3704,6 @@ public class TCS {
         if (yAxis && yAxisConnection) {
             tcsError(AsseY.Move(X, TEL.TargetEL, MotEL.SlewVelocity), 1290); // TEL.SlewVelY
         }
-        
 
         /*
          * if(TEL.MotionType == 1){
@@ -3721,7 +3730,7 @@ public class TCS {
         while (TEL.TelIsMoving) {
             Sleep(milliseconds);
         }
-        //System.out.println("Telescopio arrivato");
+        // System.out.println("Telescopio arrivato");
     }
 
     public void WaitMovement() {
@@ -3729,7 +3738,7 @@ public class TCS {
         while (TEL.TelIsMoving) {
             Sleep(1000);
         }
-        //System.out.println("Telescopio arrivato");
+        // System.out.println("Telescopio arrivato");
     }
 
     /*
@@ -4026,30 +4035,33 @@ public class TCS {
         return TEL.TargetEL;
     }
 
-    public double getactualvelAZ(){
+    public double getactualvelAZ() {
         return MotAZ.ActualVel;
     }
 
-    public double getactualvelEL(){
+    public double getactualvelEL() {
         return MotEL.ActualVel;
     }
 
-    public double getcurrentposAZ(){
+    public double getcurrentposAZ() {
         return MotAZ.TelPos;
     }
 
-    public double getcurrentposEL(){
+    public double getcurrentposEL() {
         return MotEL.TelPos;
     }
 
-    public double getcommandedvelAZ(){
+    public double getcurrentposDome() {
+        return CUP.AZ; // per i deg. Invece .POS per arcosecondi
+    }
+
+    public double getcommandedvelAZ() {
         return MotAZ.CommandedVel;
     }
 
-    public double getcommandedvelEL(){
+    public double getcommandedvelEL() {
         return MotEL.CommandedVel;
     }
-
 
     // CUPOLA
 
@@ -4199,7 +4211,6 @@ public class TCS {
             FermaCupola();
 
     }
-
 
     public void print(String string) {
         System.out.println(string);

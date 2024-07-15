@@ -34,11 +34,14 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JButton buttonDomeWEST;
   JLabel l1;
   String targetString;
+  double Xvalue = -999;
+  double Yvalue = -999;
   double commandedVelocity;
 
   JRadioButton slowButton;
   JRadioButton mediumButton;
   JRadioButton fastButton;
+  JRadioButton customVelButton;
   
   JRadioButton slewButton;
   JRadioButton jogButton;
@@ -94,6 +97,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionSlowSpeed;
   ActionListener actionMediumSpeed;
   ActionListener actionFastSpeed;
+  ActionListener actionCustomSpeed;
   ActionListener actionJogMode;
   ActionListener actionSlewMode;
   ActionListener actionPadEnabler;
@@ -103,6 +107,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionHomeDome;
   ActionListener actionHomeTel;
   ActionListener actionTarget;
+  ActionListener actionCoordinates;
   ActionListener actionVelocity;
   ActionListener actionConnect;
   ActionListener actionDisconnect;
@@ -131,6 +136,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     setInteractions();
   }
 
+  //#region appearance
   public void appearance(){
 
     this.buttonHomeDome = new JButton("Dome Home");
@@ -227,7 +233,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
 
 
-    labelVelocity = new JLabel("");
+    labelVelocity = new JLabel("Commanded Velocity (AZ,EL) (arcs/s):");
     labelVelocity.setBounds(820, 120, 400, 30);
     this.add(labelVelocity);
     this.timerVelocity.start();
@@ -237,41 +243,28 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     //this.add(labelVelocity2);
     //this.timerVelocity2.start();
 
-    Pad = new JToggleButton("Pad OFF") {
-      @Override
-      public void paintComponent(Graphics g)
-      {
-          Color bg;
-          if (isSelected()){
-              bg = Color.GREEN;
-          } else {
-              bg = Color.RED;
-          }
-          setBackground(bg);
-          super.paintComponent(g);
-      }};
-      
+    Pad = new JToggleButton("");
     this.Pad.setBounds(890, 30, 140, 50);
-    this.Pad.setBackground(Color.decode("#ff8d8d")); // Color.decode("#fff")
+    //this.Pad.setBackground(Color.decode("#ff8d8d")); // Color.decode("#fff")
     this.Pad.setText("Pad OFF");
     this.add(Pad);
 
 
 
-    labelCurrentPosition = new JLabel("Current Position: ");
+    labelCurrentPosition = new JLabel("Current Tel Position (AZ,EL) (deg): ");
     labelCurrentPosition.setBounds(80, 540, 300, 30);
     this.add(labelCurrentPosition);
     this.timerCurrentPosition.start();
 
-    CurrentDomePos = new JLabel("Current Dome Position: ");
+    CurrentDomePos = new JLabel("Current Dome Position (deg): ");
     CurrentDomePos.setBounds(80, 500, 300, 30);
     this.add(CurrentDomePos);
-    //this.timerCurrentPosition.start();
+    this.timerCurrentDomePosition.start();
 
-    CurrentVelocity = new JLabel("Current Velocity: ");
+    CurrentVelocity = new JLabel("Current Tel Velocity (AZ,EL) (arcs/s):");
     CurrentVelocity.setBounds(80, 580, 300, 30);
     this.add(CurrentVelocity);
-    //this.timerCurrentPosition.start();
+    this.timerCurrentVelocity.start();
 
 
     this.buttonDomeEAST = new JButton("East");
@@ -338,17 +331,23 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.fastButton = new JRadioButton("Fast (180)");
     //fastButton.setBounds(50, 110, 100, 30);
     this.fastButton.setBounds(800, 240, 120, 30);
+    
+
+    this.customVelButton = new JRadioButton("Custom Vel");
+    this.customVelButton.setBounds(800, 270, 120, 30);
 
     // Group the radio buttons
     ButtonGroup group = new ButtonGroup();
     group.add(slowButton);
     group.add(mediumButton);
     group.add(fastButton);
+    group.add(customVelButton);
 
 
     this.add(slowButton);
     this.add(mediumButton);
     this.add(fastButton);
+    this.add(customVelButton);
 
 
 
@@ -370,7 +369,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     
   }
 
-
+  //#region actions
   public void defineActions(){
 
     this.actionMoveUP = action -> {
@@ -432,13 +431,16 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.actionMediumSpeed = action -> {
       print("Set medium speed");
-      tcs.SetAbsJogVelocity(1000); //1000
+      tcs.SetAbsJogVelocity(150); //1000
     };
 
     this.actionFastSpeed = action -> {
       print("Set fast speed");
-      tcs.SetAbsJogVelocity(1500); //180
+      tcs.SetAbsJogVelocity(180); //180
     };
+
+
+    this.actionCustomSpeed = action -> print("Set custom speed");
 
     this.actionJogMode = action -> {
       print("Set jogging mode");
@@ -501,7 +503,21 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     
     this.actionTarget = action -> tcs.SetTarget(targetString);
 
-    this.actionVelocity = action -> tcs.SetAbsJogVelocity(commandedVelocity);
+    this.actionCoordinates = action -> {
+      print("");
+      if (Xvalue > -999){
+        tcs.SetTargetAz(Xvalue);
+      }
+      if (Yvalue > -999){
+        tcs.SetTargetEl(Yvalue);
+      }
+
+    };
+
+    this.actionVelocity = action -> {
+      tcs.SetAbsJogVelocity(commandedVelocity);
+      customVelButton.doClick();
+    };
 
     this.actionConnect = action -> tcs.connect();
 
@@ -514,7 +530,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.actionPointTrack = action -> {
       tcs.SetPointingMode();
-      //tcs.CmdPoi(true);
+      tcs.CmdPointTrack(true);
     };
 
     this.actionPadEnabler = action -> {
@@ -522,13 +538,13 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       boolean padSelection = this.Pad.isSelected();
 
       if (!padSelection) {
-        this.Pad.setBackground(Color.decode("#ff8d8d"));
+        //this.Pad.setBackground(Color.decode("#ff8d8d"));
         this.Pad.setText("Pad OFF");
         print("Set slewing mode");
         tcs.SetPointingMode();
       }
       else{
-        this.Pad.setBackground(Color.decode("#99ce3e"));
+        //this.Pad.setBackground(Color.decode("#99ce3e"));
         this.Pad.setText("Pad ON");
         print("Set jogging mode");
         tcs.SetTrackingMode();
@@ -538,8 +554,10 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
   }
 
+  //#region interactions
   public void setInteractions(){
     setButtonTarget();
+    setSubmitCoordinates();
     setButtonHomeDome();
     setButtonHomeTel();
     setButtonUP();
@@ -552,6 +570,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     setSlowSpeed();
     setMediumSpeed();
     setFastSpeed();
+    setCustomSpeed();
     //setJogMode();
     //setSlewMode();
     setPadEnabler();
@@ -570,18 +589,25 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   //  this.timerUP = new 
   // }
 
+  //#region timers
 
-  Timer timerVelocity = new Timer(2000, new ActionListener() {
+  Timer timerVelocity = new Timer(3000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-      if (tcs.xAxisConnection && tcs.tcsConnection)
-        labelVelocity.setText("AZ vel. - commanded: " + format.format(tcs.getcommandedvelAZ()) + " ,  current: "+ format.format(tcs.getactualvelAZ()) );
+      
+      if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
+        labelVelocity.setText("Commanded Velocity (AZ,EL) (arcs/s): " + format.format(tcs.getcommandedvelAZ()) + " , "+ format.format(tcs.getcommandedvelEL()) );
+      else if (tcs.xAxisConnection && tcs.tcsConnection)
+        labelVelocity.setText("Commanded Velocity (AZ,EL) (arcs/s): " + format.format(tcs.getcommandedvelAZ()) + " , 0");
+      else if (tcs.yAxisConnection && tcs.tcsConnection)
+        labelVelocity.setText("Commanded Velocity (AZ,EL) (arcs/s): 0 , "+ format.format(tcs.getcommandedvelEL()) );
       else
-        labelVelocity.setText("AZ vel. - commanded: 0,  current: 0");
+        labelVelocity.setText("Commanded Velocity (AZ,EL) (arcs/s): 0 , 0 ");
+
     }
   });
 
-  Timer timerVelocity2 = new Timer(2000, new ActionListener() {
+  /*Timer timerVelocity2 = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
       if (tcs.yAxisConnection && tcs.tcsConnection)
@@ -589,9 +615,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       else
         labelVelocity2.setText("EL vel. - commanded: 0,  current: 0");
       }
-  });
+  });*/
 
-  Timer timerTargetRa = new Timer(2000, new ActionListener() {
+  Timer timerTargetRa = new Timer(3000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
@@ -599,7 +625,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     }
   });
 
-  Timer timerTargetDec = new Timer(2000, new ActionListener() {
+  Timer timerTargetDec = new Timer(3000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
@@ -612,13 +638,39 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     public void actionPerformed(ActionEvent e) {
         // Update the JTextField with current time (for example)
         if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , "+ format.format(tcs.getcurrentposEL()/3600));
+          labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , "+ format.format(tcs.getcurrentposEL()/3600));
         else if (tcs.xAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , 0");
+          labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , 0");
         else if (tcs.yAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Posizion (AZ,EL) (deg):  0 , " + format.format(tcs.getcurrentposAZ()/3600));
+          labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  0 , " + format.format(tcs.getcurrentposEL()/3600));
         else
-          labelCurrentPosition.setText("Current Posizion (AZ,EL):  0, 0");
+          labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  0 , 0");
+    }
+  });
+
+  Timer timerCurrentVelocity = new Timer(2000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Update the JTextField with current time (for example)
+        if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
+          CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.getactualvelAZ()) + " , "+ format.format(tcs.getactualvelEL()));
+        else if (tcs.xAxisConnection && tcs.tcsConnection)
+          CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.getactualvelAZ()) + " , 0");
+        else if (tcs.yAxisConnection && tcs.tcsConnection)
+          CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  0 , " + format.format(tcs.getactualvelEL()));
+        else
+          CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  0 , 0");
+    }
+  });
+
+  Timer timerCurrentDomePosition = new Timer(2000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Update the JTextField with current time (for example)
+        if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
+          CurrentDomePos.setText("Current Dome Position (deg):  " + format.format(tcs.getcurrentposDome()));
+        else
+          CurrentDomePos.setText("Current Dome Position (deg):  0 ");
     }
   });
 
@@ -630,11 +682,21 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.targetString = string;
   }
 
+  public void writeX(double value){
+    this.Xvalue = value;
+  }
+
+  public void writeY(double value){
+    this.Yvalue = value;
+  }
+
   public void writeVelocity(double value){
     this.commandedVelocity = value;
   }
 
 
+  
+  //#region setters
 
   public void setButtonTarget(){
     this.buttonTarget.addMouseListener(new MouseAdapter() {
@@ -645,6 +707,34 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
             textTarget.setText("");
             if (!targetString.equals(""))
               actionTarget.actionPerformed(null);
+        }
+        });
+  }
+
+
+  public void setSubmitCoordinates(){
+    this.SubmitCoord.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            String xString = Xcoord.getText();
+            String yString = Ycoord.getText();
+            if (!xString.equals("") && !yString.equals("")){
+              writeX(Double.parseDouble(xString));
+              writeY(Double.parseDouble(yString));
+              Xcoord.setText("");
+              Ycoord.setText("");
+              actionCoordinates.actionPerformed(null);
+            }
+            else if(!xString.equals("") && yString.equals("")){
+              writeX(Double.parseDouble(xString));
+              Xcoord.setText("");
+              actionCoordinates.actionPerformed(null);
+            }
+            else if(xString.equals("") && !yString.equals("")){
+              writeY(Double.parseDouble(yString));
+              Ycoord.setText("");
+              actionCoordinates.actionPerformed(null);
+            }
         }
         });
   }
@@ -804,6 +894,10 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
   public void setFastSpeed(){
     this.fastButton.addActionListener(actionFastSpeed);
+  }
+
+  public void setCustomSpeed(){
+    this.customVelButton.addActionListener(actionCustomSpeed);
   }
 
   /* 

@@ -6,9 +6,9 @@ public class CUPOLA {
     public int CupolaEncoderRis;
     public int StadioRiduzione;
 
-    public double Pos; //arcsec
-    public double AZ;
-    public double CommandedAZ;
+    public double Pos = 0; //arcsec
+    public double AZ = 0;
+    public double CommandedAZ = 0;
     public int StatusApertura;
     public int StatusRotazione;
     public double Direzione;

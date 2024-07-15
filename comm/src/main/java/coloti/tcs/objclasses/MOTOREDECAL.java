@@ -17,13 +17,13 @@ public class MOTOREDECAL {
     public boolean StatusLimitSwitchLow;
     public boolean StatusLimitSwitchHigh;
     public int MotorStatus; // status of the EL motor: 0=disabled; 1=enabled; 2=fault
-    public double SkyPos;
-    public double TelPos;
-    public double ActualVel;
-    public double ActualAcc;
-    public double CommandedPos;
-    public double CommandedVel;
-    public double CommandedAcc;
+    public double SkyPos = 0;
+    public double TelPos = 0;
+    public double ActualVel = 0;
+    public double ActualAcc = 0;
+    public double CommandedPos = 0;
+    public double CommandedVel = 0;
+    public double CommandedAcc = 0;
     public int MotionState; // motion state in azimuth: 0=Stopped; 1=Stopping; 2=Slewing; 3=Tracking; 4=Jogging
     public boolean IsParking;
     public boolean IsParked;

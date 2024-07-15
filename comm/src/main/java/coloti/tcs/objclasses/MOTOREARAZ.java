@@ -18,14 +18,14 @@ public class MOTOREARAZ {
     public boolean StatusLimitSwitchCCW;
     public int MotorStatus; // cumulative status of the AZ motors: 0=both disabled; 1=both enabled; 2=degraded state i.e. 1 enabled; 1 in fault; 3=both in fault
     public int MotorEncoderStatus; // status of the AZ motor with encoder: 0=disabled; 1=enabled; 2=fault
-    public double SkyPos;
-    public double TelPos;
+    public double SkyPos = 0;
+    public double TelPos = 0;
     public double MotorTelPos;
-    public double ActualVel; // positive CW, negative CCW
-    public double ActualAcc; // positive CW, negative CCW
-    public double CommandedPos;
-    public double CommandedVel;
-    public double CommandedAcc;
+    public double ActualVel = 0; // positive CW, negative CCW
+    public double ActualAcc = 0; // positive CW, negative CCW
+    public double CommandedPos = 0;
+    public double CommandedVel = 0;
+    public double CommandedAcc = 0;
     public int MotionState; // motion state in azimuth: 0=Stopped; 1=Stopping; 2=Slewing; 3=Tracking; 4=Jogging
     public boolean IsParking;
     public boolean IsParked;
@@ -44,8 +44,8 @@ public class MOTOREARAZ {
     public int JogDirection = 1;
     public double JogVelocity = 0.001;
     public double AbsJogVelocity;
-    public double TelPosition;
-    public double SkyPosition;
+    public double TelPosition = 0;
+    public double SkyPosition = 0;
     public boolean PositionTypeSky;
     public double SlewVelocity = 150;
     public double SlewAcceleration;
