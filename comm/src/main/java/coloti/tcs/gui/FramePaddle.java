@@ -1,6 +1,7 @@
 package coloti.tcs.gui;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -8,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.text.DecimalFormat;
+
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -18,6 +20,7 @@ import coloti.tcs.TCS;
 public class FramePaddle extends JDialog{ //  implements KeyListener  implements ButtonModel    JFrame
   DecimalFormat format = new DecimalFormat("#.###");
   //Timer timerUP, timerDOWN, timerLEFT, timerRIGHT;
+
   JButton buttonHomeDome;
   JButton buttonHomeTel;
   JButton buttonConnect;
@@ -93,6 +96,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionFastSpeed;
   ActionListener actionJogMode;
   ActionListener actionSlewMode;
+  ActionListener actionPadEnabler;
   ActionListener actionDomeEAST;
   ActionListener actionDomeWEST;
   ActionListener actionDomeStop;
@@ -103,6 +107,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionConnect;
   ActionListener actionDisconnect;
   ActionListener actionPoint;
+  ActionListener actionPointTrack;
 
  
 
@@ -232,8 +237,23 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     //this.add(labelVelocity2);
     //this.timerVelocity2.start();
 
-    Pad = new JToggleButton("Pad Enabler");
-    Pad.setBounds(890, 30, 140, 50);
+    Pad = new JToggleButton("Pad OFF") {
+      @Override
+      public void paintComponent(Graphics g)
+      {
+          Color bg;
+          if (isSelected()){
+              bg = Color.GREEN;
+          } else {
+              bg = Color.RED;
+          }
+          setBackground(bg);
+          super.paintComponent(g);
+      }};
+      
+    this.Pad.setBounds(890, 30, 140, 50);
+    this.Pad.setBackground(Color.decode("#ff8d8d")); // Color.decode("#fff")
+    this.Pad.setText("Pad OFF");
     this.add(Pad);
 
 
@@ -461,14 +481,22 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     };
     
     this.actionHomeDome = action -> {
-      tcs.CmdHomeCupola(true);
-      print("Dome home position procedure...");
+      if (tcs.domeAxisConnection){
+        tcs.CmdHomeCupola(true);
+        print("Dome home position procedure...");
+      }
+      else
+        print("DOME not connected");
 
     };
     
     this.actionHomeTel = action -> {
-      tcs.CmdHomeTel(true);
-      print("Telescope home position procedure...");
+      if (tcs.xAxisConnection && tcs.yAxisConnection){
+        tcs.CmdHomeTel(true);
+        print("Telescope home position procedure...");
+      }
+      else
+        print("Axis not connected");
     };
     
     this.actionTarget = action -> tcs.SetTarget(targetString);
@@ -479,7 +507,33 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.actionDisconnect = action -> tcs.disconnect();
 
-    this.actionPoint = action -> tcs.CmdStartPointing(true);
+    this.actionPoint = action -> {
+      tcs.SetPointingMode();
+      tcs.CmdStartPointing(true);
+    };
+
+    this.actionPointTrack = action -> {
+      tcs.SetPointingMode();
+      //tcs.CmdPoi(true);
+    };
+
+    this.actionPadEnabler = action -> {
+
+      boolean padSelection = this.Pad.isSelected();
+
+      if (!padSelection) {
+        this.Pad.setBackground(Color.decode("#ff8d8d"));
+        this.Pad.setText("Pad OFF");
+        print("Set slewing mode");
+        tcs.SetPointingMode();
+      }
+      else{
+        this.Pad.setBackground(Color.decode("#99ce3e"));
+        this.Pad.setText("Pad ON");
+        print("Set jogging mode");
+        tcs.SetTrackingMode();
+      }
+    };
 
 
   }
@@ -500,10 +554,12 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     setFastSpeed();
     //setJogMode();
     //setSlewMode();
+    setPadEnabler();
     setButtonConnect();
     setButtonDisconnect();
     setButtonPoint();
     setButtonVelocity();
+    setPointTrack();
   
   }
 
@@ -613,6 +669,15 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         @Override
         public void mouseReleased(MouseEvent e) {
             actionPoint.actionPerformed(null);
+        }
+        });
+  }
+
+  public void setPointTrack(){
+    this.PointTrack.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            actionPointTrack.actionPerformed(null);
         }
         });
   }
@@ -751,6 +816,10 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   }
   */
 
+  public void setPadEnabler(){
+    this.Pad.addActionListener(actionPadEnabler);
+  }
+
   public void setButtonConnect(){
     this.buttonConnect.addMouseListener(new MouseAdapter() {
       @Override
@@ -768,6 +837,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       }
       });
   }
+
 
 
   public void Show(){

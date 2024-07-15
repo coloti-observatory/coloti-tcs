@@ -10,10 +10,9 @@
         
     </appender>
 <logger name="org.eclipse.milo.opcua.sdk.server.namespaces.OpcUaNamespace" level="error"/> 
-        
 
     <root level="OFF">
-      <appender-ref ref="CONSOLE" />
+      <appender-ref ref="CONSOL" />
     </root>
 
   </configuration>

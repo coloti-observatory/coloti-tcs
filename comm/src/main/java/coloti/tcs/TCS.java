@@ -2736,9 +2736,9 @@ public class TCS {
                 Sleep(3000);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
-                System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
+                //System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
                 Sleep(3000);
-                System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
+                //System.out.println("Az and El are moving ... Az: " + AsseX.isMoving + ", El: " + AsseY.isMoving);
 
                 if (!AsseX.isMoving && !AsseY.isMoving) {
                     MovementDone();
@@ -3542,34 +3542,34 @@ public class TCS {
         AsseY.StopMove(X);
     }
 
-    public void StartPointingMotion(boolean AzAxis, boolean ElAxis) {
+    public void StartPointingMotion(boolean xAxis, boolean yAxis) {
         this.TEL.TelIsMoving = true;
-        if (AzAxis && AsseX.IsMoving(X) == 1) {
+        if (xAxis && xAxisConnection && AsseX.IsMoving(X) == 1) {
             tcsError(AsseX.StopMove(X), 1171);
             Sleep(100);
         }
-        if (ElAxis && AsseY.IsMoving(X) == 1) {
+        if (yAxis && yAxisConnection && AsseY.IsMoving(X) == 1) {
             tcsError(AsseY.StopMove(X), 1271);
             Sleep(100);
         }
-        if (TEL.MotionType == 0) { // slew
-            // accelerazione necessaria? Non basta nell'inizializzazione?
-            if (AzAxis) {
-                tcsError(AsseX.SetMotAcc(X, MotAZ.MaxAcc), 1161);
-                tcsError(AsseX.SetMotDec(X, MotAZ.MaxAcc), 1162);
-            }
-            if (ElAxis) {
-                tcsError(AsseY.SetMotAcc(X, MotEL.MaxAcc), 1261);
-                tcsError(AsseY.SetMotDec(X, MotEL.MaxAcc), 1262);
-            }
-
-            if (AzAxis) {
-                tcsError(AsseX.Move(X, TEL.TargetAZ, MotAZ.SlewVelocity), 1190); // TEL.SlewVelX
-            }
-            if (ElAxis) {
-                tcsError(AsseY.Move(X, TEL.TargetEL, MotEL.SlewVelocity), 1290); // TEL.SlewVelY
-            }
+         // slew
+        // accelerazione necessaria? Non basta nell'inizializzazione?
+        if (xAxis && xAxisConnection) {
+            tcsError(AsseX.SetMotAcc(X, MotAZ.MaxAcc), 1161);
+            tcsError(AsseX.SetMotDec(X, MotAZ.MaxAcc), 1162);
         }
+        if (yAxis && yAxisConnection) {
+            tcsError(AsseY.SetMotAcc(X, MotEL.MaxAcc), 1261);
+            tcsError(AsseY.SetMotDec(X, MotEL.MaxAcc), 1262);
+        }
+
+        if (xAxis && xAxisConnection) {
+            tcsError(AsseX.Move(X, TEL.TargetAZ, MotAZ.SlewVelocity), 1190); // TEL.SlewVelX
+        }
+        if (yAxis && yAxisConnection) {
+            tcsError(AsseY.Move(X, TEL.TargetEL, MotEL.SlewVelocity), 1290); // TEL.SlewVelY
+        }
+        
 
         /*
          * if(TEL.MotionType == 1){
