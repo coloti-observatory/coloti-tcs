@@ -939,6 +939,7 @@ public class TCS {
             if (value == 0) {
                 tcsError(AsseX.SetSlewMode(X), 1165);
                 // tcsError(AsseX.SetMotVel(X, MotAZ.SlewVelocity),1166)
+                SetAzSlewVelocity(AsseX.MaxVel[0]);
                 AsseX.GetMotionMode(X);
                 System.out.println(AsseX.MOTIONMODE[0]);
             } else if (value == 1) {
@@ -953,6 +954,7 @@ public class TCS {
             if (value == 0) {
                 tcsError(AsseY.SetSlewMode(X), 1265);
                 // tcsError(AsseY.SetMotVel(X, MotEL.SlewVelocity),1266)
+                SetElSlewVelocity(AsseY.MaxVel[0]);
                 AsseY.GetMotionMode(X);
                 System.out.println(AsseY.MOTIONMODE[0]);
             } else if (value == 1) {
@@ -1674,6 +1676,7 @@ public class TCS {
      * dopo il primo step (o anche no)
      */
     public void CmdStartPointing(final boolean value) {
+        CmdStartCupolaPointing(value);
         CmdStartAzPointing(value);
         CmdStartElPointing(value);
     }
@@ -2635,9 +2638,13 @@ public class TCS {
             if (listener != null)
                 listener.onStart("StartMotionInfo");
 
-            if (TEL.MotionType != 0)
-                SetPointingMode();
+            //if (TEL.MotionType != 0)
+            //    SetPointingMode();
+            
+            SetPointingMode();
 
+
+            SetAzSlewVelocity(AsseX.MaxVel[0]);
             StartPointingMotion(true, false);
             MovementOnGoing();
 
@@ -2696,8 +2703,11 @@ public class TCS {
             if (listener != null)
                 listener.onStart("StartMotionInfo");
 
-            if (TEL.MotionType != 0)
-                SetPointingMode();
+            //if (TEL.MotionType != 0)
+            //    SetPointingMode();
+            SetPointingMode();
+
+            SetElSlewVelocity(AsseY.MaxVel[0]);
 
             StartPointingMotion(false, true);
             MovementOnGoing();
