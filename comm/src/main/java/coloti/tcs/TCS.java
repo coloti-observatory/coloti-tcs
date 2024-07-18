@@ -3341,24 +3341,31 @@ public class TCS {
     // #region FUNCTIONS
 
 
-    public int SetMotorOn(){
-        if (xAxisConnection) 
+    public int MotorOn(){ // 0 se sono spenti, 1 se solo Az è ancora acceso, 2 se solo EL è ancora acceso, 3 se sono entrambi accesi
+        int infomotstatus = 0;
+        if (xAxisConnection) {
             AsseX.SetMotorOn(X);
-
-        if (yAxisConnection) 
+            infomotstatus += AsseX.GetMotorOnOff(X);
+        }
+        if (yAxisConnection){
             AsseY.SetMotorOn(X);
-
-        return AsseX.GetMotorOnOff(X)+AsseY.GetMotorOnOff(X);
+            infomotstatus += AsseY.GetMotorOnOff(X)*2;
+        }
+        return infomotstatus;
     }
 
-    public int SetMotorOff(){
-        if (xAxisConnection) 
+    public int MotorOff(){ // 0 se sono spenti, 1 se solo Az è ancora acceso, 2 se solo EL è ancora acceso, 3 se sono entrambi accesi
+        int infomotstatus = 0;
+
+        if (xAxisConnection) {
             AsseX.SetMotorOff(X);
-
-        if (yAxisConnection) 
+            infomotstatus += AsseX.GetMotorOnOff(X);
+        }
+        if (yAxisConnection) {
             AsseY.SetMotorOff(X);
-
-        return AsseX.GetMotorOnOff(X)+AsseY.GetMotorOnOff(X);
+            infomotstatus += AsseY.GetMotorOnOff(X)*2;
+        }
+        return infomotstatus;
     }
 
     public int GetAzMotorInfo(){
