@@ -261,21 +261,25 @@ public class TCS {
     public void disconnect() {
         boolean status = true;
         if (xAxisConnection) {
+            AsseX.SetMotorOff(X);
             status = AsseX.CloseComm();
             if (status)
                 tcsError(0, 1101);
         }
         if (yAxisConnection) {
+            AsseY.SetMotorOff(X);
             status = AsseY.CloseComm();
             if (status)
                 tcsError(0, 1201);
         }
         if (domeAxisConnection) {
+            AsseCupola.SetMotorOff(X);
             status = AsseCupola.CloseComm();
             if (status)
                 tcsError(0, 1301);
         }
         taskExecutor.shutdown();
+        System.out.println("Disconnect");
     }
 
     public void Configure() { // CambiaConfig SalvaConfig ReadConfig
@@ -1311,6 +1315,8 @@ public class TCS {
     public void SetCupolaParkingPosition(final double value) {
         this.CUP.ParkPos = value;
     }
+
+
 
     // #region CMD
 
@@ -3333,6 +3339,35 @@ public class TCS {
     // ---------------------------------------------------------------------------------------------
 
     // #region FUNCTIONS
+
+
+    public int SetMotorOn(){
+        if (xAxisConnection) 
+            AsseX.SetMotorOn(X);
+
+        if (yAxisConnection) 
+            AsseY.SetMotorOn(X);
+
+        return AsseX.GetMotorOnOff(X)+AsseY.GetMotorOnOff(X);
+    }
+
+    public int SetMotorOff(){
+        if (xAxisConnection) 
+            AsseX.SetMotorOff(X);
+
+        if (yAxisConnection) 
+            AsseY.SetMotorOff(X);
+
+        return AsseX.GetMotorOnOff(X)+AsseY.GetMotorOnOff(X);
+    }
+
+    public int GetAzMotorInfo(){
+        return AsseX.GetMotorOnOff(X);
+    }
+
+    public int GetElMotorInfo(){
+        return AsseY.GetMotorOnOff(X);
+    }
 
     // FUNZIONI COMPLESSE DA FARE
     public void InitStar() {

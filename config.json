@@ -6,11 +6,11 @@
 "TipoControlloreAssi":1,
 "NumeroAssi":3,
 "NumeroControllori":3,
-"ConnessioneAz":false,
+"ConnessioneAz":true,
 "ConnessioneEl":false,
 "ConnessioneDome":false,
 "ConnessioneMeteo":false,
-"IdSerialAz":"",
+"IdSerialAz":"/dev/ttyUSB0",
 "IdSerialEl":"",
 "IdSerialDome":"",
 "IdSerialWeather":""

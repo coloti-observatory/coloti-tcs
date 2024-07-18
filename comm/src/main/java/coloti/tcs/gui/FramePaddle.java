@@ -79,6 +79,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JLabel CurrentDomePos;
 
   JToggleButton Pad;
+  JToggleButton MotorOnOff;
 
 
  
@@ -101,6 +102,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionJogMode;
   ActionListener actionSlewMode;
   ActionListener actionPadEnabler;
+  ActionListener actionMotorOnOff;
   ActionListener actionDomeEAST;
   ActionListener actionDomeWEST;
   ActionListener actionDomeStop;
@@ -249,20 +251,26 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.Pad.setText("Pad OFF");
     this.add(Pad);
 
+    MotorOnOff = new JToggleButton("");
+    this.MotorOnOff.setBounds(690, 30, 140, 50);
+    //this.Pad.setBackground(Color.decode("#ff8d8d")); // Color.decode("#fff")
+    this.MotorOnOff.setText("Motor OFF");
+    this.add(MotorOnOff);
 
 
-    labelCurrentPosition = new JLabel("Current Tel Position (AZ,EL) (deg): ");
-    labelCurrentPosition.setBounds(80, 540, 300, 30);
+
+    labelCurrentPosition = new JLabel("Current Tel Pos (AZ,EL) (deg): ");
+    labelCurrentPosition.setBounds(80, 540, 500, 30);
     this.add(labelCurrentPosition);
     this.timerCurrentPosition.start();
 
-    CurrentDomePos = new JLabel("Current Dome Position (deg): ");
-    CurrentDomePos.setBounds(80, 500, 300, 30);
+    CurrentDomePos = new JLabel("Current Dome Pos (deg): ");
+    CurrentDomePos.setBounds(80, 500, 500, 30);
     this.add(CurrentDomePos);
     this.timerCurrentDomePosition.start();
 
-    CurrentVelocity = new JLabel("Current Tel Velocity (AZ,EL) (arcs/s):");
-    CurrentVelocity.setBounds(80, 580, 300, 30);
+    CurrentVelocity = new JLabel("Current Tel Vel (AZ,EL) (arcs/s):");
+    CurrentVelocity.setBounds(80, 580, 500, 30);
     this.add(CurrentVelocity);
     this.timerCurrentVelocity.start();
 
@@ -521,7 +529,15 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.actionConnect = action -> tcs.connect();
 
-    this.actionDisconnect = action -> tcs.disconnect();
+    this.actionDisconnect = action -> {
+      this.timerCurrentDomePosition.stop();
+      this.timerCurrentPosition.stop();
+      this.timerCurrentVelocity.stop();
+      this.timerVelocity.stop();
+      this.timerTargetDec.stop();
+      this.timerTargetRa.stop();
+      tcs.disconnect();
+    };
 
     this.actionPoint = action -> {
       tcs.SetPointingMode();
@@ -551,6 +567,23 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       }
     };
 
+    this.actionMotorOnOff = action -> {
+
+      boolean Selection = this.MotorOnOff.isSelected();
+      int status = -999;
+      if (!Selection) {
+        this.MotorOnOff.setText("Motor OFF");
+        status = tcs.SetMotorOff();
+        System.out.println(status);
+      }
+      else{
+        //this.Pad.setBackground(Color.decode("#99ce3e"));
+        this.MotorOnOff.setText("Motor ON");
+        status = tcs.SetMotorOn();
+        System.out.println(status);
+      }
+    };
+
 
   }
 
@@ -574,6 +607,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     //setJogMode();
     //setSlewMode();
     setPadEnabler();
+    setMotorOnOff();
     setButtonConnect();
     setButtonDisconnect();
     setButtonPoint();
@@ -912,6 +946,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
   public void setPadEnabler(){
     this.Pad.addActionListener(actionPadEnabler);
+  }
+  public void setMotorOnOff(){
+    this.Pad.addActionListener(actionMotorOnOff);
   }
 
   public void setButtonConnect(){

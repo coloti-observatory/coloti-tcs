@@ -892,9 +892,9 @@ public class ACS {
     int axI = AxesNumber(ax);
     byte[] command = sbld("R%sMO", ax);
     int ErrorCode = CommandReport(command, PRINT);
-    this.MOTIONMODE[axI] = (int) this.VALUECR;
+    this.MOTORSTATUS[axI] = (int) this.VALUECR;
     // System.out.println(MOTIONMODE[axI]);
-    return ErrorCode;
+    return (int) VALUECR;
   }
 
   public int GetMotMaxMinPos(String ax) { // VERIFICATO
@@ -1682,6 +1682,9 @@ public class ACS {
     return this.serialAnswer;
   }
 
+
+
+
   public static void main(String[] a) { // sudo chmod 777 /dev/ttyS0 sudo chmod 777 /dev/ttyUSB0
 
     System.out.println();
@@ -1753,37 +1756,101 @@ public class ACS {
      */
 
     /// *
-    ACS acs = new ACS("/dev/ttyUSB0", 1);
+    ACS acs = new ACS("/dev/ttyUSB1", 1);
+
+    acs.PRINT = true;
+
     acs.SetSimpleStart(0);
+
+    acs.InitAxes();
+
+    acs.SetMotorOn("X");
+    acs.Sleep(1000);
+
     // acs.IsProgramRunning();
     // System.out.println(acs.isRunning);
     System.out.println(acs.CommStatus);
 
     // acs.SetMotorOn("X");
+    byte[] command;
 
-    acs.SetSlewMode("X");
+    /*
+      valori originali:
+     * GA 8
+     * TO 900 
+     * TL 100
+     * GF  -3
+     * 
+     * valori nuovi
+     * GA 15
+     * TO 1200
+     */
 
-    acs.GetMoveInfo();
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sGA", "X");
+    acs.CommandReport(command, false);
+    System.err.println(acs.VALUECR);
 
-    acs.GetMotPos("X");
-    System.out.println(acs.PositionAx[0]);
+    acs.Sleep(1000);
 
-    acs.GetMotVel("X");
-    System.out.println(acs.VelAx[0]);
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sTO", "X");
+    acs.CommandReport(command, false);
+    System.err.println(acs.VALUECR);
+    acs.Sleep(1000);
 
-    acs.SetAbsTargPos("X", 1000);
 
-    acs.GetAbsTargPos("X");
-    System.out.println(acs.AbsTargPosAx[0]);
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sTL", "X");
+    acs.CommandReport(command, false);
+    System.err.println(acs.VALUECR);
+    acs.Sleep(1000);
 
-    acs.GetActualMotVel("X");
-    System.out.println(acs.ActualVelAx[0]);
 
-    acs.GetMotAcc("X");
-    System.out.println(acs.AccAx[0]);
-    // acs.ExecProg("MUOVIDX");
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sGF", "X");
+    acs.CommandReport(command, false);
+    System.err.println(acs.VALUECR);
+    acs.Sleep(1000);
 
-    acs.StartMove("X");
+
+
+
+    command = acs.sbld("S%sGA", "X");
+    acs.CommandSet(command, 8);
+    acs.Sleep(1000);
+
+    command = acs.sbld("S%sTO", "X");
+    acs.CommandSet(command, 1500);
+    acs.Sleep(1000);
+
+    command = acs.sbld("S%sTL", "X");
+    acs.CommandSet(command, 300);
+    acs.Sleep(1000);
+
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sGA", "X");
+    acs.CommandReport(command, false);
+    System.err.println(acs.VALUECR);
+
+    acs.Sleep(1000);
+
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sTO", "X");
+    acs.CommandReport(command, false);
+    System.err.println(acs.VALUECR);
+    acs.Sleep(1000);
+
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sTL", "X");
+    acs.CommandReport(command, false);
+    System.err.println(acs.VALUECR);
+    acs.Sleep(1000);
+
+
+
+
+
 
     // acs.GetMotEncPos("X");
     // long valo = acs.VALUECR;
