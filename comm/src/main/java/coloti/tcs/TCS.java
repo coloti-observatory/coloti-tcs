@@ -3838,9 +3838,10 @@ public class TCS {
         }
     }
 
-    // incompleto
+    // incompleto?
     public void SetZeroStar() {
-        double valAZ, valEL;
+        double valAZ;
+        double valEL;
         // calcolo astronomico
         Trajectory();
         // if (TEL.MonType == 0){}
