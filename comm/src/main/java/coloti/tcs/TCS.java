@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 //import coloti.tcs.ConfigurationClass;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -1830,12 +1831,46 @@ public class TCS {
 
     // #region TASK
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private final AtomicBoolean GOisInterrupted = new AtomicBoolean(false);
+
     // #region T goloaded
     private final Task<Void> goloadedTask = new Task<Void>() {
-        boolean isInterrupted = true;
+        //boolean isInterrupted = true;
+        
         private TaskListener listener;
-
-        private Void v;
+        //private Void v;
 
         @Override
         public Void call() throws Exception {
@@ -1843,34 +1878,34 @@ public class TCS {
                 listener.onStart("GoLoadedInfo");
 
             if (getMcsStateMachine().isAcceptable(LOADED)) {
+
                 getMcsStateMachine().transition(LOADED);
                 TEL.MachineState = mcsStateMachine.getCurrentState().value;
                 TEL.MachineStatePhase = EHardwareStatePhase.ENTERING.ordinal();
 
                 // Funzioni da eseguire in questa transizione
                 int k = 0;
-                while (isInterrupted && k < 30) {
+                while (!GOisInterrupted.get() && k < 20) {
                     // System.out.println("I'm a double callable");
                     System.out.println("Entering Loaded functions are running");
                     // listener.onWorking(null);
                     if (listener != null)
                         listener.onWorking(null);
-                    TimeUnit.SECONDS.sleep(1);
+                    Sleep(1000);
                     k++;
                 }
 
                 TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
                 if (listener != null)
                     listener.onDone(null);
-                isInterrupted = false;
+                
             } else {
                 logger.warn("Transition not allowed from this state {}", mcsStateMachine.getCurrentState().name);
                 if (listener != null)
-                    listener.onError(String.format("Transition not allowed from this state {}",
-                            mcsStateMachine.getCurrentState().name));
+                    listener.onError("Transition not allowed from this state {}"); //String.format("Transition not allowed from this state {}",                            mcsStateMachine.getCurrentState().name));
             }
 
-            return v;
+            return null;
         }
 
         @Override
@@ -1880,14 +1915,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            GOisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -1897,12 +1932,34 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T gostandby
     private final Task<Void> gostandbyTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
+        //private Void v;
 
         @Override
         public Void call() throws Exception {
@@ -1916,28 +1973,27 @@ public class TCS {
 
                 // Funzioni da eseguire in questa transizione
                 int k = 0;
-                while (isInterrupted && k < 30) {
+                while (!GOisInterrupted.get() && k < 20) {
                     // System.out.println("I'm a double callable");
                     System.out.println("Entering Standby functions are running");
                     // listener.onWorking(null);
                     if (listener != null)
                         listener.onWorking(null);
-                    TimeUnit.SECONDS.sleep(1);
+                    Sleep(1000);
                     k++;
                 }
 
                 TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
                 if (listener != null)
                     listener.onDone(null);
-                isInterrupted = false;
+                    
             } else {
                 logger.warn("Transition not allowed from this state {}", mcsStateMachine.getCurrentState().name);
                 if (listener != null)
-                    listener.onError(String.format("Transition not allowed from this state {}",
-                            mcsStateMachine.getCurrentState().name));
+                    listener.onError("Transition not allowed from this state {}");
             }
 
-            return v;
+            return null;
         }
 
         @Override
@@ -1946,14 +2002,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            GOisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -1963,12 +2019,43 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T goonline
     private final Task<Void> goonlineTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
+        //private Void v;
 
         @Override
         public Void call() throws Exception {
@@ -1982,28 +2069,26 @@ public class TCS {
 
                 // Funzioni da eseguire in questa transizione
                 int k = 0;
-                while (isInterrupted && k < 30) {
+                while (!GOisInterrupted.get() && k < 20) {
                     // System.out.println("I'm a double callable");
                     System.out.println("Entering Online functions are running");
                     // listener.onWorking(null);
                     if (listener != null)
                         listener.onWorking(null);
-                    TimeUnit.SECONDS.sleep(1);
+                    Sleep(1000);
                     k++;
                 }
 
                 TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
                 if (listener != null)
                     listener.onDone(null);
-                isInterrupted = false;
             } else {
                 logger.warn("Transition not allowed from this state {}", mcsStateMachine.getCurrentState().name);
                 if (listener != null)
-                    listener.onError(String.format("Transition not allowed from this state {}",
-                            mcsStateMachine.getCurrentState().name));
+                    listener.onError("Transition not allowed from this state {}");
             }
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2012,14 +2097,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            GOisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2029,12 +2114,43 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T gomainten
     private final Task<Void> gomaintenanceTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
+        //private Void v;
 
         @Override
         public Void call() throws Exception {
@@ -2048,28 +2164,26 @@ public class TCS {
 
                 // Funzioni da eseguire in questa transizione
                 int k = 0;
-                while (isInterrupted && k < 30) {
+                while (!GOisInterrupted.get() && k < 20) {
                     // System.out.println("I'm a double callable");
                     System.out.println("Entering Maintenance functions are running");
                     // listener.onWorking(null);
                     if (listener != null)
                         listener.onWorking(null);
-                    TimeUnit.SECONDS.sleep(1);
+                    Sleep(1000);
                     k++;
                 }
 
                 TEL.MachineStatePhase = EHardwareStatePhase.ACTIVE.ordinal();
                 if (listener != null)
                     listener.onDone(null);
-                isInterrupted = false;
             } else {
                 logger.warn("Transition not allowed from this state {}", mcsStateMachine.getCurrentState().name);
                 if (listener != null)
-                    listener.onError(String.format("Transition not allowed from this state {}",
-                            mcsStateMachine.getCurrentState().name));
+                    listener.onError("Transition not allowed from this state {}");
             }
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2078,14 +2192,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            GOisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2095,30 +2209,69 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private final AtomicBoolean DOMEisInterrupted = new AtomicBoolean(false);
+
     // #region T homedome
     private final Task<Void> homedomeTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
+        //private Void v;
 
         @Override
         public Void call() throws Exception {
+            DOMEisInterrupted.set(false);
+
             if (listener != null)
                 listener.onStart("HomeDomeInfo");
 
+            
             tcsError(AsseCupola.ExecProg("HOMECUP"), 1387);
 
-            while (isInterrupted) {
+            while (!DOMEisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(5000);
+
+                for (int i = 0; i < 5 && !DOMEisInterrupted.get(); i++) Thread.sleep(1000);
+
                 AsseCupola.IsProgramRunning();
                 UpdateTelData();
                 // System.out.println("The dome going in Home position ...
                 // "+AsseCupola.isRunning);
-                if (!AsseCupola.isRunning)
-                    isInterrupted = false;
+                if (!AsseCupola.isRunning){
+                    DOMEisInterrupted.set(true);
+                    break;
+                }
             }
 
             // CUP.StatusRotazione = 0;
@@ -2126,9 +2279,8 @@ public class TCS {
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
-
-            return v;
+                
+            return null;
         }
 
         @Override
@@ -2137,14 +2289,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            DOMEisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2154,41 +2306,82 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private final AtomicBoolean TELisInterrupted = new AtomicBoolean(false);
+    
     // #region T hometel
     private final Task<Void> hometelTask = new Task<Void>() {
-        boolean isInterrupted = true;
+        //boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            TELisInterrupted.set(false);
+
             if (listener != null)
                 listener.onStart("HomeTelInfo");
 
             HomePosition();
             MovementOnGoing();
+            
 
-            while (isInterrupted) {
+            while (!TELisInterrupted.get()) { //
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(10000);
+                    
+                for (int i = 0; i < 10 && !TELisInterrupted.get(); i++) Thread.sleep(1000);
+                
                 AsseX.IsProgramRunning();
                 AsseY.IsProgramRunning();
                 UpdateTelData();
-                // System.out.println("Az and El are going in home position ... Az:
-                // "+AsseX.isRunning+", El: "+AsseY.isRunning);
+
+                //System.out.println("Az and El are going in home position ... Az: , El: ");
+
                 if (!AsseX.isRunning && !AsseY.isRunning) {
                     MovementDone();
-                    isInterrupted = false;
+                    TELisInterrupted.set(true);
+                    break;
                 }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
+            //isInterrupted = false;
 
-            return v;
+            //return v;
+            return null;
         }
 
         @Override
@@ -2197,14 +2390,16 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            //isInterrupted = false;
+            TELisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) { //final
+            //listener = listen;
+            this.listener = listen;
         }
 
         @Override
@@ -2214,35 +2409,70 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private final AtomicBoolean WINDOWisInterrupted = new AtomicBoolean(false);
+
     // #region T opendome
     private final Task<Void> opendomeTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            WINDOWisInterrupted.set(false);
+
             if (listener != null)
                 listener.onStart("OpenDomeInfo");
 
             tcsError(AsseCupola.ExecProg("APRICUP"), 1380);
 
-            while (isInterrupted) {
+            while (!WINDOWisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
+
                 Sleep(3000);
                 AsseCupola.IsProgramRunning();
                 // System.out.println("Dome is opening ... ");
-                if (AsseCupola.isRunning)
-                    isInterrupted = false;
+
+                if (!AsseCupola.isRunning){
+                    WINDOWisInterrupted.set(true);
+                    break;
+                }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2251,14 +2481,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            WINDOWisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2268,35 +2498,67 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T closedome
     private final Task<Void> closedomeTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            WINDOWisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("CloseDomeInfo");
 
             tcsError(AsseCupola.ExecProg("CHIUDCUP"), 1381);
 
-            while (isInterrupted) {
+            while (!WINDOWisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(3000);
                 AsseCupola.IsProgramRunning();
-                System.out.println("Dome is closing ... ");
-                if (AsseCupola.isRunning)
-                    isInterrupted = false;
+                
+                if (!AsseCupola.isRunning){
+                    WINDOWisInterrupted.set(true);
+                    break;
+                }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2305,14 +2567,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            WINDOWisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2322,29 +2584,63 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T domepoint
     private final Task<Void> startcupolapointingTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
-
         @Override
         public Void call() throws Exception {
+            DOMEisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("StartPointingDomeInfo");
 
             PuntaCupola(TEL.TargetAZ);
 
-            while (isInterrupted) {
+            while (!DOMEisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(5000);
+
+                for (int i = 0; i < 5 && !DOMEisInterrupted.get(); i++) Thread.sleep(1000);
+
                 AsseCupola.IsProgramRunning();
                 UpdateTelData();
-                System.out.println("Dome is pointing ... ");
-                if (AsseCupola.isRunning)
-                    isInterrupted = false;
+                
+                if (!AsseCupola.isRunning){
+                    DOMEisInterrupted.set(true);
+                    break;
+                }
             }
 
             CUP.StatusRotazione = 0;
@@ -2352,9 +2648,8 @@ public class TCS {
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
-
-            return v;
+                
+            return null;
         }
 
         @Override
@@ -2363,14 +2658,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            DOMEisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2380,12 +2675,43 @@ public class TCS {
 
     };
 
-    // #region T stopdome
-    private final Task<Void> stopdomeTask = new Task<Void>() {
-        boolean isInterrupted = true;
-        private TaskListener listener;
 
-        private Void v;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    // #region T stopD
+    private final Task<Void> stopdomeTask = new Task<Void>() {
+        private final AtomicBoolean stopDOMEisInterrupted = new AtomicBoolean(false);
+        private TaskListener listener;
 
         @Override
         public Void call() throws Exception {
@@ -2393,15 +2719,18 @@ public class TCS {
                 listener.onStart("StopDomeInfo");
 
             tcsError(AsseCupola.ExecProg("FERMACUP"), 1382);
-
-            while (isInterrupted) {
+            DOMEisInterrupted.set(true);
+            
+            while (!stopDOMEisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(2000);
+                Sleep(500);
                 AsseCupola.IsProgramRunning();
-                System.out.println("Dome is stopping ... ");
-                if (AsseCupola.isRunning)
-                    isInterrupted = false;
+
+                if (!AsseCupola.isRunning){
+                    stopDOMEisInterrupted.set(true);
+                    break;
+                }
             }
 
             CUP.StatusRotazione = 0;
@@ -2409,9 +2738,8 @@ public class TCS {
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2420,14 +2748,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            stopDOMEisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2437,15 +2765,46 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T domewest
     private final Task<Void> domewestTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            DOMEisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("DomeWestInfo");
 
@@ -2453,15 +2812,21 @@ public class TCS {
             CUP.StatusRotazione = 1;
             CUP.Direzione = 1;
 
-            while (isInterrupted) {
+
+            while (!DOMEisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(2000);
+                
+                for (int i = 0; i < 2 && !DOMEisInterrupted.get(); i++) Thread.sleep(1000);
+                
+                //Sleep(2000);
                 AsseCupola.IsProgramRunning();
                 UpdateTelData();
-                //System.out.println("Dome is moving to west ... ");
-                if (AsseCupola.isRunning)
-                    isInterrupted = false;
+
+                if (!AsseCupola.isRunning){//AsseCupola.isRunning)
+                    DOMEisInterrupted.set(true);
+                    break;
+                }
             }
 
             CUP.StatusRotazione = 0;
@@ -2469,9 +2834,8 @@ public class TCS {
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
-
-            return v;
+                
+            return null;
         }
 
         @Override
@@ -2480,14 +2844,15 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            //isInterrupted = false;
+            DOMEisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2497,15 +2862,46 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T domeeast
     private final Task<Void> domeeastTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            DOMEisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("DomeEastInfo");
 
@@ -2513,15 +2909,20 @@ public class TCS {
             CUP.StatusRotazione = 1;
             CUP.Direzione = -1;
 
-            while (isInterrupted) {
+            while (!DOMEisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(2000);
+                
+                for (int i = 0; i < 2 && !DOMEisInterrupted.get(); i++) Thread.sleep(1000);
+                    
                 AsseCupola.IsProgramRunning();
                 UpdateTelData();
                 //System.out.println("Dome is moving to east ... ");
-                if (AsseCupola.isRunning)
-                    isInterrupted = false;
+
+                if (!AsseCupola.isRunning){
+                    DOMEisInterrupted.set(true);
+                    break;
+                }
             }
 
             CUP.StatusRotazione = 0;
@@ -2529,9 +2930,9 @@ public class TCS {
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
+                
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2540,14 +2941,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            DOMEisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2557,15 +2958,46 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T tracking
     private final Task<Void> trackingTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            TELisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("StartTrackingInfo");
 
@@ -2581,7 +3013,7 @@ public class TCS {
 
             MovementOnGoing();
 
-            while (isInterrupted) {
+            while (!TELisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(1000);
@@ -2595,15 +3027,15 @@ public class TCS {
                 // System.out.println("Tracking...");
                 if (!AsseX.isMoving && !AsseY.isMoving) {
                     MovementDone();
-                    isInterrupted = false;
+                    TELisInterrupted.set(true);
+                    break;
                 }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
-
-            return v;
+                
+            return null;
         }
 
         @Override
@@ -2612,14 +3044,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            TELisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2629,18 +3061,49 @@ public class TCS {
 
     };
 
-    // #region T pointing Az
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // #region T pointing Az
+    private final AtomicBoolean AZisInterrupted = new AtomicBoolean(false);
     // fare il pointing come loop mantenendo un errore di posizione per controllo
     // dopo il primo step (o anche no)
     private final Task<Void> pointingAzTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            AZisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("StartMotionInfo");
 
@@ -2649,12 +3112,11 @@ public class TCS {
             
             SetPointingMode();
 
-
             SetAzSlewVelocity(AsseX.MaxVel[0]);
             StartPointingMotion(true, false);
             MovementOnGoing();
 
-            while (isInterrupted) {
+            while (!AZisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(1000); // da spostare alla fine del while?
@@ -2662,15 +3124,15 @@ public class TCS {
                 UpdateTelData();
                 if (!AsseX.isMoving) {
                     IsAzPointing(false);
-                    isInterrupted = false;
+                    AZisInterrupted.set(true);
+                    break;
                 }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2679,14 +3141,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            AZisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2696,16 +3158,48 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T pointing El
+    private final AtomicBoolean ELisInterrupted = new AtomicBoolean(false);
 
     private final Task<Void> pointingElTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            ELisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("StartMotionInfo");
 
@@ -2718,7 +3212,7 @@ public class TCS {
             StartPointingMotion(false, true);
             MovementOnGoing();
 
-            while (isInterrupted) {
+            while (!ELisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(1000); // da spostare alla fine del while?
@@ -2726,15 +3220,15 @@ public class TCS {
                 UpdateTelData();
                 if (!AsseY.isMoving) {
                     IsElPointing(false);
-                    isInterrupted = false;
+                    ELisInterrupted.set(true);
+                    break;
                 }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2743,14 +3237,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            ELisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2760,15 +3254,46 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T pointing
     private final Task<Void> pointingTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            TELisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("MoveToPositionInfo");
 
@@ -2780,10 +3305,10 @@ public class TCS {
             StartPointingMotion(true, true);
             MovementOnGoing();
 
-            while (isInterrupted) {
+            while (!TELisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(3000);
+                Sleep(1000);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
                 UpdateTelData();
@@ -2795,15 +3320,15 @@ public class TCS {
 
                 if (!AsseX.isMoving && !AsseY.isMoving) {
                     MovementDone();
-                    isInterrupted = false;
+                    TELisInterrupted.set(true);
+                    break;
                 }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
-
-            return v;
+                
+            return null;
         }
 
         @Override
@@ -2812,14 +3337,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            TELisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2829,15 +3354,46 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T PointTrack
     private final Task<Void> pointtrackTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            TELisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("PointTrackInfo");
 
@@ -2852,7 +3408,8 @@ public class TCS {
             while (TEL.TelIsMoving) {
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(1000);
+
+                Sleep(500);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
                 UpdateTelData();
@@ -2874,10 +3431,10 @@ public class TCS {
 
             MovementOnGoing();
 
-            while (isInterrupted) {
+            while (!TELisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(1000);
+                Sleep(500);
 
                 UpdateInfoTarget(false);
                 Tracking();
@@ -2888,15 +3445,15 @@ public class TCS {
                 // System.out.println("Tracking...");
                 if (!AsseX.isMoving && !AsseY.isMoving) {
                     MovementDone();
-                    isInterrupted = false;
+                    TELisInterrupted.set(true);
+                    break;
                 }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2905,14 +3462,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            TELisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2922,15 +3479,47 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T stop
     private final Task<Void> stopmotionTask = new Task<Void>() {
-        boolean isInterrupted = true;
+        private final AtomicBoolean STOPisInterrupted = new AtomicBoolean(false);
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            STOPisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("StopMotionInfo");
 
@@ -2939,22 +3528,23 @@ public class TCS {
             if (AsseY.IsMoving(X) == 1)
                 tcsError(AsseY.StopMove(X), 1271);
 
-            while (isInterrupted) {
+            while (!STOPisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(100);
                 AsseX.IsMoving(X);
                 AsseY.IsMoving(X);
                 // System.out.println("Az and El are stopping ... ");
-                if (AsseX.isMoving && AsseY.isMoving)
-                    isInterrupted = false;
+                if (AsseX.isMoving && AsseY.isMoving){
+                    STOPisInterrupted.set(true);
+                    break;
+                }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -2963,14 +3553,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            STOPisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -2980,36 +3570,69 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T stop AZ
     private final Task<Void> stopAZmotionTask = new Task<Void>() {
-        boolean isInterrupted = true;
+        private final AtomicBoolean STOPAZisInterrupted = new AtomicBoolean(false);
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            STOPAZisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("StopAzMotionInfo");
 
             if (AsseX.IsMoving(X) == 1)
                 tcsError(AsseX.StopMove(X), 1171);
 
-            while (isInterrupted) {
+            while (!STOPAZisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
-                Sleep(100);
+                Sleep(500);
                 AsseX.IsMoving(X);
                 // System.out.println("Az is stopping ... ");
-                if (AsseX.isMoving)
-                    isInterrupted = false;
+                if (AsseX.isMoving){
+                    STOPAZisInterrupted.set(true);
+                    break;
+                }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -3018,14 +3641,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            STOPAZisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -3035,36 +3658,69 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T stop EL
     private final Task<Void> stopELmotionTask = new Task<Void>() {
-        boolean isInterrupted = true;
+        private final AtomicBoolean STOPELisInterrupted = new AtomicBoolean(false);
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            STOPELisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("StopElMotionInfo");
 
             if (AsseY.IsMoving(X) == 1)
                 tcsError(AsseY.StopMove(X), 1271);
 
-            while (isInterrupted) {
+            while (!STOPELisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(100);
                 AsseY.IsMoving(X);
                 // System.out.println("El is stopping ... ");
-                if (AsseY.isMoving)
-                    isInterrupted = false;
+                if (AsseY.isMoving){
+                    STOPELisInterrupted.set(true);
+                    break;
+                }
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -3073,14 +3729,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            STOPELisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -3090,15 +3746,46 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T El Up
     private final Task<Void> elMoveUpTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            ELisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("ElMoveUpInfo");
 
@@ -3110,21 +3797,20 @@ public class TCS {
             SetElJogVelocity(1 * MotEL.AbsJogVelocity);
             AsseY.StartMove(X);
 
-            while (isInterrupted) {
+            while (!ELisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(200);
                 AsseY.IsMoving(X);
                 UpdateTelData();
                 if (!AsseY.isMoving)
-                    isInterrupted = false;
+                    ELisInterrupted.set(true);
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -3133,14 +3819,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            ELisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -3149,6 +3835,39 @@ public class TCS {
         }
 
     };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // #region T El Down
     private final Task<Void> elMoveDownTask = new Task<Void>() {
@@ -3208,6 +3927,39 @@ public class TCS {
         }
 
     };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // #region T Az Right
     private final Task<Void> azMoveRightTask = new Task<Void>() {
@@ -3269,6 +4021,39 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // #region T Az Left
     private final Task<Void> azMoveLeftTask = new Task<Void>() {
         boolean isInterrupted = true;
@@ -3328,6 +4113,40 @@ public class TCS {
 
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------
@@ -3341,15 +4160,19 @@ public class TCS {
     // #region FUNCTIONS
 
 
-    public int MotorOn(){ // 0 se sono spenti, 1 se solo Az è ancora acceso, 2 se solo EL è ancora acceso, 3 se sono entrambi accesi
+    public int MotorOn(){ // 0 se sono spenti, 1 se solo Az è ancora acceso, 2 se solo EL è ancora acceso, 3 se sono entrambi accesi, -1 se errore
         int infomotstatus = 0;
         if (xAxisConnection) {
             AsseX.SetMotorOn(X);
             infomotstatus += AsseX.GetMotorOnOff(X);
+            System.out.println("AZIMUTH");
+            System.out.println(infomotstatus);
         }
         if (yAxisConnection){
             AsseY.SetMotorOn(X);
             infomotstatus += AsseY.GetMotorOnOff(X)*2;
+            System.out.println("ELEVAZIONE");
+            System.out.println(infomotstatus);
         }
         return infomotstatus;
     }
@@ -3553,7 +4376,7 @@ public class TCS {
         tm.setWeather(atm);
         tm.setTpointFile(tpointFile);
         tm.setElevationLimit(10.);
-        tm.setMinMoonDistance(10.);
+        tm.setMinMoonDistance(0.); //10
         tm.setAcquisitionDuration(300.);
         tm.init();
         tm.setTarget(TEL.Target);
@@ -3891,10 +4714,10 @@ public class TCS {
         ValoX = AsseX.VALUECR;
         tcsError(AsseX.ExecProg("HOMEX"), 1192);
 
-        // ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
-        // AsseY.CommandArray("AVSE", 8, (int) ValoY);
-        // ValoY = AsseY.VALUECR;
-        // tcsError(AsseY.ExecProg("HOMEX"),1291);
+        ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
+        AsseY.CommandArray("AVSE", 8, (int) ValoY);
+        ValoY = AsseY.VALUECR;
+        tcsError(AsseY.ExecProg("HOMEX"),1291);
     }
 
     public void SetZeroFromFile() {
@@ -4269,16 +5092,81 @@ public class TCS {
         System.out.println(string);
     }
 
+
+    public void MoveAZ(boolean value){
+        AsseX.StartMove("X");
+    }
+
     // #region MAIN
 
     public static void main(final String[] a) { // sudo chmod 777 /dev/ttyS0 sudo chmod 777 /dev/ttyUSB0
 
         TCS tcs = new TCS();
 
+        //tcs.CmdHomeTel(true);
+        //tcs.Sleep(5000);
+        //System.out.println("inizio a fare anche altro");
+        //tcs.CmdCupolaOvest(true);
+        //tcs.Sleep(12000);
+        //System.out.println("E ora ho finito di fare altro");
+
+        /*
+        tcs.connect();
+
+        tcs.MotorOn();
+
+        tcs.Sleep(1000);
+        System.out.println(tcs.GetAzMotorStatus());
+
+        tcs.Sleep(1000);
+        System.out.println(tcs.GetElMotorStatus());
+
+        tcs.Sleep(1000);
+
+
+        tcs.SetTrackingMode();
+
+        tcs.SetAzSlewAcceleration(100000); 
+        tcs.SetAzSlewVelocity(500);
+        tcs.SetAzJogVelocity(500);
+        tcs.SetAzJogDirection(-1);
+
+
+        System.out.println("Accelerazione");
+        System.out.println(tcs.GetAzCommandedAcc());
+
+        System.out.println("Velocita");
+        System.out.println(tcs.GetAzCommandedVel());
+
+        tcs.MoveAZ(true);
+        tcs.Sleep(12000);
+
+
+        tcs.EmergencyStop();
+
+        */
+
+        /* 
+        tcs.SetAzJogVelocity(500);
+
+        tcs.CmdAzMoveLeft(true);
+        tcs.Sleep(3000);
+
+        tcs.CmdStopAzMotion(true);
+        tcs.Sleep(500);
+
+        tcs.EmergencyStop();
+        */
+        //tcs.CmdHomeTel(true);
+
+        //tcs.HomePosition();
+
+        ///* OPEN GUI
         SwingUtilities.invokeLater(() -> {
             GUItcs gui = new GUItcs(tcs);
             gui.showGui();
         });
+        //*/
 
     }
 

@@ -648,14 +648,14 @@ public class ACS {
       this.MOTORSTATUS[AxesNumber(ax)] = 1;
       if (ErroreCode == -1) {
         this.MOTORSTATUS[AxesNumber(ax)] = 1;
-        // System.out.println("MOTOR ON");
+        System.out.println("acs...MOTOR ON");
         return ACSOK;
       } else {
-        // System.out.println("MOTOR OFF");
+        System.out.println("acs...MOTOR OFF");
         return ErroreCode;
       }
     } else {
-      // System.out.println("MOTOR already ON");
+      System.out.println("acs...MOTOR already ON");
       return ACSOK;
     }
   }
@@ -1774,6 +1774,19 @@ public class ACS {
     // acs.SetMotorOn("X");
     byte[] command;
 
+
+    //acs.SetTrackMode("X");
+    //acs.SetMotVel("X", 180);
+    //acs.Sleep(1000);
+    //acs.StartMove("X");
+    //acs.Sleep(3000);
+    //acs.StopMove("X");
+    //acs.StopMove("X");
+    //acs.StopMove("X");
+
+
+    
+
     /*
       valori originali:
      * GA 8
@@ -1784,8 +1797,49 @@ public class ACS {
      * valori nuovi
      * GA 15
      * TO 1200
+     * 
+     * 
+     * valori attuali AZ
+     * 6
+     * 920
+     * 50
+     * -5
+     * 
+     * valori attuali EL
+     * 6
+     * 820
+     * 820
+     * -4
+     * 
+     * valori vecchi Tosti
+     * AZ
+     * 6
+     * 920
+     * 50
+     * -5
+     * 
+     * EL
+     * 6
+     * 820
+     * 820
+     * -4
+     * 
+     * 
+     * AZ
+     * LA 288000
+     * LV -1623
+     * 
+     * 1746 corrisponde a 150 arcsecondi  ??
+     * 1744 a 180
+     * 
+     * EL
+     * 10000
+     * 57 corrisponde a 180arcsecondi  ??
+     * 49 a 150
+     * 
+     * 
      */
-
+    ///* 
     acs.VALUECR= 0L;
     command = acs.sbld("R%sGA", "X");
     acs.CommandReport(command, false);
@@ -1815,7 +1869,7 @@ public class ACS {
 
 
 
-
+    /*
     command = acs.sbld("S%sGA", "X");
     acs.CommandSet(command, 8);
     acs.Sleep(1000);
@@ -1847,7 +1901,7 @@ public class ACS {
     System.err.println(acs.VALUECR);
     acs.Sleep(1000);
 
-
+    */
 
 
 

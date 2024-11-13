@@ -268,6 +268,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.MotorOff.setBounds(680, 30, 70, 50);
     this.MotorOff.setBackground(Color.decode("#f29e2b")); // Color.decode("#fff")
     this.add(MotorOff);
+    this.timerMotors.start();
 
     labelAzOnOff = new JLabel("Motor AZ: ");
     this.labelAzOnOff.setBounds(590, 100, 200, 30);
@@ -488,24 +489,16 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
           print("DOME not connected");
     };
 
-    this.actionDomeEAST = action -> {
-      print("Dome going west...");
-      if (tcs.domeAxisConnection)
-        tcs.CmdCupolaEst(true);
-      else
-          print("DOME not connected");
-    };
-
     this.actionDomeWEST = action -> {
       print("Dome going west...");
-      if (tcs.domeAxisConnection)
+      if (!tcs.domeAxisConnection)
         tcs.CmdCupolaOvest(true);
       else
           print("DOME not connected");
     };
 
     this.actionDomeStop = action -> {
-      if (tcs.domeAxisConnection)
+      if (!tcs.domeAxisConnection)
         tcs.CmdStopCupola(true);
       print("done.");
     };
@@ -521,7 +514,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     };
     
     this.actionHomeTel = action -> {
-      if (tcs.xAxisConnection && tcs.yAxisConnection){
+      if (!tcs.xAxisConnection && !tcs.yAxisConnection){
         tcs.CmdHomeTel(true);
         print("Telescope home position procedure...");
       }
@@ -553,6 +546,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       this.timerCurrentDomePosition.stop();
       this.timerCurrentPosition.stop();
       this.timerCurrentVelocity.stop();
+      this.timerMotors.stop();
       this.timerVelocity.stop();
       this.timerTargetDec.stop();
       this.timerTargetRa.stop();
@@ -589,6 +583,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.actionMotorOn = action -> {
         int status = tcs.MotorOn();
+        System.out.println("Setting motors on (1 AZ, 2 EL, 3 both, 0 none):");
         System.out.println(status);
 
 
@@ -596,6 +591,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.actionMotorOff = action -> {
         int status = tcs.MotorOff();
+        System.out.println("Setting motors off (1 AZ, 2 EL, 3 both, 0 none):");
         System.out.println(status);
     };
 
@@ -640,6 +636,29 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   // }
 
   //#region timers
+  Timer timerMotors = new Timer(5000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      
+      if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection){
+        labelAzOnOff.setText("Motor AZ: " + format.format(tcs.GetAzMotorInfo()));
+        labelElOnOff.setText("Motor EL: " + format.format(tcs.GetElMotorInfo()));
+      }
+      else if (tcs.xAxisConnection && tcs.tcsConnection){
+        labelAzOnOff.setText("Motor AZ: " + format.format(tcs.GetAzMotorInfo()));
+        labelElOnOff.setText("Motor EL: OFF");
+      }
+      else if (tcs.yAxisConnection && tcs.tcsConnection){
+        labelAzOnOff.setText("Motor AZ: OFF");
+        labelElOnOff.setText("Motor EL: " + format.format(tcs.GetElMotorInfo()));
+      }
+      else{
+        labelAzOnOff.setText("Motor AZ: OFF");
+        labelElOnOff.setText("Motor EL: OFF");
+      }      
+    }
+  });
+
 
   Timer timerVelocity = new Timer(3000, new ActionListener() {
     @Override
