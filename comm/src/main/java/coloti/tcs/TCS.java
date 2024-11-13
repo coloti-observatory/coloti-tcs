@@ -1279,6 +1279,10 @@ public class TCS {
             this.TEL.TargetRA2000 = TEL.Target.getRa2000(); // getRa2000()
             this.TEL.TargetDEC2000 = TEL.Target.getDec2000(); // getDec2000()
 
+            System.out.println("RA: "+TEL.TargetRA2000);
+            System.out.println("DEC: "+TEL.TargetDEC2000);
+
+
             Trajectory();
 
             // System.out.println(TEL.TargetRA);
@@ -3871,13 +3875,11 @@ public class TCS {
 
     // #region T El Down
     private final Task<Void> elMoveDownTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            ELisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("ElMoveDownInfo");
 
@@ -3888,21 +3890,20 @@ public class TCS {
             SetElJogVelocity(-1 * MotEL.AbsJogVelocity);
             AsseY.StartMove(X);
 
-            while (isInterrupted) {
+            while (!ELisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(200);
                 AsseY.IsMoving(X);
                 UpdateTelData();
                 if (!AsseY.isMoving)
-                    isInterrupted = false;
+                    ELisInterrupted.set(true);
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
-
-            return v;
+                
+            return null;
         }
 
         @Override
@@ -3911,14 +3912,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            ELisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -3963,13 +3964,11 @@ public class TCS {
 
     // #region T Az Right
     private final Task<Void> azMoveRightTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            AZisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("AzMoveRightInfo");
 
@@ -3981,21 +3980,20 @@ public class TCS {
             SetAzJogVelocity(1 * MotAZ.AbsJogVelocity);
             AsseX.StartMove(X);
 
-            while (isInterrupted) {
+            while (!AZisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(200);
                 AsseX.IsMoving(X);
                 UpdateTelData();
                 if (!AsseX.isMoving)
-                    isInterrupted = false;
+                    AZisInterrupted.set(true);
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -4004,14 +4002,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            AZisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override
@@ -4056,13 +4054,11 @@ public class TCS {
 
     // #region T Az Left
     private final Task<Void> azMoveLeftTask = new Task<Void>() {
-        boolean isInterrupted = true;
         private TaskListener listener;
-
-        private Void v;
 
         @Override
         public Void call() throws Exception {
+            AZisInterrupted.set(false);
             if (listener != null)
                 listener.onStart("AzMoveLeftInfo");
 
@@ -4073,21 +4069,20 @@ public class TCS {
             SetAzJogVelocity(-1 * MotAZ.AbsJogVelocity);
             AsseX.StartMove(X);
 
-            while (isInterrupted) {
+            while (!AZisInterrupted.get()) {
                 if (listener != null)
                     listener.onWorking(null);
                 Sleep(200);
                 AsseX.IsMoving(X);
                 UpdateTelData();
                 if (!AsseX.isMoving)
-                    isInterrupted = false;
+                AZisInterrupted.set(true);
             }
 
             if (listener != null)
                 listener.onDone(null);
-            isInterrupted = false;
 
-            return v;
+            return null;
         }
 
         @Override
@@ -4096,14 +4091,14 @@ public class TCS {
 
         @Override
         public void interrupt() {
-            isInterrupted = false;
+            AZisInterrupted.set(true);
             if (listener != null)
                 listener.onError("task interrupted");
         }
 
         @Override
-        public void setTaskListener(final TaskListener listen) {
-            listener = listen;
+        public void setTaskListener(TaskListener listen) {
+            this.listener = listen;
         }
 
         @Override

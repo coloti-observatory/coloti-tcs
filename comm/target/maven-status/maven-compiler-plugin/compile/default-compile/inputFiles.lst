@@ -6,6 +6,7 @@
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/App.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/TestTrajectoryManagerOLD.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/Term.java
+/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/Position.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/configuration/MotoreDecAl.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/ACS.java
 /home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/EHardwareStatePhase.java
