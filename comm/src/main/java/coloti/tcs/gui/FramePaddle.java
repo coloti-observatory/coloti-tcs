@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeListener;
 
 import astri.astron.Target;
+import coloti.tcs.Position;
 import coloti.tcs.TCS;
 
 public class FramePaddle extends JDialog{ //  implements KeyListener  implements ButtonModel    JFrame
@@ -42,6 +43,10 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JRadioButton mediumButton;
   JRadioButton fastButton;
   JRadioButton customVelButton;
+
+  JRadioButton radecButton;
+  JRadioButton azelButton;
+  String coordinates = "radec";
   
   JRadioButton slewButton;
   JRadioButton jogButton;
@@ -67,6 +72,10 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JLabel ELconnection;
   JLabel DOMEconnection;
 
+  JLabel AZconnectionState;
+  JLabel ELconnectionState;
+  JLabel DOMEconnectionState;
+
   JTextField Xcoord;
   JTextField Ycoord;
 
@@ -91,6 +100,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
  
   TCS tcs;
+  Position pos;
 
 
 
@@ -106,6 +116,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionMediumSpeed;
   ActionListener actionFastSpeed;
   ActionListener actionCustomSpeed;
+  ActionListener actionRaDec;
+  ActionListener actionAzEl;
   ActionListener actionJogMode;
   ActionListener actionSlewMode;
   ActionListener actionPadEnabler;
@@ -271,11 +283,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.timerMotors.start();
 
     labelAzOnOff = new JLabel("Motor AZ: ");
-    this.labelAzOnOff.setBounds(590, 100, 200, 30);
+    this.labelAzOnOff.setBounds(600, 100, 200, 30);
     this.add(labelAzOnOff);
 
     labelElOnOff = new JLabel("Motor EL: ");
-    this.labelElOnOff.setBounds(590, 130, 200, 30);
+    this.labelElOnOff.setBounds(600, 130, 200, 30);
     this.add(labelElOnOff);
 
 
@@ -296,17 +308,17 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.timerCurrentVelocity.start();
 
 
-    this.buttonDomeEAST = new JButton("East");
+    this.buttonDomeEAST = new JButton("East (L)");
     //buttonDomeEAST.setBounds(300, 50, 80, 30);
     //this.buttonDomeEAST.setBounds(1000, 250, 80, 30);
-    this.buttonDomeEAST.setBounds(550, 490, 80, 30);
+    this.buttonDomeEAST.setBounds(530, 490, 100, 30);
     this.buttonDomeEAST.setBackground(Color.LIGHT_GRAY);
     this.add(buttonDomeEAST);
 
-    this.buttonDomeWEST = new JButton("West");
+    this.buttonDomeWEST = new JButton("West (R)");
     //buttonDomeWEST.setBounds(390, 50, 80, 30);
     //this.buttonDomeWEST.setBounds(1090, 250, 80, 30);
-    this.buttonDomeWEST.setBounds(640, 490, 80, 30);
+    this.buttonDomeWEST.setBounds(640, 490, 100, 30);
     this.buttonDomeWEST.setBackground(Color.LIGHT_GRAY);
     this.add(buttonDomeWEST);
       
@@ -353,17 +365,17 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.slowButton = new JRadioButton("Slow (60)");
     //slowButton.setBounds(50, 30, 100, 30);
-    this.slowButton.setBounds(800, 180, 120, 30);
+    this.slowButton.setBounds(800, 170, 120, 30);
     this.mediumButton = new JRadioButton("Medium (150)");
     //mediumButton.setBounds(50, 70, 100, 30);
-    this.mediumButton.setBounds(800, 210, 120, 30);
+    this.mediumButton.setBounds(800, 200, 120, 30);
     this.fastButton = new JRadioButton("Fast (180)");
     //fastButton.setBounds(50, 110, 100, 30);
-    this.fastButton.setBounds(800, 240, 120, 30);
+    this.fastButton.setBounds(800, 230, 120, 30);
     
 
     this.customVelButton = new JRadioButton("Custom Vel");
-    this.customVelButton.setBounds(800, 270, 120, 30);
+    this.customVelButton.setBounds(800, 280, 120, 30);
 
     // Group the radio buttons
     ButtonGroup group = new ButtonGroup();
@@ -381,19 +393,52 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
 
 
-    this.AZconnection = new JLabel("AZ connection");
-    this.AZconnection.setBounds(110, 100, 150, 30);
+    this.radecButton = new JRadioButton("RA - DEC  (h, deg)");
+    this.radecButton.setBounds(540, 200, 120, 30);
+    this.azelButton = new JRadioButton("AZ - EL  (deg, deg)");
+    this.azelButton.setBounds(540, 230, 120, 30);
 
-    this.ELconnection = new JLabel("EL connection");
-    this.ELconnection.setBounds(270, 100, 150, 30);
+    // Group the radio buttons
+    ButtonGroup group2 = new ButtonGroup();
+    group.add(radecButton);
+    group.add(azelButton);
+
+    this.add(radecButton);
+    this.add(azelButton);
+    radecButton.doClick();
+
+
+
+
+    this.AZconnection = new JLabel("AZ:");
+    this.AZconnection.setBounds(150, 90, 150, 30);
+
+    this.ELconnection = new JLabel("EL:");
+    this.ELconnection.setBounds(310, 90, 150, 30);
     
-    this.DOMEconnection = new JLabel("DOME connection");
-    this.DOMEconnection.setBounds(420, 100, 150, 30);
+    this.DOMEconnection = new JLabel("DOME:");
+    this.DOMEconnection.setBounds(440, 90, 150, 30);
+    // Group the radio buttons
+
+
+
+    this.AZconnectionState = new JLabel("NOT connected");
+    this.AZconnectionState.setBounds(120, 110, 150, 30);
+
+    this.ELconnectionState = new JLabel("NOT connected");
+    this.ELconnectionState.setBounds(270, 110, 150, 30);
+    
+    this.DOMEconnectionState = new JLabel("NOT connected");
+    this.DOMEconnectionState.setBounds(430, 110, 150, 30);
     // Group the radio buttons
 
     this.add(AZconnection);
     this.add(ELconnection);
     this.add(DOMEconnection);
+
+    this.add(AZconnectionState);
+    this.add(ELconnectionState);
+    this.add(DOMEconnectionState);
 
     
   }
@@ -468,8 +513,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       tcs.SetAbsJogVelocity(180); //180
     };
 
-
     this.actionCustomSpeed = action -> print("Set custom speed");
+
+    this.actionRaDec = action -> this.coordinates = "radec";
+
+    this.actionAzEl = action -> this.coordinates = "azel";
 
     this.actionJogMode = action -> {
       print("Set jogging mode");
@@ -540,7 +588,25 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       customVelButton.doClick();
     };
 
-    this.actionConnect = action -> tcs.connect();
+    this.actionConnect = action -> {
+      tcs.connect();
+      if(tcs.xAxisConnection)
+        AZconnectionState.setText("Connected");
+      else
+        AZconnectionState.setText("NOT connected");
+
+      if(tcs.yAxisConnection)
+        ELconnectionState.setText("Connected");
+      else
+        ELconnectionState.setText("NOT connected");
+
+      if(tcs.domeAxisConnection)
+        DOMEconnectionState.setText("Connected");
+      else
+        DOMEconnectionState.setText("NOT connected");
+
+
+    };
 
     this.actionDisconnect = action -> {
       this.timerCurrentDomePosition.stop();
@@ -787,6 +853,18 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         public void mouseReleased(MouseEvent e) {
             String xString = Xcoord.getText();
             String yString = Ycoord.getText();
+
+            if (coordinates.equals("radec")){
+              double xNumber = Double.parseDouble(xString);
+              double yNumber = Double.parseDouble(yString);
+
+              //String str = Double.toString(num);  // or String str = String.valueOf(num);
+              pos.RaDecToAzAlt(yNumber, xNumber, 0); // 
+
+              xString = Double.toString(pos.AZ);
+              yString = Double.toString(pos.ALT);
+            }
+
             if (!xString.equals("") && !yString.equals("")){
               writeX(Double.parseDouble(xString));
               writeY(Double.parseDouble(yString));
@@ -967,6 +1045,14 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
   public void setCustomSpeed(){
     this.customVelButton.addActionListener(actionCustomSpeed);
+  }
+
+  public void setRaDec(){
+    this.radecButton.addActionListener(actionRaDec);
+  }
+
+  public void setAzEl(){
+    this.azelButton.addActionListener(actionAzEl);
   }
 
   /* 

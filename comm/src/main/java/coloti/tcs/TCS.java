@@ -209,8 +209,10 @@ public class TCS {
 
             final double gearratioX = (double) TEL.RapportoRiduzioneAZ * MotAZ.RiduzioneMotore;
             this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX);
-            this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima * 3600, -MotAZ.VelocitaMassima * 3600); // 0.5*3600
-            this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup * 3600, MotAZ.PosizioneLimiteInf * 3600);
+            //this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima * 3600, -MotAZ.VelocitaMassima * 3600); // 0.5*3600
+            //this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup * 3600, MotAZ.PosizioneLimiteInf * 3600);
+            this.AsseX.SetMaxMinVel(X, MotAZ.RisoluzioneEncoder1 * 3600.0, -MotAZ.RisoluzioneEncoder1 * 3600.0); // 0.5*3600
+            this.AsseX.SetMotMaxMinPos(X, MotAZ.RisoluzioneEncoder1 * 3600, MotAZ.RisoluzioneEncoder1 * 3600);
             AsseX.SetMotorOn(X);
             // sseX.SetAxisZeroPos(X, 0);
         }
@@ -228,8 +230,10 @@ public class TCS {
 
             final double gearratioY = (double) TEL.RapportoRiduzioneAL * MotEL.RiduzioneMotore;
             this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
-            this.AsseY.SetMaxMinVel(X, MotEL.VelocitaMassima * 3600, -MotEL.VelocitaMassima * 3600); // 0.25*3600
-            this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup * 3600, MotEL.PosizioneLimiteInf * 3600);
+            //this.AsseY.SetMaxMinVel(X, MotEL.VelocitaMassima * 3600, -MotEL.VelocitaMassima * 3600); // 0.25*3600
+            //this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup * 3600, MotEL.PosizioneLimiteInf * 3600);
+            this.AsseY.SetMaxMinVel(X, MotEL.RisoluzioneEncoder1 * 3600.0, -MotEL.RisoluzioneEncoder1 * 3600.0); // 0.25*3600
+            this.AsseY.SetMotMaxMinPos(X, MotEL.RisoluzioneEncoder1 * 3600, MotEL.RisoluzioneEncoder1 * 3600);
             AsseY.SetMotorOn(X);
             // AsseY.SetAxisZeroPos(X, 0);
         }
@@ -3977,7 +3981,7 @@ public class TCS {
 
             // AsseX.ExecProg("MUOVIDX");
 
-            SetAzJogVelocity(1 * MotAZ.AbsJogVelocity);
+            SetAzJogVelocity(-1 * MotAZ.AbsJogVelocity);
             AsseX.StartMove(X);
 
             while (!AZisInterrupted.get()) {
@@ -4066,7 +4070,7 @@ public class TCS {
                 SetTrackingMode();
 
             // AsseX.ExecProg("MUOVISX");
-            SetAzJogVelocity(-1 * MotAZ.AbsJogVelocity);
+            SetAzJogVelocity(1 * MotAZ.AbsJogVelocity);
             AsseX.StartMove(X);
 
             while (!AZisInterrupted.get()) {

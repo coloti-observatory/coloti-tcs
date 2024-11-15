@@ -1,64 +1,5 @@
 package coloti.tcs;
 
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import coloti.tcs.configuration.Telescopio;
-import coloti.tcs.gui.GUItcs;
-//import coloti.tcs.configuration.MotoreArAz;
-//import java.io.File;
-//import java.io.IOException;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import coloti.tcs.configuration.*;
-import coloti.tcs.objclasses.*;
-import coloti.tcs.task.DefaultListener;
-import coloti.tcs.task.Task;
-import coloti.tcs.task.TaskExecutor;
-import coloti.tcs.task.TaskListener;
-import coloti.tcs.trajectory.ETelescopes;
-import coloti.tcs.trajectory.TrajectoryFitter;
-import coloti.tcs.trajectory.TrajectoryManager;
-import coloti.tcs.weather.WeatherData;
-
-import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-//import coloti.tcs.ConfigurationClass;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
-import org.jastronomy.jsofa.JSOFA.JulianDate;
-//import java.lang.Math.*;
-import org.jboss.util.state.DefaultStateMachineModel;
-import org.jboss.util.state.State;
-import org.jboss.util.state.StateMachine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fazecast.jSerialComm.SerialPort;
-
-import astri.astron.Observer;
-import astri.astron.Target;
-import astri.astron.TimeUtil;
-import astri.astron.Weather;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.*;
-import javax.swing.*;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -82,6 +23,9 @@ public class Position {
 
     public double RA;
     public double DEC;
+
+    public double AZ;
+    public double ALT;
 
     public double COLOTI_LONGITUDE = 12.3763888; // Longitude in degrees for Rome (East is positive)
 
@@ -188,6 +132,47 @@ public class Position {
         
     }
 
+    public void RaDecToAzAlt(double ra, double dec, double lst) {
+        if (lst == 0){ //lst calcolato al momento
+            lst = calculateLocalSiderealTime(LocalDateTime.now(ZoneOffset.UTC), COLOTI_LONGITUDE);
+        }
+
+        // Convert inputs to radians
+        double decRad = Math.toRadians(dec);
+        double raRad = Math.toRadians(ra * 15); // Convert RA from hours to degrees, then to radians
+        double lstRad = Math.toRadians(lst * 15); // Convert LST from hours to degrees, then to radians
+    
+        // Calculate Hour Angle (HA) in radians
+        double hourAngle = lstRad - raRad;
+        if (hourAngle < 0) {
+            hourAngle += 2 * Math.PI; // Ensure HA is in the range [0, 2π]
+        }
+    
+        // Calculate Altitude (alt)
+        double sinAlt = Math.sin(latitude) * Math.sin(decRad) +
+                        Math.cos(latitude) * Math.cos(decRad) * Math.cos(hourAngle);
+        double altitude = Math.asin(sinAlt); // Resulting altitude in radians
+    
+        // Calculate Azimuth (az)
+        double cosAz = (Math.sin(decRad) - Math.sin(altitude) * Math.sin(latitude)) /
+                        (Math.cos(altitude) * Math.cos(latitude));
+        double azimuth = Math.acos(cosAz); // Resulting azimuth in radians
+    
+        // Adjust azimuth based on hour angle
+        if (Math.sin(hourAngle) > 0) { // HA > 0 (object is in the western half of the sky)
+            azimuth = 2 * Math.PI - azimuth;
+        }
+    
+        // Convert altitude and azimuth from radians to degrees
+        altitude = Math.toDegrees(altitude);
+        azimuth = Math.toDegrees(azimuth);
+    
+        //System.out.println("Altitude: " + altitude + " degrees");
+        //System.out.println("Azimuth: " + azimuth + " degrees");
+        this.AZ = azimuth;
+        this.ALT = altitude;
+    }
+
     public static void main(String[] a) {
         //"Latitudine":43.4016667,
         //"Longitudine":12.3763888,
@@ -201,11 +186,16 @@ public class Position {
         LocalDateTime currentTime = LocalDateTime.now(ZoneOffset.UTC);
         double lst = calculateLocalSiderealTime(currentTime, pos.COLOTI_LONGITUDE);
 
-        pos.AzAltToRaDec(0, 90, lst);
+        pos.AzAltToRaDec(200, 18, lst);
 
         System.out.println("RA: "+pos.RA);
         System.out.println("DEC: "+pos.DEC);
 
+        //pos.RaDecToAzAlt(pos.RA, pos.DEC, lst);
+        pos.RaDecToAzAlt(18, -25, lst);
+
+        System.out.println("AZ: "+pos.AZ);
+        System.out.println("ALT: "+pos.ALT);
 
 
 
