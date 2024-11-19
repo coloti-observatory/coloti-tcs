@@ -203,16 +203,16 @@ public class TCS {
             tcsError(AsseX.InitAxes(), 1100);
 
             this.AsseX.ENCODERRES[0] = MotAZ.RisoluzioneEncoder1;
-            this.AsseX.MaxAbsVel[0] = this.AsseX.MaxVel[0] = MotAZ.RisoluzioneEncoder1;
-            this.AsseX.MinAbsVel[0] = this.AsseX.MinVel[0] = -MotAZ.RisoluzioneEncoder1;
-            this.AsseX.MaxAbsAcc[0] = this.AsseX.MaxAcc[0] = MotAZ.RisoluzioneEncoder1;
+            this.AsseX.MaxAbsVel[0] = this.AsseX.MaxVel[0] = MotAZ.VelocitaMassima*3600; //MotAZ.RisoluzioneEncoder1;
+            this.AsseX.MinAbsVel[0] = this.AsseX.MinVel[0] = -MotAZ.VelocitaMassima*3600;
+            this.AsseX.MaxAbsAcc[0] = this.AsseX.MaxAcc[0] = MotAZ.VelocitaMassima*3600;
 
             final double gearratioX = (double) TEL.RapportoRiduzioneAZ * MotAZ.RiduzioneMotore;
             this.ConversionFactorX = AsseX.SetUserUnit(X, UnitMeasure, gearratioX);
             //this.AsseX.SetMaxMinVel(X, MotAZ.VelocitaMassima * 3600, -MotAZ.VelocitaMassima * 3600); // 0.5*3600
             //this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup * 3600, MotAZ.PosizioneLimiteInf * 3600);
-            this.AsseX.SetMaxMinVel(X, MotAZ.RisoluzioneEncoder1 * 3600.0, -MotAZ.RisoluzioneEncoder1 * 3600.0); // 0.5*3600
-            this.AsseX.SetMotMaxMinPos(X, MotAZ.RisoluzioneEncoder1 * 3600, MotAZ.RisoluzioneEncoder1 * 3600);
+            this.AsseX.SetMaxMinVel(X, AsseX.MaxVel[0], AsseX.MinVel[0]); // 0.5*3600
+            this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup*3600, MotAZ.PosizioneLimiteInf*3600);
             AsseX.SetMotorOn(X);
             // sseX.SetAxisZeroPos(X, 0);
         }
@@ -224,16 +224,16 @@ public class TCS {
             tcsError(AsseY.InitAxes(), 1200);
 
             this.AsseY.ENCODERRES[0] = MotEL.RisoluzioneEncoder1;
-            this.AsseY.MaxAbsVel[0] = this.AsseY.MaxVel[0] = MotEL.RisoluzioneEncoder1;
-            this.AsseY.MinAbsVel[0] = this.AsseY.MinVel[0] = -MotEL.RisoluzioneEncoder1;
-            this.AsseY.MaxAbsAcc[0] = this.AsseY.MaxAcc[0] = MotEL.RisoluzioneEncoder1;
+            this.AsseY.MaxAbsVel[0] = this.AsseY.MaxVel[0] = MotEL.VelocitaMassima*3600;
+            this.AsseY.MinAbsVel[0] = this.AsseY.MinVel[0] = -MotEL.VelocitaMassima*3600;
+            this.AsseY.MaxAbsAcc[0] = this.AsseY.MaxAcc[0] = MotEL.VelocitaMassima*3600;
 
             final double gearratioY = (double) TEL.RapportoRiduzioneAL * MotEL.RiduzioneMotore;
             this.ConversionFactorY = AsseY.SetUserUnit(X, UnitMeasure, gearratioY);
             //this.AsseY.SetMaxMinVel(X, MotEL.VelocitaMassima * 3600, -MotEL.VelocitaMassima * 3600); // 0.25*3600
             //this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup * 3600, MotEL.PosizioneLimiteInf * 3600);
-            this.AsseY.SetMaxMinVel(X, MotEL.RisoluzioneEncoder1 * 3600.0, -MotEL.RisoluzioneEncoder1 * 3600.0); // 0.25*3600
-            this.AsseY.SetMotMaxMinPos(X, MotEL.RisoluzioneEncoder1 * 3600, MotEL.RisoluzioneEncoder1 * 3600);
+            this.AsseY.SetMaxMinVel(X, AsseY.MaxVel[0], AsseY.MinVel[0]); // 0.25*3600
+            this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup*3600, MotEL.PosizioneLimiteSup*3600);
             AsseY.SetMotorOn(X);
             // AsseY.SetAxisZeroPos(X, 0);
         }
@@ -4370,7 +4370,7 @@ public class TCS {
         }
 
         tm.setBaseDir(BASE_DIR);
-        tm.assignToTelescope(ETelescopes.ASTRI1);
+        tm.assignToTelescope(ETelescopes.COLOTI);
         tm.setAstroObserver(obs);
         tm.setWeather(atm);
         tm.setTpointFile(tpointFile);

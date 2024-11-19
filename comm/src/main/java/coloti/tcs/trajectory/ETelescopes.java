@@ -31,11 +31,12 @@ public enum ETelescopes{
     ASTRI6(6),
     ASTRI7(7),
     ASTRI8(8),
-    ASTRI9(9);
+    ASTRI9(9),
+    COLOTI(10);
 
     private final int value;
-    private final String[] names = { "COLOTI", "ASTRI2", "ASTRI3", "ASTRI4", "ASTRI5", "ASTRI6", "ASTRI7",
-            "ASTRI8", "ASTRI9" };
+    private final String[] names = { "ASTRI1" ,"ASTRI2", "ASTRI3", "ASTRI4", "ASTRI5", "ASTRI6", "ASTRI7",
+            "ASTRI8", "ASTRI9", "COLOTI"};
 
     private ETelescopes(int value) {
         this.value = value;
