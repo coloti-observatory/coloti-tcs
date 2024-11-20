@@ -1,6 +1,7 @@
 package coloti.tcs.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.*;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import javax.swing.event.ChangeListener;
 import astri.astron.Target;
 import coloti.tcs.Position;
 import coloti.tcs.TCS;
+import coloti.tcs.trajectory.TrajectoryFitter;
 
 public class FramePaddle extends JDialog{ //  implements KeyListener  implements ButtonModel    JFrame
   DecimalFormat format = new DecimalFormat("#.###");
@@ -33,6 +35,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JButton buttonSTOP;
   JButton buttonDomeEAST;
   JButton buttonDomeWEST;
+  JButton buttonStopDome;
+  JButton buttonOpenDome;
+  JButton buttonCloseDome;
   JLabel labelDome;
   String targetString;
   double Xvalue = -999;
@@ -66,6 +71,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JLabel labelTarget;
   JPanel panelTarget;
 
+  JButton buttonSkyMap;
+
   JLabel labelVelDescr;
 
   JLabel AZconnection;
@@ -95,6 +102,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JLabel labelAzOnOff;
   JLabel labelElOnOff;
 
+  JLabel labelMotors;
+
 
 
 
@@ -103,7 +112,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   Position pos;
 
 
-
+  ActionListener actionSkyMap;
   ActionListener actionMoveUP;
   ActionListener actionMoveDOWN;
   ActionListener actionMoveLEFT;
@@ -136,13 +145,15 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   ActionListener actionPoint;
   ActionListener actionPointTrack;
 
- 
+  TrajectoryFitter trafit;
+
+  JSeparator verticalSeparator;
 
   public FramePaddle(JFrame parentFrame, TCS tcs) {
     super(parentFrame, "Speed Selector", true);
     parentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-    this.setSize(1200, 700);
+    this.setSize(1440, 900);
     this.setLayout(null);
 
     this.tcs = tcs; //, TCS tcs
@@ -203,6 +214,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.buttonTarget = new JButton("Submit Target");
     this.buttonTarget.setBounds(110, 250, 200, 30);
+    this.buttonTarget.setBackground(Color.LIGHT_GRAY);
     this.add(buttonTarget);
 
     this.textTarget = new JTextField(16);
@@ -212,6 +224,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     
     this.SubmitCoord = new JButton("Submit Coordinates");
     this.SubmitCoord.setBounds(320, 250, 200, 30);
+    this.SubmitCoord.setBackground(Color.LIGHT_GRAY);
     this.add(SubmitCoord);
 
     this.Xcoord = new JTextField(16);
@@ -222,7 +235,10 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.Ycoord.setBounds(425, 210, 95, 30);
     this.add(Ycoord);
 
-
+    this.buttonSkyMap = new JButton("Sky Map");
+    this.buttonSkyMap.setBounds(460, 320, 150, 50);
+    this.buttonSkyMap.setBackground(Color.cyan);
+    this.add(buttonSkyMap);
 
 
     this.buttonPoint = new JButton("Point");
@@ -240,54 +256,27 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
 
 
-
-    this.labelVelDescr = new JLabel("velocity (arcs/s)");
-    this.labelVelDescr.setBounds(960, 170, 160, 30);
-    this.add(labelVelDescr);
-    
-    this.buttonSetVel = new JButton("Set Velocity");
-    this.buttonSetVel.setBounds(960, 240, 160, 30);
-    this.add(buttonSetVel);
-
-    this.textSetVel = new JTextField(16);
-    this.textSetVel.setBounds(960, 200, 160, 30);    
-    this.add(textSetVel);
-
-
-
-    labelVelocity = new JLabel("Commanded Vel (AZ,EL) (arcs/s):");
-    labelVelocity.setBounds(820, 120, 400, 30);
-    this.add(labelVelocity);
-    this.timerVelocity.start();
-
-    //labelVelocity2 = new JLabel("");
-    //labelVelocity2.setBounds(750, 110, 400, 30);
-    //this.add(labelVelocity2);
-    //this.timerVelocity2.start();
-
-    Pad = new JToggleButton("");
-    this.Pad.setBounds(890, 30, 140, 50);
-    //this.Pad.setBackground(Color.decode("#ff8d8d")); // Color.decode("#fff")
-    this.Pad.setText("Pad OFF");
-    this.add(Pad);
-
     MotorOn = new JButton("ON");
-    this.MotorOn.setBounds(600, 30, 70, 50);
+    this.MotorOn.setBounds(700, 60, 70, 50);
     this.MotorOn.setBackground(Color.decode("#2b9af2")); // Color.decode("#fff")
     this.add(MotorOn);
 
     MotorOff = new JButton("OFF");
-    this.MotorOff.setBounds(680, 30, 70, 50);
+    this.MotorOff.setBounds(780, 60, 70, 50);
     this.MotorOff.setBackground(Color.decode("#f29e2b")); // Color.decode("#fff")
     this.add(MotorOff);
     this.timerMotors.start();
 
+    labelMotors = new JLabel("Motors");
+    this.labelMotors.setBounds(740, 20, 200, 30);
+    this.add(labelMotors);
+
     labelAzOnOff = new JLabel("Motor AZ: ");
-    this.labelAzOnOff.setBounds(600, 100, 200, 30);
+    this.labelAzOnOff.setBounds(700, 120, 200, 30);
     this.add(labelAzOnOff);
 
     labelElOnOff = new JLabel("Motor EL: ");
-    this.labelElOnOff.setBounds(600, 130, 200, 30);
+    this.labelElOnOff.setBounds(700, 150, 200, 30);
     this.add(labelElOnOff);
 
 
@@ -308,30 +297,48 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.timerCurrentVelocity.start();
 
 
+    //#region DOME
+
     this.buttonDomeEAST = new JButton("East (L)");
     //buttonDomeEAST.setBounds(300, 50, 80, 30);
     //this.buttonDomeEAST.setBounds(1000, 250, 80, 30);
-    this.buttonDomeEAST.setBounds(530, 490, 100, 30);
-    this.buttonDomeEAST.setBackground(Color.LIGHT_GRAY);
+    this.buttonDomeEAST.setBounds(700, 360, 100, 30);
+    //this.buttonDomeEAST.setBackground(Color.LIGHT_GRAY);
     this.add(buttonDomeEAST);
 
     this.buttonDomeWEST = new JButton("West (R)");
     //buttonDomeWEST.setBounds(390, 50, 80, 30);
     //this.buttonDomeWEST.setBounds(1090, 250, 80, 30);
-    this.buttonDomeWEST.setBounds(640, 490, 100, 30);
-    this.buttonDomeWEST.setBackground(Color.LIGHT_GRAY);
+    this.buttonDomeWEST.setBounds(810, 360, 100, 30);
+    //this.buttonDomeWEST.setBackground(Color.LIGHT_GRAY);
     this.add(buttonDomeWEST);
+
+    this.buttonStopDome = new JButton("Stop Dome");
+    this.buttonStopDome.setBounds(700, 400, 210, 30);
+    this.buttonStopDome.setBackground(Color.decode("#CA3435"));
+    this.add(buttonStopDome);
+      
+
+    this.buttonOpenDome = new JButton("Open");
+    this.buttonOpenDome.setBounds(700, 300, 100, 30);
+    this.buttonOpenDome.setBackground(Color.LIGHT_GRAY);
+    this.add(buttonOpenDome);
+
+    this.buttonCloseDome = new JButton("Close");
+    this.buttonCloseDome.setBounds(810, 300, 100, 30);
+    this.buttonCloseDome.setBackground(Color.GRAY);
+    this.add(buttonCloseDome);
       
     this.labelDome = new JLabel("Dome");  
     //labelDome.setBounds(360, 20, 100, 30);
     //this.labelDome.setBounds(1060, 220, 100, 30);
-    this.labelDome.setBounds(610, 460, 100, 30);
+    this.labelDome.setBounds(785, 330, 100, 30);
     this.add(labelDome);
 
 
     this.buttonSTOP = new JButton("STOP");
     //buttonSTOP.setBounds(380, 400, 80, 30);
-    this.buttonSTOP.setBounds(580, 560, 110, 50);
+    this.buttonSTOP.setBounds(800, 740, 120, 60);
     this.buttonSTOP.setBackground(Color.RED);
     this.add(buttonSTOP);
 
@@ -340,42 +347,81 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
 
 
-
+    //#region PAD
 
     this.buttonUP = new JButton("UP");
     //buttonUP.setBounds(200, 100, 100, 100);
-    this.buttonUP.setBounds(920, 310, 100, 100);
+    this.buttonUP.setBounds(1160, 430, 100, 100);
     this.add(buttonUP);
 
     this.buttonDOWN = new JButton("DOWN");
     //buttonDOWN.setBounds(200, 300, 100, 100);
-    this.buttonDOWN.setBounds(920, 510, 100, 100);
+    this.buttonDOWN.setBounds(1160, 630, 100, 100);
     this.add(buttonDOWN);
 
     this.buttonLEFT = new JButton("LEFT");
     //buttonLEFT.setBounds(100, 200, 100, 100);
-    this.buttonLEFT.setBounds(820, 410, 100, 100);
+    this.buttonLEFT.setBounds(1060, 530, 100, 100);
     this.add(buttonLEFT);
 
     this.buttonRIGHT = new JButton("RIGHT");
     //buttonRIGHT.setBounds(300, 200, 100, 100);
-    this.buttonRIGHT.setBounds(1020, 410, 100, 100);
+    this.buttonRIGHT.setBounds(1260, 530, 100, 100);
     this.add(buttonRIGHT);
 
 
+
+    this.labelVelDescr = new JLabel("velocity (arcs/s)");
+    this.labelVelDescr.setBounds(1200, 250, 160, 30);
+    this.add(labelVelDescr);
+    
+    this.buttonSetVel = new JButton("Set Velocity");
+    this.buttonSetVel.setBounds(1200, 320, 160, 30);
+    this.buttonSetVel.setBackground(Color.LIGHT_GRAY);
+    this.add(buttonSetVel);
+
+    this.textSetVel = new JTextField(16);
+    this.textSetVel.setBounds(1200, 280, 160, 30);    
+    this.add(textSetVel);
+
+
+
+    labelVelocity = new JLabel("Commanded Vel (AZ,EL) (arcs/s):");
+    labelVelocity.setBounds(1060, 200, 400, 30);
+    this.add(labelVelocity);
+    this.timerVelocity.start();
+
+    //labelVelocity2 = new JLabel("");
+    //labelVelocity2.setBounds(750, 110, 400, 30);
+    //this.add(labelVelocity2);
+    //this.timerVelocity2.start();
+
+    verticalSeparator = new JSeparator(SwingConstants.VERTICAL);
+    verticalSeparator.setBounds(980, 10, 1, 840); // x, y, width, height
+    verticalSeparator.setBackground(Color.BLACK);
+    verticalSeparator.setForeground(Color.BLACK);
+    this.add(verticalSeparator);
+ 
+
+    Pad = new JToggleButton("");
+    this.Pad.setBounds(1130, 110, 140, 50);
+    //this.Pad.setBackground(Color.decode("#ff8d8d")); // Color.decode("#fff")
+    this.Pad.setText("Pad OFF");
+    this.add(Pad);
+
     this.slowButton = new JRadioButton("Slow (60)");
     //slowButton.setBounds(50, 30, 100, 30);
-    this.slowButton.setBounds(800, 170, 120, 30);
+    this.slowButton.setBounds(1040, 250, 120, 30);
     this.mediumButton = new JRadioButton("Medium (150)");
     //mediumButton.setBounds(50, 70, 100, 30);
-    this.mediumButton.setBounds(800, 200, 120, 30);
+    this.mediumButton.setBounds(1040, 280, 120, 30);
     this.fastButton = new JRadioButton("Fast (180)");
     //fastButton.setBounds(50, 110, 100, 30);
-    this.fastButton.setBounds(800, 230, 120, 30);
+    this.fastButton.setBounds(1040, 310, 120, 30);
     
 
     this.customVelButton = new JRadioButton("Custom Vel");
-    this.customVelButton.setBounds(800, 280, 120, 30);
+    this.customVelButton.setBounds(1040, 360, 120, 30);
 
     // Group the radio buttons
     ButtonGroup group = new ButtonGroup();
@@ -394,9 +440,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
 
     this.radecButton = new JRadioButton("RA - DEC  (h, deg)");
-    this.radecButton.setBounds(540, 200, 120, 30);
+    this.radecButton.setBounds(540, 200, 200, 30);
     this.azelButton = new JRadioButton("AZ - EL  (deg, deg)");
-    this.azelButton.setBounds(540, 230, 120, 30);
+    this.azelButton.setBounds(540, 230, 200, 30);
 
     // Group the radio buttons
     ButtonGroup group2 = new ButtonGroup();
@@ -477,6 +523,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
           print("AZ not connected");
     };
 
+    this.actionSkyMap = action -> {
+      trafit = new TrajectoryFitter();
+      trafit.showMap();
+    };
+
     this.actionstopEL = action -> {
       if (tcs.yAxisConnection)
         tcs.CmdStopElMotion(true);
@@ -496,6 +547,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.actionSTOP = action -> {
       print("Stop movements...");
       tcs.CmdEmergencyStop(true);
+    };
+
+    this.actionStopDome = action -> {
+      print("Stop Dome movement...");
+      tcs.CmdStopCupola(true);
     };
 
     this.actionSlowSpeed = action -> {
@@ -674,7 +730,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     setButtonDOWN();
     setButtonLEFT();
     setButtonRIGHT();
+    setButtonSkyMap();
     setButtonSTOP();
+    setButtonStopDome();
     setButtonDomeEAST();
     setButtonDomeWEST();
     setSlowSpeed();
@@ -994,6 +1052,15 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         });
   }
 
+  public void setButtonSkyMap(){
+    this.buttonSkyMap.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            actionSkyMap.actionPerformed(null);
+        }
+        });
+  }
+
   public void setButtonSTOP(){
     this.buttonSTOP.addMouseListener(new MouseAdapter() {
         @Override
@@ -1001,6 +1068,15 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
             actionSTOP.actionPerformed(null);
         }
         });
+  }
+
+  public void setButtonStopDome(){
+    this.buttonStopDome.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+          actionStopDome.actionPerformed(null);
+      }
+      });
   }
 
   public void setButtonDomeEAST(){

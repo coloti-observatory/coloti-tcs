@@ -44,7 +44,7 @@ public class TrajectoryFitter {
     private int polDegree;
     private SkyMap sk;
 
-    private Observer obs = new Observer("ASTRI", 1,
+    private Observer obs = new Observer("COLOTI", 1,
                 43.4016667,
                 12.3763888,
                 487);
