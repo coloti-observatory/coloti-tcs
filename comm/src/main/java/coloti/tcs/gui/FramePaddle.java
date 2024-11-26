@@ -150,13 +150,15 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JSeparator verticalSeparator;
 
   public FramePaddle(JFrame parentFrame, TCS tcs) {
-    super(parentFrame, "Speed Selector", true);
+    super(parentFrame, "Speed Selector", false); // true for modal, false for non-modal
     parentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     this.setSize(1440, 900);
     this.setLayout(null);
 
     this.tcs = tcs; //, TCS tcs
+
+    this.pos = new Position();
 
     configure();
 
@@ -193,6 +195,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.buttonDisconnect.setBackground(Color.magenta);
     this.add(buttonDisconnect);
 
+    
 
 
 
@@ -265,6 +268,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.MotorOff.setBounds(780, 60, 70, 50);
     this.MotorOff.setBackground(Color.decode("#f29e2b")); // Color.decode("#fff")
     this.add(MotorOff);
+
     this.timerMotors.start();
 
     labelMotors = new JLabel("Motors");
@@ -321,7 +325,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     this.buttonOpenDome = new JButton("Open");
     this.buttonOpenDome.setBounds(700, 300, 100, 30);
-    this.buttonOpenDome.setBackground(Color.LIGHT_GRAY);
+    this.buttonOpenDome.setBackground(Color.GRAY);
     this.add(buttonOpenDome);
 
     this.buttonCloseDome = new JButton("Close");
@@ -489,6 +493,31 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //---------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+  
+
   //#region actions
   public void defineActions(){
 
@@ -557,19 +586,25 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.actionSlowSpeed = action -> {
       print("Set slow speed");
       tcs.SetAbsJogVelocity(60);
+      updateVelocity();
     };
 
     this.actionMediumSpeed = action -> {
       print("Set medium speed");
       tcs.SetAbsJogVelocity(150); //1000
+      updateVelocity();
     };
 
     this.actionFastSpeed = action -> {
       print("Set fast speed");
       tcs.SetAbsJogVelocity(180); //180
+      updateVelocity();
     };
 
-    this.actionCustomSpeed = action -> print("Set custom speed");
+    this.actionCustomSpeed = action -> {
+      print("Set custom speed");
+      updateVelocity();
+    };
 
     this.actionRaDec = action -> this.coordinates = "radec";
 
@@ -618,7 +653,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     };
     
     this.actionHomeTel = action -> {
-      if (!tcs.xAxisConnection && !tcs.yAxisConnection){
+      if (tcs.xAxisConnection && tcs.yAxisConnection){
         tcs.CmdHomeTel(true);
         print("Telescope home position procedure...");
       }
@@ -636,32 +671,18 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       if (Yvalue > -999){
         tcs.SetTargetEl(Yvalue);
       }
-
     };
 
     this.actionVelocity = action -> {
       tcs.SetAbsJogVelocity(commandedVelocity);
       customVelButton.doClick();
+      updateVelocity();
     };
 
     this.actionConnect = action -> {
       tcs.connect();
-      if(tcs.xAxisConnection)
-        AZconnectionState.setText("Connected");
-      else
-        AZconnectionState.setText("NOT connected");
-
-      if(tcs.yAxisConnection)
-        ELconnectionState.setText("Connected");
-      else
-        ELconnectionState.setText("NOT connected");
-
-      if(tcs.domeAxisConnection)
-        DOMEconnectionState.setText("Connected");
-      else
-        DOMEconnectionState.setText("NOT connected");
-
-
+      this.timerConnections.start();
+      updateAxisConnection();
     };
 
     this.actionDisconnect = action -> {
@@ -672,7 +693,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
       this.timerVelocity.stop();
       this.timerTargetDec.stop();
       this.timerTargetRa.stop();
+      this.timerConnections.stop();
       tcs.disconnect();
+      updateAxisConnection();      
     };
 
     this.actionPoint = action -> {
@@ -720,6 +743,38 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //---------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   //#region interactions
   public void setInteractions(){
     setButtonTarget();
@@ -739,6 +794,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     setMediumSpeed();
     setFastSpeed();
     setCustomSpeed();
+    setRaDec();
+    setAzEl();
     //setJogMode();
     //setSlewMode();
     setPadEnabler();
@@ -755,40 +812,102 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+  //---------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   //public void SetTimer(ActionListener action){
   //  this.timerUP = new 
   // }
 
   //#region timers
-  Timer timerMotors = new Timer(5000, new ActionListener() {
+
+  Timer timerConnections = new Timer(5000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-      
-      if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection){
-        labelAzOnOff.setText("Motor AZ: " + format.format(tcs.GetAzMotorInfo()));
-        labelElOnOff.setText("Motor EL: " + format.format(tcs.GetElMotorInfo()));
-      }
-      else if (tcs.xAxisConnection && tcs.tcsConnection){
-        labelAzOnOff.setText("Motor AZ: " + format.format(tcs.GetAzMotorInfo()));
-        labelElOnOff.setText("Motor EL: OFF");
-      }
-      else if (tcs.yAxisConnection && tcs.tcsConnection){
-        labelAzOnOff.setText("Motor AZ: OFF");
-        labelElOnOff.setText("Motor EL: " + format.format(tcs.GetElMotorInfo()));
-      }
-      else{
-        labelAzOnOff.setText("Motor AZ: OFF");
-        labelElOnOff.setText("Motor EL: OFF");
-      }      
+      updateAxisConnection();
     }
   });
 
+  public void updateAxisConnection(){
+    if(tcs.xAxisConnection)
+      AZconnectionState.setText("Connected");
+    else
+      AZconnectionState.setText("NOT connected");
+    if(tcs.yAxisConnection)
+      ELconnectionState.setText("Connected");
+    else
+      ELconnectionState.setText("NOT connected");
 
-  Timer timerVelocity = new Timer(3000, new ActionListener() {
+    if(tcs.domeAxisConnection)
+      DOMEconnectionState.setText("Connected");
+    else
+      DOMEconnectionState.setText("NOT connected");
+  }
+
+
+  Timer timerMotors = new Timer(2000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-      
-      if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
+      updateMotorsConnection();
+    }
+  });
+
+  public void updateMotorsConnection(){
+    if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection){
+      labelAzOnOff.setText("Motor AZ: " + format.format(tcs.GetAzMotorInfo()));
+      labelElOnOff.setText("Motor EL: " + format.format(tcs.GetElMotorInfo()));
+    }
+    else if (tcs.xAxisConnection && tcs.tcsConnection){
+      labelAzOnOff.setText("Motor AZ: " + format.format(tcs.GetAzMotorInfo()));
+      labelElOnOff.setText("Motor EL: OFFLINE");
+    }
+    else if (tcs.yAxisConnection && tcs.tcsConnection){
+      labelAzOnOff.setText("Motor AZ: OFFLINE");
+      labelElOnOff.setText("Motor EL: " + format.format(tcs.GetElMotorInfo()));
+    }
+    else{
+      labelAzOnOff.setText("Motor AZ: OFFLINE");
+      labelElOnOff.setText("Motor EL: OFFLINE");
+    }      
+  }
+
+
+  Timer timerVelocity = new Timer(5000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      updateVelocity();
+    }
+  });
+
+  public void updateVelocity(){
+    if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
         labelVelocity.setText("Commanded Vel (AZ,EL) (arcs/s): " + format.format(tcs.getcommandedvelAZ()) + " , "+ format.format(tcs.getcommandedvelEL()) );
       else if (tcs.xAxisConnection && tcs.tcsConnection)
         labelVelocity.setText("Commanded Vel (AZ,EL) (arcs/s): " + format.format(tcs.getcommandedvelAZ()) + " , 0");
@@ -796,9 +915,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
         labelVelocity.setText("Commanded Vel (AZ,EL) (arcs/s): 0 , "+ format.format(tcs.getcommandedvelEL()) );
       else
         labelVelocity.setText("Commanded Vel (AZ,EL) (arcs/s): 0 , 0 ");
-
-    }
-  });
+  }
 
   /*Timer timerVelocity2 = new Timer(2000, new ActionListener() {
     @Override
@@ -813,59 +930,82 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   Timer timerTargetRa = new Timer(3000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Update the JTextField with current time (for example)
-        labelTargetRa.setText("Target RA:    " + format.format(tcs.gettargetRA()) + "     (AZ: "+ format.format(tcs.gettargetAZ())+")");
+        updateTargetRa();
     }
   });
+
+  public void updateTargetRa(){
+    // Update the JTextField with current time (for example)
+    labelTargetRa.setText("Target RA:    " + format.format(tcs.gettargetRA()) + "     (AZ: "+ format.format(tcs.gettargetAZ())+")");
+  }
 
   Timer timerTargetDec = new Timer(3000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Update the JTextField with current time (for example)
-        labelTargetDec.setText("Target DEC:  " + format.format(tcs.gettargetDEC()) + "     (EL: "+ format.format(tcs.gettargetEL())+")");
+        updateTargetDec();
     }
   });
 
-  Timer timerCurrentPosition = new Timer(2000, new ActionListener() {
+  public void updateTargetDec(){
+    // Update the JTextField with current time (for example)
+    labelTargetDec.setText("Target DEC:  " + format.format(tcs.gettargetDEC()) + "     (EL: "+ format.format(tcs.gettargetEL())+")");
+  }
+
+  Timer timerCurrentPosition = new Timer(920, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Update the JTextField with current time (for example)
-        if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , "+ format.format(tcs.getcurrentposEL()/3600));
-        else if (tcs.xAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , 0");
-        else if (tcs.yAxisConnection && tcs.tcsConnection)
-          labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  0 , " + format.format(tcs.getcurrentposEL()/3600));
-        else
-          labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  0 , 0");
+        updateCurrentPosition();
     }
   });
 
-  Timer timerCurrentVelocity = new Timer(2000, new ActionListener() {
+  public void updateCurrentPosition(){
+    // Update the JTextField with current time (for example)
+    if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
+      //labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , "+ format.format(tcs.getcurrentposEL()/3600));
+      labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  " + format.format(tcs.GetAzTelPos()) + " , "+ format.format(tcs.GetElTelPos()));
+    else if (tcs.xAxisConnection && tcs.tcsConnection)
+      //labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  " + format.format(tcs.getcurrentposAZ()/3600) + " , 0");
+      labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  " + format.format(tcs.GetAzTelPos()) + " , 0");
+    else if (tcs.yAxisConnection && tcs.tcsConnection)
+      //labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  0 , " + format.format(tcs.getcurrentposEL()/3600));
+      labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  0 , " + format.format(tcs.GetElTelPos()));
+    else
+      labelCurrentPosition.setText("Current Tel Position (AZ,EL) (deg):  0 , 0");
+  }
+
+  Timer timerCurrentVelocity = new Timer(1000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Update the JTextField with current time (for example)
-        if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
-          CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.getactualvelAZ()) + " , "+ format.format(tcs.getactualvelEL()));
-        else if (tcs.xAxisConnection && tcs.tcsConnection)
-          CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.getactualvelAZ()) + " , 0");
-        else if (tcs.yAxisConnection && tcs.tcsConnection)
-          CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  0 , " + format.format(tcs.getactualvelEL()));
-        else
-          CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  0 , 0");
+        updateCurrentVel();
     }
   });
 
-  Timer timerCurrentDomePosition = new Timer(2000, new ActionListener() {
+  public void updateCurrentVel(){
+    // Update the JTextField with current time (for example)
+    if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
+      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.getactualvelAZ()) + " , "+ format.format(tcs.getactualvelEL()));
+    else if (tcs.xAxisConnection && tcs.tcsConnection)
+      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.getactualvelAZ()) + " , 0");
+    else if (tcs.yAxisConnection && tcs.tcsConnection)
+      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  0 , " + format.format(tcs.getactualvelEL()));
+    else
+      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  0 , 0");
+  }
+
+  Timer timerCurrentDomePosition = new Timer(1000, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Update the JTextField with current time (for example)
-        if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
-          CurrentDomePos.setText("Current Dome Position (deg):  " + format.format(tcs.getcurrentposDome()));
-        else
-          CurrentDomePos.setText("Current Dome Position (deg):  0 ");
+        updateCurrentDomePos();
     }
   });
+
+  public void updateCurrentDomePos(){
+    // Update the JTextField with current time (for example)
+    if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
+      CurrentDomePos.setText("Current Dome Position (deg):  " + format.format(tcs.getcurrentposDome()));
+    else
+      CurrentDomePos.setText("Current Dome Position (deg):  0 ");
+  }
 
   public void print(String string){
     System.out.println(string);
@@ -886,6 +1026,38 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void writeVelocity(double value){
     this.commandedVelocity = value;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //---------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   
@@ -917,10 +1089,15 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
               double yNumber = Double.parseDouble(yString);
 
               //String str = Double.toString(num);  // or String str = String.valueOf(num);
-              pos.RaDecToAzAlt(yNumber, xNumber, 0); // 
+              pos.RaDecToAzAlt(xNumber, yNumber, 0); // 
+              
 
               xString = Double.toString(pos.AZ);
               yString = Double.toString(pos.ALT);
+              System.out.println(pos.AZ);
+              System.out.println(pos.ALT);
+              print("settate Ra e Dec");
+
             }
 
             if (!xString.equals("") && !yString.equals("")){
@@ -1005,7 +1182,10 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            actionstopEL.actionPerformed(null);
+            System.out.println("Releasing button UP");
+            //actionstopEL.actionPerformed(null);
+            actionSTOP.actionPerformed(null);
+            
         }
         });
   }
@@ -1019,7 +1199,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            actionstopEL.actionPerformed(null);
+            System.out.println("Releasing button DOWN");
+            //actionstopEL.actionPerformed(null);
+            actionSTOP.actionPerformed(null);
         }
         });
   }
@@ -1033,7 +1215,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            actionstopAZ.actionPerformed(null);
+            System.out.println("Releasing button LEFT");
+            //actionstopAZ.actionPerformed(null);
+            actionSTOP.actionPerformed(null);
         }
         });
   }
@@ -1047,7 +1231,9 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            actionstopAZ.actionPerformed(null);
+            System.out.println("Releasing button RIGHT");
+            //actionstopAZ.actionPerformed(null);
+            actionSTOP.actionPerformed(null);
         }
         });
   }

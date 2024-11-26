@@ -652,6 +652,7 @@ public class ACS {
         return ACSOK;
       } else {
         System.out.println("acs...MOTOR OFF");
+        this.MOTORSTATUS[AxesNumber(ax)] = 0;
         return ErroreCode;
       }
     } else {

@@ -268,18 +268,21 @@ public class TCS {
         if (xAxisConnection) {
             AsseX.SetMotorOff(X);
             status = AsseX.CloseComm();
+            this.xAxisConnection = status;
             if (status)
                 tcsError(0, 1101);
         }
         if (yAxisConnection) {
             AsseY.SetMotorOff(X);
             status = AsseY.CloseComm();
+            this.yAxisConnection = status;
             if (status)
                 tcsError(0, 1201);
         }
         if (domeAxisConnection) {
             AsseCupola.SetMotorOff(X);
             status = AsseCupola.CloseComm();
+            this.domeAxisConnection = status;
             if (status)
                 tcsError(0, 1301);
         }
@@ -4163,13 +4166,17 @@ public class TCS {
         int infomotstatus = 0;
         if (xAxisConnection) {
             AsseX.SetMotorOn(X);
-            infomotstatus += AsseX.GetMotorOnOff(X);
+            AsseX.GetMotorStatus(X);
+            infomotstatus += AsseX.MOTORSTATUS[0]; 
+            //infomotstatus += AsseX.GetMotorOnOff(X);
             System.out.println("AZIMUTH");
             System.out.println(infomotstatus);
         }
         if (yAxisConnection){
             AsseY.SetMotorOn(X);
-            infomotstatus += AsseY.GetMotorOnOff(X)*2;
+            AsseY.GetMotorStatus(X);
+            infomotstatus += AsseY.MOTORSTATUS[0];
+            //infomotstatus += AsseY.GetMotorOnOff(X)*2;
             System.out.println("ELEVAZIONE");
             System.out.println(infomotstatus);
         }
@@ -4181,21 +4188,33 @@ public class TCS {
 
         if (xAxisConnection) {
             AsseX.SetMotorOff(X);
-            infomotstatus += AsseX.GetMotorOnOff(X);
+            AsseX.GetMotorStatus(X);
+            infomotstatus += AsseX.MOTORSTATUS[0]; 
+            //infomotstatus += AsseX.GetMotorOnOff(X);
+            System.out.println("AZIMUTH");
+            System.out.println(infomotstatus);
         }
         if (yAxisConnection) {
             AsseY.SetMotorOff(X);
-            infomotstatus += AsseY.GetMotorOnOff(X)*2;
+            AsseY.GetMotorStatus(X);
+            infomotstatus += AsseY.MOTORSTATUS[0];
+            //infomotstatus += AsseY.GetMotorOnOff(X)*2;
+            System.out.println("ELEVAZIONE");
+            System.out.println(infomotstatus);
         }
         return infomotstatus;
     }
 
     public int GetAzMotorInfo(){
-        return AsseX.GetMotorOnOff(X);
+        AsseX.GetMotorOnOff(X);
+        AsseX.GetMotorStatus(X);
+        return AsseX.MOTORSTATUS[0];
     }
 
     public int GetElMotorInfo(){
-        return AsseY.GetMotorOnOff(X);
+        AsseY.GetMotorOnOff(X);
+        AsseY.GetMotorStatus(X);
+        return AsseY.MOTORSTATUS[0];
     }
 
     // FUNZIONI COMPLESSE DA FARE
@@ -4348,6 +4367,8 @@ public class TCS {
 
     public void Trajectory() {
         /// *
+        print("_____________________________________");
+        print("_____________________________________");
         TrajectoryManager tm = new TrajectoryManager();
         String BASE_DIR = "/home/coloti/coloti-tcs/comm/src/main/java/coloti/tcs/trajectory/";
         String tpointFile = BASE_DIR + "/config/tpoint/astri1-tp.json";
@@ -4390,7 +4411,8 @@ public class TCS {
         this.tf.fit(5); // posso provare polinomi diversi
 
         UpdateInfoTarget(true);
-
+        print("_____________________________________");
+        print("_____________________________________");
         // TimeUtil.getCurrentJuliandDay()
 
         // */
@@ -4705,19 +4727,40 @@ public class TCS {
          * }
          */
 
-        final long ZeroX = this.PZ.ZeroX;
-        final long ZeroY = this.PZ.ZeroY; // non sono assegnati, vengono dal file?
+        final long ZeroX = 0; //this.PZ.ZeroX;
+        final long ZeroY = 0; //this.PZ.ZeroY; // non sono assegnati, vengono dal file?
 
-        ValoX += (long) (ZeroX * 3600 * AsseX.CONVFACTOR[0] + 0.5 - 30 * AsseX.CONVFACTOR[0]);
-        AsseX.CommandArray("AVSE", 8, (int) ValoX);
-        ValoX = AsseX.VALUECR;
-        tcsError(AsseX.ExecProg("HOMEX"), 1192);
+        if (xAxisConnection){
+            ValoX += (long) (ZeroX * 3600 * AsseX.CONVFACTOR[0] + 0.5 - 30 * AsseX.CONVFACTOR[0]);
+            System.out.println("valo x: ");
+            System.out.println(ValoX);
+            AsseX.CommandArray("AVSE", 8, (int) ValoX);        
+            tcsError(AsseX.ExecProg("HOMEX"), 1192);
+        }
 
-        ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
-        AsseY.CommandArray("AVSE", 8, (int) ValoY);
-        ValoY = AsseY.VALUECR;
-        tcsError(AsseY.ExecProg("HOMEX"),1291);
+        if (yAxisConnection){
+            ValoY += (long)(ZeroY*3600*AsseY.CONVFACTOR[0]-60.*AsseY.CONVFACTOR[0]+0.5);
+            System.out.println("valo y: ");
+            System.out.println(ValoY);
+            AsseY.CommandArray("AVSE", 8, (int) ValoY);        
+            tcsError(AsseY.ExecProg("HOMEX"),1291);
+        }
     }
+
+    /*
+
+    ValoX = AsseX.VALUECR;
+    ValoY = AsseY.VALUECR;
+
+
+     * ValoX+=(long)(ZeroX*3600*AsseX.CONVFACTOR[X]+0.5-30*AsseX.CONVFACTOR[X]);
+		AsseX.Comando_Array("AVSE",8,&ValoX);
+		AsseX.ExecProg("HOMEX");
+
+		ValoY+=(long)(ZeroY*3600*AsseY.CONVFACTOR[X]-60.*AsseY.CONVFACTOR[X]+0.5);
+		AsseY.Comando_Array("AVSE",8,&ValoY);
+		AsseY.ExecProg("HOMEX");
+     */
 
     public void SetZeroFromFile() {
         final int valx = 1, valy = 1, valc = 1;
