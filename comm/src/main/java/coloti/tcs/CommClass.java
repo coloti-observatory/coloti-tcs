@@ -257,6 +257,27 @@ public class CommClass{
         int value;
         //System.out.println("Read int results from CommClass: ");
         try {           
+            TimeUnit.MILLISECONDS.sleep(100);
+            while((inputStream.available())>=1){
+                    value = (inputStream.readNBytes(1)[0] & (0XFF));
+                    answer[i] = value; 
+                    i+=1;                
+            }
+            return answer;
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
+        }
+        return new int[0]; 
+    }
+
+    public int[] ReadMessageIntOriginal(){
+        InputStream inputStream = new BufferedInputStream(port.getInputStream()); //  BufferedInputStream
+        int[] answer = new int[64];
+        int i = 0;
+        int value;
+        //System.out.println("Read int results from CommClass: ");
+        try {           
             while((inputStream.available())>=1){
                 try {
                     TimeUnit.MILLISECONDS.sleep(100);

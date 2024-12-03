@@ -983,11 +983,11 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   public void updateCurrentVel(){
     // Update the JTextField with current time (for example)
     if (tcs.xAxisConnection && tcs.yAxisConnection && tcs.tcsConnection)
-      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.getactualvelAZ()) + " , "+ format.format(tcs.getactualvelEL()));
+      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.GetAzActVel()) + " , "+ format.format(tcs.GetElActVel()));
     else if (tcs.xAxisConnection && tcs.tcsConnection)
-      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.getactualvelAZ()) + " , 0");
+      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  " + format.format(tcs.GetAzActVel()) + " , 0");
     else if (tcs.yAxisConnection && tcs.tcsConnection)
-      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  0 , " + format.format(tcs.getactualvelEL()));
+      CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  0 , " + format.format(tcs.GetElActVel()));
     else
       CurrentVelocity.setText("Current Tel Velocity (AZ,EL) (arcs/s):  0 , 0");
   }

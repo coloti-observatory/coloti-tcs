@@ -1757,7 +1757,7 @@ public class ACS {
      */
 
     /// *
-    ACS acs = new ACS("/dev/ttyUSB1", 1);
+    ACS acs = new ACS("/dev/ttyUSB0", 1);
 
     acs.PRINT = true;
 
@@ -1844,28 +1844,28 @@ public class ACS {
     acs.VALUECR= 0L;
     command = acs.sbld("R%sGA", "X");
     acs.CommandReport(command, false);
-    System.err.println(acs.VALUECR);
+    System.out.println(acs.VALUECR);
 
     acs.Sleep(1000);
 
     acs.VALUECR= 0L;
     command = acs.sbld("R%sTO", "X");
     acs.CommandReport(command, false);
-    System.err.println(acs.VALUECR);
+    System.out.println(acs.VALUECR);
     acs.Sleep(1000);
 
 
     acs.VALUECR= 0L;
     command = acs.sbld("R%sTL", "X");
     acs.CommandReport(command, false);
-    System.err.println(acs.VALUECR);
+    System.out.println(acs.VALUECR);
     acs.Sleep(1000);
 
 
     acs.VALUECR= 0L;
     command = acs.sbld("R%sGF", "X");
     acs.CommandReport(command, false);
-    System.err.println(acs.VALUECR);
+    System.out.println(acs.VALUECR);
     acs.Sleep(1000);
 
 
@@ -1917,7 +1917,20 @@ public class ACS {
 
     // acs.ExecProg("CHIUDCUP");
 
-    acs.Sleep(5000);
+    acs.Sleep(1000);
+
+    int loopcheck = 0;
+    while(loopcheck<100){
+      acs.Sleep(100);
+
+      acs.GetMotPos("X");
+      System.out.println(acs.PositionAx[0]);
+
+      acs.GetActualMotVel("X");
+      System.out.println(acs.ActualVelAx[0]);
+
+      loopcheck += 1;
+    }
 
     acs.CloseComm();
 
