@@ -439,6 +439,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.add(mediumButton);
     this.add(fastButton);
     this.add(customVelButton);
+    fastButton.doClick();
 
 
 
@@ -450,8 +451,8 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
 
     // Group the radio buttons
     ButtonGroup group2 = new ButtonGroup();
-    group.add(radecButton);
-    group.add(azelButton);
+    group2.add(radecButton);
+    group2.add(azelButton);
 
     this.add(radecButton);
     this.add(azelButton);
