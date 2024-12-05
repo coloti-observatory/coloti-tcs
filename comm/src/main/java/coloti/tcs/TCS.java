@@ -207,6 +207,7 @@ public class TCS {
     }
 
     public void checkParamsEl(){
+        SetElSlewAcceleration(1250);
         System.out.println("EL check params... ");
         System.out.println("LA linear acceleration: ");
         System.out.println(GetElCommandedAcc());
@@ -244,6 +245,7 @@ public class TCS {
         // ELEVATION
         if (yAxisConnection) {
             this.yAxisConnection = AsseY.SetSimpleStart(0);
+            checkParamsEl();
             Sleep(500);
             tcsError(AsseY.InitAxes(), 1200);
 

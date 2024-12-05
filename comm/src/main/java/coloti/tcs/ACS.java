@@ -1761,7 +1761,7 @@ public class ACS {
      */
 
     /// *
-    ACS acs = new ACS("/dev/ttyUSB0", 1);
+    ACS acs = new ACS("/dev/ttyUSB1", 1);
 
     acs.PRINT = true;
 
@@ -1885,6 +1885,16 @@ public class ACS {
 
     acs.SetMotorOn("X");
 
+    acs.Sleep(1000);
+
+
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sMO", "X");
+    acs.CommandReport(command, true);
+    System.out.println("Motor Status: "+acs.VALUECR);
+    acs.Sleep(1000);
+
+
     acs.VALUECR= 0L;
     command = acs.sbld("R%sMM", "X");
     acs.CommandReport(command, true);
@@ -1906,9 +1916,14 @@ public class ACS {
     acs.GetMotPos("X");
     System.out.println(acs.PositionAx[0]);
 
-    acs.Move("X", acs.PositionAx[0]-20, 500);
+    //acs.Move("X", acs.PositionAx[0]-20, 500);
 
     
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sMO", "X");
+    acs.CommandReport(command, true);
+    System.out.println("Motor Status: "+acs.VALUECR);
+    acs.Sleep(1000);
 
     /*
     command = acs.sbld("S%sGA", "X");
@@ -1957,9 +1972,9 @@ public class ACS {
 
     // acs.ExecProg("CHIUDCUP");
 
-
+    /* LOOP CHECK POSITION
     int loopcheck = 0;
-    while(loopcheck<20){
+    while(loopcheck<10){
       acs.Sleep(500);
 
       acs.GetMotPos("X");
@@ -1970,13 +1985,11 @@ public class ACS {
 
       loopcheck += 1;
     }
+    */
 
+    //sacs.StopMove("X");
 
-    acs.Sleep(20000);
-
-    acs.StopMove("X");
-
-    acs.Sleep(10000);
+    acs.Sleep(3000);
 
     acs.CloseComm();
 
