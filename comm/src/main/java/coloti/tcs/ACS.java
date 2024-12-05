@@ -541,14 +541,14 @@ public class ACS {
   public int SetAbsTargPos(String ax, double pos) { // VERIFICATO
     int Value = 0;
 
-    if (PRINT) {
+    if (true) {
       System.out.println("Check set abs targ function");
       System.out.println("Position: " + pos);
     }
 
     Value = (int) Math.round(CONVFACTOR[AxesNumber(ax)] * pos);
 
-    if (PRINT) {
+    if (true) {
       System.out.println("Conversion Factor: " + CONVFACTOR[AxesNumber(ax)]);
       System.out.println("Resulting Value: " + Value);
     }
@@ -893,7 +893,7 @@ public class ACS {
     int axI = AxesNumber(ax);
     byte[] command = sbld("R%sMO", ax);
     int ErrorCode = CommandReport(command, PRINT);
-    this.MOTORSTATUS[axI] = (int) this.VALUECR;
+    this.MOTORSTATUS[axI] = (int) this.VALUECR*(-1);
     // System.out.println(MOTIONMODE[axI]);
     return (int) VALUECR;
   }
@@ -998,6 +998,8 @@ public class ACS {
     byte[] command = sbld("R%sLV", ax);
     int Err = CommandReport(command, PRINT);
     this.VelAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
+    //System.out.println("true value Vel: "+VALUECR);
+    //System.out.println("Conversion factor: "+CONVFACTOR[AxesNumber(ax)]);
     if (PRINT)
       System.out.println(VelAx[AxesNumber(ax)]);
     return Err;
@@ -1008,6 +1010,8 @@ public class ACS {
     byte[] command = sbld("R%sLA", ax);
     int Err = CommandReport(command, false);
     this.AccAx[AxesNumber(ax)] = this.VALUECR / this.CONVFACTOR[AxesNumber(ax)];
+    //System.out.println("true value Vel: "+VALUECR);
+    //System.out.println("Conversion factor: "+CONVFACTOR[AxesNumber(ax)]);
     return Err;
   }
 
@@ -1765,6 +1769,8 @@ public class ACS {
 
     acs.InitAxes();
 
+    acs.CONVFACTOR[0] = 80;
+
     acs.SetMotorOn("X");
     acs.Sleep(1000);
 
@@ -1844,31 +1850,65 @@ public class ACS {
     acs.VALUECR= 0L;
     command = acs.sbld("R%sGA", "X");
     acs.CommandReport(command, false);
-    System.out.println(acs.VALUECR);
+    System.out.println("GA: "+acs.VALUECR);
 
     acs.Sleep(1000);
 
     acs.VALUECR= 0L;
     command = acs.sbld("R%sTO", "X");
     acs.CommandReport(command, false);
-    System.out.println(acs.VALUECR);
+    System.out.println("TO: "+acs.VALUECR);
     acs.Sleep(1000);
 
 
     acs.VALUECR= 0L;
     command = acs.sbld("R%sTL", "X");
     acs.CommandReport(command, false);
-    System.out.println(acs.VALUECR);
+    System.out.println("TL: "+acs.VALUECR);
     acs.Sleep(1000);
 
 
     acs.VALUECR= 0L;
     command = acs.sbld("R%sGF", "X");
     acs.CommandReport(command, false);
-    System.out.println(acs.VALUECR);
+    System.out.println("GF: "+acs.VALUECR);
     acs.Sleep(1000);
 
 
+
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sMO", "X");
+    acs.CommandReport(command, true);
+    System.out.println("Motor Status: "+acs.VALUECR);
+    acs.Sleep(1000);
+
+
+    acs.SetMotorOn("X");
+
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sMM", "X");
+    acs.CommandReport(command, true);
+    System.out.println("Motion Mode: "+acs.VALUECR);
+    acs.Sleep(1000);
+
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sLV", "X");
+    acs.CommandReport(command, true);
+    System.out.println("Velocity: "+acs.VALUECR);
+    acs.Sleep(1000);
+
+    acs.VALUECR= 0L;
+    command = acs.sbld("R%sLA", "X");
+    acs.CommandReport(command, true);
+    System.out.println("Acceleration: "+acs.VALUECR);
+    acs.Sleep(1000);
+
+    acs.GetMotPos("X");
+    System.out.println(acs.PositionAx[0]);
+
+    acs.Move("X", acs.PositionAx[0]-20, 500);
+
+    
 
     /*
     command = acs.sbld("S%sGA", "X");
@@ -1917,11 +1957,10 @@ public class ACS {
 
     // acs.ExecProg("CHIUDCUP");
 
-    acs.Sleep(1000);
 
     int loopcheck = 0;
-    while(loopcheck<100){
-      acs.Sleep(100);
+    while(loopcheck<20){
+      acs.Sleep(500);
 
       acs.GetMotPos("X");
       System.out.println(acs.PositionAx[0]);
@@ -1931,6 +1970,13 @@ public class ACS {
 
       loopcheck += 1;
     }
+
+
+    acs.Sleep(20000);
+
+    acs.StopMove("X");
+
+    acs.Sleep(10000);
 
     acs.CloseComm();
 

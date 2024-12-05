@@ -195,6 +195,29 @@ public class TCS {
         }
     }
 
+
+
+    public void checkParamsAz(){
+        System.out.println("AZ check params... ");
+        System.out.println("LA linear acceleration: ");
+        System.out.println(GetAzCommandedAcc());
+
+        System.out.println("LV linear velocity: ");
+        System.out.println(GetAzCommandedVel());
+    }
+
+    public void checkParamsEl(){
+        System.out.println("EL check params... ");
+        System.out.println("LA linear acceleration: ");
+        System.out.println(GetElCommandedAcc());
+
+        System.out.println("LV linear velocity: ");
+        System.out.println(GetElCommandedVel());
+    }
+
+
+
+
     public final boolean connect() {
         // AZIMUTH
         if (xAxisConnection) {
@@ -214,6 +237,7 @@ public class TCS {
             this.AsseX.SetMaxMinVel(X, AsseX.MaxVel[0], AsseX.MinVel[0]); // 0.5*3600
             this.AsseX.SetMotMaxMinPos(X, MotAZ.PosizioneLimiteSup*3600, MotAZ.PosizioneLimiteInf*3600);
             AsseX.SetMotorOn(X);
+            checkParamsAz();
             // sseX.SetAxisZeroPos(X, 0);
         }
 
@@ -235,6 +259,7 @@ public class TCS {
             this.AsseY.SetMaxMinVel(X, AsseY.MaxVel[0], AsseY.MinVel[0]); // 0.25*3600
             this.AsseY.SetMotMaxMinPos(X, MotEL.PosizioneLimiteSup*3600, MotEL.PosizioneLimiteSup*3600);
             AsseY.SetMotorOn(X);
+            checkParamsEl();
             // AsseY.SetAxisZeroPos(X, 0);
         }
 
@@ -1003,7 +1028,7 @@ public class TCS {
 
     public void SetAzTelPosition(final double value) { // abs target
         if (xAxisConnection) {
-            tcsError(AsseX.SetAbsTargPos(X, value), 1160);
+            tcsError(AsseX.SetAbsTargPos(X, value*3600), 1160);
             tcsError(AsseX.GetAbsTargPos(X), 1154);
             this.TEL.TargetAZ = AsseX.AbsTargPosAx[0];
         }
@@ -1035,7 +1060,7 @@ public class TCS {
 
     public void SetElTelPosition(final double value) { // abs target
         if (yAxisConnection) {
-            tcsError(AsseY.SetAbsTargPos(X, value), 1260);
+            tcsError(AsseY.SetAbsTargPos(X, value*3600), 1260);
             tcsError(AsseY.GetAbsTargPos(X), 1254);
             this.TEL.TargetEL = AsseY.AbsTargPosAx[0];
         }
@@ -1309,6 +1334,7 @@ public class TCS {
 
     public void SetTargetAz(final double value) {
         this.TEL.TargetAZ = value;
+
     }
 
     public void SetTargetEl(final double value) {
@@ -4166,19 +4192,21 @@ public class TCS {
         int infomotstatus = 0;
         if (xAxisConnection) {
             AsseX.SetMotorOn(X);
-            AsseX.GetMotorStatus(X);
+            Sleep(200);
+            AsseX.GetMotorOnOff(X);
             infomotstatus += AsseX.MOTORSTATUS[0]; 
             //infomotstatus += AsseX.GetMotorOnOff(X);
             System.out.println("AZIMUTH");
-            System.out.println(infomotstatus);
+            System.out.println(AsseX.MOTORSTATUS[0]);
         }
         if (yAxisConnection){
             AsseY.SetMotorOn(X);
-            AsseY.GetMotorStatus(X);
+            Sleep(200);
+            AsseY.GetMotorOnOff(X);
             infomotstatus += AsseY.MOTORSTATUS[0];
             //infomotstatus += AsseY.GetMotorOnOff(X)*2;
             System.out.println("ELEVAZIONE");
-            System.out.println(infomotstatus);
+            System.out.println(AsseY.MOTORSTATUS[0]);
         }
         return infomotstatus;
     }
@@ -4188,32 +4216,34 @@ public class TCS {
 
         if (xAxisConnection) {
             AsseX.SetMotorOff(X);
-            AsseX.GetMotorStatus(X);
+            Sleep(200);
+            AsseX.GetMotorOnOff(X);
             infomotstatus += AsseX.MOTORSTATUS[0]; 
             //infomotstatus += AsseX.GetMotorOnOff(X);
             System.out.println("AZIMUTH");
-            System.out.println(infomotstatus);
+            System.out.println(AsseX.MOTORSTATUS[0]);
         }
         if (yAxisConnection) {
             AsseY.SetMotorOff(X);
-            AsseY.GetMotorStatus(X);
+            Sleep(200);
+            AsseY.GetMotorOnOff(X);
             infomotstatus += AsseY.MOTORSTATUS[0];
             //infomotstatus += AsseY.GetMotorOnOff(X)*2;
             System.out.println("ELEVAZIONE");
-            System.out.println(infomotstatus);
+            System.out.println(AsseY.MOTORSTATUS[0]);
         }
         return infomotstatus;
     }
 
     public int GetAzMotorInfo(){
         AsseX.GetMotorOnOff(X);
-        AsseX.GetMotorStatus(X);
+        //AsseX.GetMotorStatus(X);
         return AsseX.MOTORSTATUS[0];
     }
 
     public int GetElMotorInfo(){
         AsseY.GetMotorOnOff(X);
-        AsseY.GetMotorStatus(X);
+        //sAsseY.GetMotorStatus(X);
         return AsseY.MOTORSTATUS[0];
     }
 

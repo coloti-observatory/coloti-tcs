@@ -364,11 +364,25 @@ public class CommClass{
 
             //com.Write(comando2); 
 
-            byte[] comando3 = new byte[1];
-            comando3[0] = (byte) '\r';
+            byte[] comando3 = new byte[5];
+            comando3[0] = (byte) 'R';
+            comando3[1] = (byte) 'X';
+            comando3[2] = (byte) 'L';
+            comando3[3] = (byte) 'A';
+            comando3[4] = (byte) '\r';
+
+
+            com.Write(comando0);
+            System.out.println(com.ReadMessage());
+
+            com.Write(comando1); 
+            System.out.println(com.ReadMessage());
+
+            com.Write(comando2); 
+            System.out.println(com.ReadMessage());
 
             com.Write(comando3); 
-            System.out.println("okay");
+            System.out.println(com.ReadMessage());
 
             TimeUnit.MILLISECONDS.sleep(200);
             //String risposta = com.ReadMessage();
