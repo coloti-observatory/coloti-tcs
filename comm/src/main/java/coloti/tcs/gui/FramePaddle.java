@@ -33,6 +33,7 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JButton buttonLEFT;
   JButton buttonRIGHT;
   JButton buttonSTOP;
+  JButton buttonSETZERO;
   JButton buttonDomeEAST;
   JButton buttonDomeWEST;
   JButton buttonStopDome;
@@ -63,6 +64,12 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
   JLabel labelTargetRa;
   JLabel labelTargetDec;
   JLabel labelCurrentPosition;
+
+  JLabel labelTemperature;
+  JLabel labelBarometer;
+  JLabel labelHumidity;
+  JLabel labelRainRate;
+  JLabel labelForecast;
 
   JTextField textTarget;
   JTextField textSetVel;
@@ -302,6 +309,24 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.add(CurrentVelocity);
     this.timerCurrentVelocity.start();
 
+    labelTemperature= new JLabel("Temperature: 0°C");
+    labelTemperature.setBounds(80, 640, 500, 30);
+    this.add(labelTemperature);
+
+    labelBarometer= new JLabel("Barometer: 1000 mb");
+    labelBarometer.setBounds(80, 680, 500, 30);
+    this.add(labelBarometer);
+
+    DecimalFormat decFormat = new DecimalFormat("#%");
+
+    labelHumidity= new JLabel("Humidity: "+decFormat.format(0));
+    labelHumidity.setBounds(80, 720, 500, 30);
+    this.add(labelHumidity);
+
+    labelForecast = new JLabel("12h forecast: Mostly Clear");
+    labelForecast.setBounds(80, 760, 500, 30);
+    this.add(labelForecast);
+
 
     //#region DOME
 
@@ -347,6 +372,13 @@ public class FramePaddle extends JDialog{ //  implements KeyListener  implements
     this.buttonSTOP.setBounds(800, 740, 120, 60);
     this.buttonSTOP.setBackground(Color.RED);
     this.add(buttonSTOP);
+
+
+    this.buttonSETZERO = new JButton("SET ZERO");
+    //buttonSTOP.setBounds(380, 400, 80, 30);
+    this.buttonSETZERO.setBounds(1260, 760, 140, 40);
+    this.buttonSETZERO.setBackground(Color.GRAY);
+    this.add(buttonSETZERO);
 
 
 
