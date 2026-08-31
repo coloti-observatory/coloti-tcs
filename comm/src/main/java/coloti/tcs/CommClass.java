@@ -197,7 +197,6 @@ public class CommClass{
             //System.out.println("Av: ");
             //System.out.println(Available);
 
-
             answer = new byte[Available];
             answer = inputStream.readNBytes(Available);
             //System.out.println("length:");

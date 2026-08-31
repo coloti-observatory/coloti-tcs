@@ -26,6 +26,7 @@ public class WeatherData {
 
     public WeatherData(String PortName) {
         this.communication = new CommClass(PortName);
+        //this.connected = communication.Open(19200);
         //System.out.println("Porta identificata");
         //communication.Open(19200);
         //System.out.println("Comunicazione Aperta");
@@ -109,6 +110,7 @@ public class WeatherData {
         Object object[] = new Object[15]; 
 
         byte[] answer = dataFromWeatherStation("LOOP 1\r");
+        //byte[] answer = dataFromWeatherStation("LOOP\r");
         
         object[0] = "Weather Data";
         object[1] = getInsideTemperature(answer); //double
@@ -360,13 +362,6 @@ public class WeatherData {
         return ControlData;
     }
 
-
-
-
-
-
-
-
     public void printData(Object results[]){
         //System.out.println(toString());
         System.out.println("Inside Temperature (Celsius): ");
@@ -456,8 +451,6 @@ public class WeatherData {
         WeatherData WD = new WeatherData();
         WD.OpenCommunications();
         WD.trytest();
-
-
     }
 
 }
